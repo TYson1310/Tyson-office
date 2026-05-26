@@ -1,0 +1,20 @@
+export const BRAND = {
+  name: "TYson Office",
+  mark: "TY",
+  platformLabel: "Store ERP",
+  authSubtitle: "Operations system for every store",
+  controlRoomLabel: "TYson Control Room",
+  defaultBusinessProfile: {
+    businessName: "TYson Office",
+    businessEmail: "admin@tysonoffice.com",
+    businessPhone: "+1 (555) 014-8796",
+    currency: "USD",
+    timezone: "America/New_York",
+    addressLine1: "125 TYson Market Ave",
+    addressLine2: "Suite 14",
+    city: "Brooklyn",
+    stateRegion: "NY",
+    postalCode: "11201",
+    country: "United States",
+  },
+} as const;

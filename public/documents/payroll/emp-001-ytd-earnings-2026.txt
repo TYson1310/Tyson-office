@@ -1,0 +1,20 @@
+Harbor Mart ERP
+Year-to-Date Earnings Summary
+
+Employee: Sarah Johnson
+Employee Number: HM-2048
+Reporting Window: Jan 1 - Apr 11, 2026
+
+Gross Earnings YTD: $18,000
+Net Earnings YTD: $15,536
+Total Deductions YTD: $2,464
+Total Bonus YTD: $120
+Total Overtime Logged: 11.5 hours
+
+Recent Paid Cycles
+- Feb 27, 2026 Gross: $4,400
+- Mar 13, 2026 Gross: $4,470
+- Mar 27, 2026 Gross: $4,510
+- Apr 11, 2026 Gross: $4,620
+
+This summary is provided as a downloadable sample document for the employee payroll portal.
