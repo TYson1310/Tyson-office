@@ -1,5 +1,8 @@
 import type { ScratchCardAccess } from "@/lib/scratch-cards/api";
-import { getTodayIsoDateInTimeZone } from "@/lib/date-time";
+import {
+  getIsoDateKeyInTimeZone,
+  getTodayIsoDateInTimeZone,
+} from "@/lib/date-time";
 import {
   loadScratchEodAuditScreenData,
   loadScratchAuditScreenData,
@@ -353,7 +356,7 @@ export async function loadLotteryEodReconciliationData(input?: {
     source: "database",
     businessDate,
     bins: auditData.bins,
-    isReconciled: Boolean(existingReconciliation),
+    isReconciled: Boolean(terminalReportResult.data),
     managerNotes: existingReconciliation?.manager_notes ?? "",
     onlineTotalPayout: normalizeStoredMoney(
       terminalReportResult.data?.draw_payouts,
@@ -500,6 +503,8 @@ async function loadInventoryPack(
 async function loadActiveInventoryPackForBin(
   supabase: SupabaseServerClient,
   storeKey: string,
+  reportDate: string,
+  timeZone: string,
   binNumber: number,
 ) {
   const { data, error } = await supabase
@@ -512,6 +517,16 @@ async function loadActiveInventoryPackForBin(
 
   if (error) {
     throwDatabaseError("Failed to load active scratch pack", error);
+  }
+
+  if (!data?.date_activated) {
+    return data;
+  }
+
+  const activatedDate = getIsoDateKeyInTimeZone(data.date_activated, timeZone);
+
+  if (activatedDate && activatedDate > reportDate) {
+    return null;
   }
 
   return data;
@@ -676,6 +691,8 @@ async function assertBinEntryFinalTicketBounds(input: {
     pack ??= await loadActiveInventoryPackForBin(
       access.supabase,
       access.activeStoreKey,
+      reportDate,
+      access.activeStoreTimeZone,
       entry.bin_number,
     );
     pack ??= await loadHistoricalInventoryPackForBin(
@@ -693,7 +710,9 @@ async function assertBinEntryFinalTicketBounds(input: {
     }
 
     const game = await loadGameCatalogRow(access.supabase, pack.game_id);
-    const ticketCount = Number(pack.pack_ticket_count ?? game.ticket_count ?? 0);
+    const ticketCount = Number(
+      pack.pack_ticket_count ?? game.ticket_count ?? 0,
+    );
 
     if (!Number.isFinite(ticketCount) || ticketCount <= 0) {
       continue;
@@ -1166,6 +1185,8 @@ async function saveLotteryEodWithClientFallback(input: {
     pack ??= await loadActiveInventoryPackForBin(
       access.supabase,
       access.activeStoreKey,
+      reportDate,
+      access.activeStoreTimeZone,
       entry.bin_number,
     );
     pack ??= await loadHistoricalInventoryPackForBin(
@@ -1332,10 +1353,8 @@ export async function submitLotteryEodReconciliation(
   access: ScratchCardAccess,
   payload: LotteryEodReconciliationPayload,
 ) {
-  const reportDate = normalizeDate(
-    payload.date,
-    getTodayIsoDate(access.activeStoreTimeZone),
-  );
+  const todayDate = getTodayIsoDate(access.activeStoreTimeZone);
+  const reportDate = normalizeDate(payload.date, todayDate);
   assertAdminBackdateAccess(access, reportDate);
   await assertLotteryEodCanBeSubmitted(access, reportDate);
   const binEntries = normalizeBinEntries(payload.binEntries);
@@ -1373,6 +1392,24 @@ export async function submitLotteryEodReconciliation(
   );
   const tillCash = normalizeMoney(payload.tillCash, "Lottery cash counted");
   const managerNotes = normalizeString(payload.managerNotes);
+
+  if (reportDate !== todayDate) {
+    return saveLotteryEodWithClientFallback({
+      access,
+      reportDate,
+      binEntries,
+      terminalSales,
+      ticketCancels,
+      lotteryBondFee,
+      onlineTotalPayout,
+      scratchCardTotalPayout,
+      cashingBonus,
+      startingFloat,
+      tillCash,
+      managerNotes,
+    });
+  }
+
   const rpcPayload = {
     bin_entries: binEntries,
     manager_notes: managerNotes || null,

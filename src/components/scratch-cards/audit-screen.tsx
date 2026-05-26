@@ -312,21 +312,63 @@ function getTicketProgress(bin: ScratchAuditBin) {
 }
 
 function getRemainingTicketCount(bin: ScratchAuditBin) {
-  const ticketCount = getPackTicketCount(bin);
+  return getRemainingTicketCountFromStart(bin, bin.lastTicketNumber);
+}
 
-  if (!bin.inventoryId || !ticketCount) {
+function normalizeTicketInput(value: string) {
+  return value.replace(/\D/g, "").slice(0, 3);
+}
+
+function padTicketInput(value: string) {
+  const normalized = normalizeTicketInput(value);
+
+  if (!normalized) {
     return null;
   }
 
-  if (isSoldOut(bin)) {
+  return String(Number(normalized)).padStart(3, "0");
+}
+
+function getRemainingTicketCountFromStart(
+  bin: ScratchAuditBin,
+  startTicketNumber: string | null,
+) {
+  const ticketCount = getPackTicketCount(bin);
+
+  if (!bin.inventoryId || !ticketCount || !startTicketNumber) {
+    return null;
+  }
+
+  const startTicketValue = Number(startTicketNumber);
+
+  if (
+    !Number.isFinite(startTicketValue) ||
+    startTicketValue >= ticketCount - 1
+  ) {
     return 0;
   }
 
-  return Math.max(0, ticketCount - Number(bin.lastTicketNumber));
+  return Math.max(0, ticketCount - startTicketValue);
 }
 
 function getRemainingTicketValue(bin: ScratchAuditBin) {
   const remainingTickets = getRemainingTicketCount(bin);
+
+  if (remainingTickets === null) {
+    return null;
+  }
+
+  return remainingTickets * bin.ticketPrice;
+}
+
+function getRemainingTicketValueFromStart(
+  bin: ScratchAuditBin,
+  startTicketNumber: string | null,
+) {
+  const remainingTickets = getRemainingTicketCountFromStart(
+    bin,
+    startTicketNumber,
+  );
 
   if (remainingTickets === null) {
     return null;
@@ -479,6 +521,7 @@ export function ScratchCardBinManager({
   const [manualPackId, setManualPackId] = useState("");
   const [moveTargetBinNumber, setMoveTargetBinNumber] = useState("");
   const [scannedPackBarcode, setScannedPackBarcode] = useState("");
+  const [soldOutStartTicketNumber, setSoldOutStartTicketNumber] = useState("");
   const [loadScannerMessage, setLoadScannerMessage] =
     useState("Start scanner.");
   const [loadScannerState, setLoadScannerState] = useState<
@@ -493,6 +536,18 @@ export function ScratchCardBinManager({
     () => bins.find((bin) => bin.binNumber === selectedBinNumber) ?? null,
     [bins, selectedBinNumber],
   );
+  const selectedBinInventoryId = selectedBin?.inventoryId ?? null;
+  const selectedBinLastTicketNumber = selectedBin?.lastTicketNumber ?? "";
+  const normalizedSoldOutStartTicketNumber = padTicketInput(
+    soldOutStartTicketNumber,
+  );
+  const soldOutRemainingValue =
+    selectedBin && normalizedSoldOutStartTicketNumber
+      ? getRemainingTicketValueFromStart(
+          selectedBin,
+          normalizedSoldOutStartTicketNumber,
+        )
+      : null;
   const scannedPack = useMemo(
     () => parseScannedLoadBarcode(scannedPackBarcode),
     [scannedPackBarcode],
@@ -550,6 +605,11 @@ export function ScratchCardBinManager({
         : null,
     [bins, selectedMoveTargetBinNumber],
   );
+
+  useEffect(() => {
+    setSoldOutStartTicketNumber(selectedBinLastTicketNumber);
+  }, [selectedBinInventoryId, selectedBinLastTicketNumber]);
+
   const activeBinCount = bins.filter((bin) => bin.inventoryId).length;
   const soldOutCount = bins.filter((bin) => isSoldOut(bin)).length;
   const openBinCount = Math.max(binCount - activeBinCount, 0);
@@ -994,9 +1054,21 @@ export function ScratchCardBinManager({
       return;
     }
 
-    const remainingValue = getRemainingTicketValue(selectedBin) ?? 0;
+    if (!normalizedSoldOutStartTicketNumber) {
+      notifyError("Enter a valid start ticket number.");
+      return;
+    }
+
+    if (
+      Number(normalizedSoldOutStartTicketNumber) >= Number(finalTicketNumber)
+    ) {
+      notifyError("Start ticket number must be lower than the final ticket.");
+      return;
+    }
+
+    const remainingValue = soldOutRemainingValue ?? 0;
     const confirmed = window.confirm(
-      `Mark pack ${selectedBin.packNumber ?? ""} sold out at ticket ${finalTicketNumber}? This records ${formatCurrency(
+      `Mark pack ${selectedBin.packNumber ?? ""} sold out from ticket ${normalizedSoldOutStartTicketNumber} to ${finalTicketNumber}? This records ${formatCurrency(
         remainingValue,
       )} in scratch sales.`,
     );
@@ -1015,6 +1087,7 @@ export function ScratchCardBinManager({
         },
         body: JSON.stringify({
           binNumber: selectedBin.binNumber,
+          startTicketNumber: normalizedSoldOutStartTicketNumber,
         }),
       });
       const payload = await response.json();
@@ -1355,7 +1428,28 @@ export function ScratchCardBinManager({
                             Mark pack sold out
                           </h3>
                         </div>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                          <label className="min-w-0 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
+                            <span className="block text-[10px] font-semibold uppercase text-slate-500">
+                              Start ticket
+                            </span>
+                            <input
+                              value={soldOutStartTicketNumber}
+                              onBlur={() =>
+                                setSoldOutStartTicketNumber(
+                                  normalizedSoldOutStartTicketNumber ?? "",
+                                )
+                              }
+                              onChange={(event) =>
+                                setSoldOutStartTicketNumber(
+                                  normalizeTicketInput(event.target.value),
+                                )
+                              }
+                              inputMode="numeric"
+                              maxLength={3}
+                              className="mt-1 w-full bg-transparent font-mono text-sm font-semibold text-slate-950 outline-none"
+                            />
+                          </label>
                           <DetailItem
                             label="Final ticket"
                             value={getFinalTicketNumber(selectedBin)}
@@ -1363,9 +1457,7 @@ export function ScratchCardBinManager({
                           />
                           <DetailItem
                             label="Remaining sales"
-                            value={formatCurrency(
-                              getRemainingTicketValue(selectedBin) ?? 0,
-                            )}
+                            value={formatCurrency(soldOutRemainingValue ?? 0)}
                           />
                         </div>
                         <button
@@ -1373,7 +1465,10 @@ export function ScratchCardBinManager({
                           disabled={
                             source !== "database" ||
                             actionState.type === "soldOut" ||
-                            !getFinalTicketNumber(selectedBin)
+                            !getFinalTicketNumber(selectedBin) ||
+                            !normalizedSoldOutStartTicketNumber ||
+                            Number(normalizedSoldOutStartTicketNumber) >=
+                              Number(getFinalTicketNumber(selectedBin))
                           }
                           onClick={() => void markCurrentPackSoldOut()}
                           className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"

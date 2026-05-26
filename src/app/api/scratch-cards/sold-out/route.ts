@@ -11,6 +11,7 @@ export const runtime = "nodejs";
 type SoldOutScratchPackBody = {
   binNumber?: unknown;
   date?: unknown;
+  startTicketNumber?: unknown;
 };
 
 export async function POST(request: NextRequest) {
@@ -38,10 +39,14 @@ export async function POST(request: NextRequest) {
     const result = await markScratchPackSoldOut(access, {
       binNumber: body.binNumber,
       date: body.date,
+      startTicketNumber: body.startTicketNumber,
     });
 
     return NextResponse.json(result);
   } catch (error) {
-    return scratchCardErrorResponse(error, "Failed to mark scratch pack sold out");
+    return scratchCardErrorResponse(
+      error,
+      "Failed to mark scratch pack sold out",
+    );
   }
 }

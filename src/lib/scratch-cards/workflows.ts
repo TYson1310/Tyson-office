@@ -829,6 +829,7 @@ export async function markScratchPackSoldOut(
   input: {
     binNumber: unknown;
     date?: unknown;
+    startTicketNumber?: unknown;
   },
 ) {
   const normalizedDate = normalizeOptionalBusinessDate(
@@ -838,7 +839,12 @@ export async function markScratchPackSoldOut(
   );
   assertAdminBackdateAccess(access, normalizedDate, "sold out date");
   const normalizedBinNumber = normalizeBinNumber(input.binNumber);
-  const reportDate = normalizedDate ?? getTodayIsoDate(access.activeStoreTimeZone);
+  const submittedStartTicketNumber = normalizeOptionalTicketNumber(
+    input.startTicketNumber,
+    "Start ticket number",
+  );
+  const reportDate =
+    normalizedDate ?? getTodayIsoDate(access.activeStoreTimeZone);
   const { data: activePackRows, error: activePackError } = await access.supabase
     .from("inventory")
     .select("id,game_id,pack_number,pack_ticket_count")
@@ -849,7 +855,10 @@ export async function markScratchPackSoldOut(
     .returns<ActiveScratchPackRow[]>();
 
   if (activePackError) {
-    throw mapRpcError(activePackError, "Active scratch pack could not be loaded");
+    throw mapRpcError(
+      activePackError,
+      "Active scratch pack could not be loaded",
+    );
   }
 
   const activePack = activePackRows?.[0];
@@ -889,14 +898,35 @@ export async function markScratchPackSoldOut(
       .returns<LatestScratchAuditRow[]>();
 
   if (latestAuditError) {
-    throw mapRpcError(latestAuditError, "Scratch audit history could not be loaded");
+    throw mapRpcError(
+      latestAuditError,
+      "Scratch audit history could not be loaded",
+    );
   }
 
-  const startTicketNumber = normalizeTicketNumber(
-    latestAuditRows?.[0]?.end_ticket_no ?? "000",
-    "Start ticket number",
-  );
+  const latestAuditStartTicketNumber = latestAuditRows?.[0]?.end_ticket_no
+    ? normalizeTicketNumber(
+        latestAuditRows[0].end_ticket_no,
+        "Latest ticket number",
+      )
+    : null;
+  const startTicketNumber =
+    submittedStartTicketNumber ?? latestAuditStartTicketNumber ?? "000";
   const startTicketValue = Number(startTicketNumber);
+  const latestAuditStartTicketValue = latestAuditStartTicketNumber
+    ? Number(latestAuditStartTicketNumber)
+    : null;
+
+  if (
+    latestAuditStartTicketValue !== null &&
+    startTicketValue < latestAuditStartTicketValue
+  ) {
+    throw new ScratchCardWorkflowError(
+      `Start ticket number cannot be lower than the latest recorded ticket ${latestAuditStartTicketNumber}`,
+      409,
+    );
+  }
+
   const remainingTickets = ticketLimit - Number(startTicketNumber);
 
   if (startTicketValue >= finalTicketValue || remainingTickets <= 0) {
