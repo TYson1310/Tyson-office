@@ -185,9 +185,9 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
       value: formatCurrency(eft.weeklySummary.unpaidNetEftDue),
     },
     {
-      detail: "selected week gross online ticket sales",
+      detail: "selected week online and settled pack sales",
       icon: <CircleDollarSign className="h-5 w-5" />,
-      label: "Sales (S)",
+      label: "EFT Sales",
       tone: "blue" as const,
       value: formatCurrency(eft.summary.grossSales),
     },
@@ -268,7 +268,8 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                   <TableHead>EFT Week</TableHead>
                   <TableHead>Thursday Sweep</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Sales (S)</TableHead>
+                  <TableHead className="text-right">EFT Sales</TableHead>
+                  <TableHead className="text-right">Settled Packs</TableHead>
                   <TableHead className="text-right">
                     Total commissions
                   </TableHead>
@@ -283,7 +284,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                 {eft.weeklyLedger.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={8}
+                      colSpan={9}
                       className="py-10 text-center text-slate-500"
                     >
                       No weekly EFT periods found.
@@ -336,6 +337,9 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                         </TableCell>
                         <TableCell className="text-right">
                           {formatCurrency(week.grossSales)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(week.settledPackSales)}
                         </TableCell>
                         <TableCell className="text-right">
                           {formatCurrency(week.totalCommissions)}
@@ -529,7 +533,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
 
         <SectionCard
           title="Daily EFT due"
-          description="Net due = (sales - cancels) - commissions - payouts + bonding and administrative fees."
+          description="Net due = (online sales + settled pack value - cancels) - commissions - payouts + bonding and administrative fees."
           className="rounded-lg sm:rounded-lg"
           headerClassName="px-4 py-3 sm:px-4"
           contentClassName="p-0"
@@ -540,7 +544,8 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Sales (S)</TableHead>
+                  <TableHead className="text-right">EFT Sales</TableHead>
+                  <TableHead className="text-right">Settled Packs</TableHead>
                   <TableHead className="text-right">Cancels (C)</TableHead>
                   <TableHead className="text-right">Payouts (P)</TableHead>
                   <TableHead className="text-right">PROMO</TableHead>
@@ -553,7 +558,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                 {eft.dailyRows.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={9}
+                      colSpan={10}
                       className="py-10 text-center text-slate-500"
                     >
                       No lottery EFT activity found.
@@ -572,6 +577,9 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(row.grossSales)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(row.settledPackSales)}
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(row.ticketCancels)}

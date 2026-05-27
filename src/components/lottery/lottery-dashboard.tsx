@@ -302,7 +302,7 @@ export function LotteryDashboard({
   const cashBalanceDetail = `${summary.cashInHandRecordedDays} recorded day${
     summary.cashInHandRecordedDays === 1 ? "" : "s"
   }; ${formatCurrency(summary.cashInHandBeforePaidEft)} total before paid EFT; ${paidEftDetail}`;
-  const recentEftDetail = `${formatDate(summary.weekStartDate)} to ${formatDate(summary.weekEndDate)}; sweep ${formatDate(summary.sweepDate)}`;
+  const recentEftDetail = `${formatDate(summary.weekStartDate)} to ${formatDate(summary.weekEndDate)}; sweep ${formatDate(summary.sweepDate)}; ${formatCurrency(summary.settledPackSales)} settled packs`;
   const currentWeekEftDetail = `${formatDate(summary.currentWeekStartDate)} to ${formatDate(summary.currentWeekEndDate)}`;
   const shortOverDetail =
     summary.countedDays > 0
@@ -445,6 +445,10 @@ export function LotteryDashboard({
               value={formatCurrency(summary.scratchSales)}
             />
             <BreakdownRow
+              label="Settled pack EFT value"
+              value={formatCurrency(summary.settledPackSales)}
+            />
+            <BreakdownRow
               label="Gross sales"
               tone="violet"
               value={formatCurrency(summary.grossSales)}
@@ -509,11 +513,11 @@ export function LotteryDashboard({
         >
           <div className="divide-y divide-slate-100">
             <BreakdownRow
-              label="Online net ticket sales"
+              label="EFT net ticket sales"
               value={formatCurrency(summary.netTicketSales)}
             />
             <BreakdownRow
-              label={`Online sales commission (${summary.retailerCommissionRate}%)`}
+              label={`Retailer commission (${summary.retailerCommissionRate}%)`}
               tone="emerald"
               value={formatCurrency(summary.retailerCommissionCredit)}
             />

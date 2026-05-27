@@ -16,6 +16,12 @@ import {
   getLatestLotteryEftSweepDate,
   getLotteryEftSweepPeriod,
 } from "./eft-periods";
+import {
+  buildScratchPackSettlementSales,
+  sumScratchPackSettlementsByDate,
+  type ScratchPackSettlementSale,
+  type ScratchSettlementAuditRow,
+} from "./scratch-pack-settlements";
 
 type DailyAuditRow = {
   audit_date: string;
@@ -119,6 +125,7 @@ export type LotteryDashboardSummary = {
   revenue: number;
   scratchPayouts: number;
   scratchSales: number;
+  settledPackSales: number;
   shortOver: number;
   status: "balanced" | "over" | "pending" | "short";
   sweepDate: string;
@@ -176,6 +183,7 @@ export type LotteryDashboardData = {
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 const PAGE_SIZE = 1000;
+const MIN_REPORT_DATE = "0000-01-01";
 
 function normalizeMoney(value: number | string | null | undefined) {
   const normalized = typeof value === "number" ? value : Number(value);
@@ -304,6 +312,7 @@ function buildEmptySummary({
     revenue: 0,
     scratchPayouts: 0,
     scratchSales: 0,
+    settledPackSales: 0,
     shortOver: 0,
     status: "pending",
     sweepDate,
@@ -590,6 +599,7 @@ async function loadCashInHandSummary({
   businessDate,
   cashingBonusRate,
   retailerCommissionRate,
+  settlementRows,
   storeKey,
   supabase,
   sweepDate,
@@ -597,40 +607,46 @@ async function loadCashInHandSummary({
   businessDate: string;
   cashingBonusRate: number;
   retailerCommissionRate: number;
+  settlementRows: ScratchPackSettlementSale[];
   storeKey: string;
   supabase: SupabaseServerClient;
   sweepDate: string;
 }) {
-  const rpcResult = await supabase
-    .rpc("get_lottery_cash_in_hand_summary", {
-      p_end_date: businessDate,
-      p_latest_sweep_date: sweepDate,
-      p_payout_commission_rate: cashingBonusRate,
-      p_retailer_commission_rate: retailerCommissionRate,
-      p_store_key: storeKey,
-    })
-    .maybeSingle<CashInHandSummaryRpcRow>();
+  if (settlementRows.length === 0) {
+    const rpcResult = await supabase
+      .rpc("get_lottery_cash_in_hand_summary", {
+        p_end_date: businessDate,
+        p_latest_sweep_date: sweepDate,
+        p_payout_commission_rate: cashingBonusRate,
+        p_retailer_commission_rate: retailerCommissionRate,
+        p_store_key: storeKey,
+      })
+      .maybeSingle<CashInHandSummaryRpcRow>();
 
-  if (!rpcResult.error && rpcResult.data) {
-    return {
-      data: {
-        cashAfterEft: normalizeMoney(rpcResult.data.cash_after_eft),
-        cashAvailableBeforePaidEft: normalizeMoney(
-          rpcResult.data.cash_available_before_paid_eft,
-        ),
-        paidEftTotal: normalizeMoney(rpcResult.data.paid_eft_total),
-        paidEftWeeks: Number(rpcResult.data.paid_eft_weeks ?? 0),
-        recordedDays: Number(rpcResult.data.recorded_days ?? 0),
-      },
-      error: null,
-    };
-  }
+    if (!rpcResult.error && rpcResult.data) {
+      return {
+        data: {
+          cashAfterEft: normalizeMoney(rpcResult.data.cash_after_eft),
+          cashAvailableBeforePaidEft: normalizeMoney(
+            rpcResult.data.cash_available_before_paid_eft,
+          ),
+          paidEftTotal: normalizeMoney(rpcResult.data.paid_eft_total),
+          paidEftWeeks: Number(rpcResult.data.paid_eft_weeks ?? 0),
+          recordedDays: Number(rpcResult.data.recorded_days ?? 0),
+        },
+        error: null,
+      };
+    }
 
-  if (rpcResult.error && !isMissingCashInHandSummaryFunction(rpcResult.error)) {
-    return {
-      data: null,
-      error: rpcResult.error,
-    };
+    if (
+      rpcResult.error &&
+      !isMissingCashInHandSummaryFunction(rpcResult.error)
+    ) {
+      return {
+        data: null,
+        error: rpcResult.error,
+      };
+    }
   }
 
   const [
@@ -664,6 +680,7 @@ async function loadCashInHandSummary({
       eftStatusRows: eftStatusRowsResult.data ?? [],
       reconciliationRows: reconciliationRowsResult.data ?? [],
       retailerCommissionRate,
+      settlementRows,
       terminalRows: terminalRowsResult.data ?? [],
     }),
     error: null,
@@ -789,6 +806,7 @@ function buildEftWindowSummary({
   dateKeys,
   eftStatus,
   retailerCommissionRate,
+  settlementRows,
   terminalRows,
   reconciliationRows,
   sweepDate,
@@ -801,6 +819,7 @@ function buildEftWindowSummary({
   dateKeys: string[];
   eftStatus: EftWeeklyStatusRow | null;
   retailerCommissionRate: number;
+  settlementRows: ScratchPackSettlementSale[];
   terminalRows: TerminalReportRow[];
   reconciliationRows: EodReconciliationRow[];
   sweepDate: string;
@@ -808,6 +827,7 @@ function buildEftWindowSummary({
   weekStartDate: string;
 }): LotteryDashboardSummary {
   const auditsByDate = groupAuditRowsByDate(auditRows);
+  const settlementsByDate = sumScratchPackSettlementsByDate(settlementRows);
   const terminalsByDate = mapTerminalRowsByDate(terminalRows);
   const reconciliationsByDate = mapReconciliationRowsByDate(reconciliationRows);
 
@@ -824,6 +844,10 @@ function buildEftWindowSummary({
       const scratchPayouts = normalizeMoney(terminal?.scratch_payouts);
       const cashingBonus = normalizeMoney(terminal?.total_cashing_bonus);
       const ticketCancels = normalizeMoney(terminal?.total_cancels);
+      const settledPackSales = normalizeMoney(
+        settlementsByDate.get(reportDate),
+      );
+      const eftGrossSales = normalizeMoney(drawSales + settledPackSales);
       const grossSales = normalizeMoney(scratchSales + drawSales);
       const netSales = normalizeMoney(Math.max(grossSales - ticketCancels, 0));
       const payouts = normalizeMoney(
@@ -841,7 +865,7 @@ function buildEftWindowSummary({
       const eftFormula = calculateLotteryEftFormula({
         administrativeFees: 0,
         bondingFee,
-        grossSales: drawSales,
+        grossSales: eftGrossSales,
         payoutCommissionRate: cashingBonusRate,
         promoCredits: cashingBonus,
         prizePayouts: drawPayouts + scratchPayouts,
@@ -881,6 +905,9 @@ function buildEftWindowSummary({
       );
       summary.scratchSales = normalizeMoney(
         summary.scratchSales + scratchSales,
+      );
+      summary.settledPackSales = normalizeMoney(
+        summary.settledPackSales + settledPackSales,
       );
       summary.totalCommissions = normalizeMoney(
         summary.totalCommissions + eftFormula.totalCommissions,
@@ -971,22 +998,30 @@ function calculateNetEftDueForPeriod({
   cashingBonusRate,
   period,
   retailerCommissionRate,
+  settlementRows,
   terminalRows,
 }: {
   cashingBonusRate: number;
   period: ReturnType<typeof getLotteryEftSweepPeriod>;
   retailerCommissionRate: number;
+  settlementRows: ScratchPackSettlementSale[];
   terminalRows: TerminalReportRow[];
 }) {
+  const settlementsByDate = sumScratchPackSettlementsByDate(settlementRows);
   const terminalsByDate = mapTerminalRowsByDate(terminalRows);
 
   return enumerateIsoDateRange(period.weekStartDate, period.weekEndDate).reduce(
     (total, reportDate) => {
       const terminal = terminalsByDate.get(reportDate);
+      const settledPackSales = normalizeMoney(
+        settlementsByDate.get(reportDate),
+      );
       const eftFormula = calculateLotteryEftFormula({
         administrativeFees: 0,
         bondingFee: normalizeMoney(terminal?.lottery_bonding_fee),
-        grossSales: normalizeMoney(terminal?.draw_sales),
+        grossSales: normalizeMoney(
+          normalizeMoney(terminal?.draw_sales) + settledPackSales,
+        ),
         payoutCommissionRate: cashingBonusRate,
         promoCredits: normalizeMoney(terminal?.total_cashing_bonus),
         prizePayouts:
@@ -1008,6 +1043,7 @@ function buildCashInHandSummary({
   eftStatusRows,
   reconciliationRows,
   retailerCommissionRate,
+  settlementRows,
   terminalRows,
 }: {
   auditRows: DailyAuditRow[];
@@ -1015,6 +1051,7 @@ function buildCashInHandSummary({
   eftStatusRows: EftWeeklyStatusRow[];
   reconciliationRows: EodReconciliationRow[];
   retailerCommissionRate: number;
+  settlementRows: ScratchPackSettlementSale[];
   terminalRows: TerminalReportRow[];
 }) {
   const auditsByDate = groupAuditRowsByDate(auditRows);
@@ -1023,6 +1060,7 @@ function buildCashInHandSummary({
   const reportDates = Array.from(
     new Set([
       ...auditRows.map((row) => row.audit_date),
+      ...settlementRows.map((row) => row.reportDate),
       ...terminalRows.map((row) => row.report_date),
       ...reconciliationRows.map((row) => row.report_date),
     ]),
@@ -1066,6 +1104,7 @@ function buildCashInHandSummary({
         cashingBonusRate,
         period,
         retailerCommissionRate,
+        settlementRows,
         terminalRows: filterTerminalRowsByDateRange(
           terminalRows,
           period.weekStartDate,
@@ -1137,8 +1176,8 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     reconciliationResult,
     scratchLedgerResult,
     eftStatusResult,
-    cashInHandSummaryResult,
     currentWeekTerminalReportsResult,
+    settlementAuditResult,
   ] = await Promise.all([
     loadAuditRowsForDateRange(
       supabase,
@@ -1173,20 +1212,20 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
       .eq("store_key", activeStoreKey)
       .eq("sweep_date", sweepDate)
       .maybeSingle<EftWeeklyStatusRow>(),
-    loadCashInHandSummary({
-      businessDate,
-      cashingBonusRate,
-      retailerCommissionRate,
-      storeKey: activeStoreKey,
-      supabase,
-      sweepDate,
-    }),
     loadTerminalRowsForDateRange(
       supabase,
       activeStoreKey,
       currentWeekStartDate,
       currentWeekEndDate,
     ),
+    supabase
+      .from("daily_audits")
+      .select("inventory_id,audit_date,end_ticket_no,created_at")
+      .eq("store_key", activeStoreKey)
+      .not("inventory_id", "is", null)
+      .not("end_ticket_no", "is", null)
+      .lte("audit_date", businessDate)
+      .returns<ScratchSettlementAuditRow[]>(),
   ]);
 
   const eftStatusError =
@@ -1200,8 +1239,8 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     reconciliationResult.error ??
     scratchLedgerResult.error ??
     eftStatusError ??
-    cashInHandSummaryResult.error ??
-    currentWeekTerminalReportsResult.error;
+    currentWeekTerminalReportsResult.error ??
+    settlementAuditResult.error;
 
   if (firstError) {
     return {
@@ -1240,6 +1279,36 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
   }
 
   const gameById = new Map(gameRows.map((game) => [game.game_id, game]));
+  const settlementRows = buildScratchPackSettlementSales({
+    auditRows: settlementAuditResult.data ?? [],
+    endDate: businessDate,
+    gameRows,
+    inventoryRows: scratchLedgerRows,
+    startDate: MIN_REPORT_DATE,
+  });
+  const cashInHandSummaryResult = await loadCashInHandSummary({
+    businessDate,
+    cashingBonusRate,
+    retailerCommissionRate,
+    settlementRows,
+    storeKey: activeStoreKey,
+    supabase,
+    sweepDate,
+  });
+
+  if (cashInHandSummaryResult.error) {
+    return {
+      source: "error",
+      storeKey: activeStoreKey,
+      inventorySummary: emptyInventorySummary,
+      summary: emptySummary,
+      scratchLedger: [],
+      errorMessage:
+        cashInHandSummaryResult.error.message ??
+        "Lottery cash-in-hand data could not be loaded.",
+    };
+  }
+
   const inventorySummary = buildInventorySummary({
     gameById,
     inventoryRows: scratchLedgerRows,
@@ -1252,6 +1321,7 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     eftStatus: currentEftStatus,
     reconciliationRows,
     retailerCommissionRate,
+    settlementRows,
     sweepDate,
     terminalRows,
     weekEndDate,
@@ -1267,6 +1337,7 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
       weekStartDate: currentWeekStartDate,
     },
     retailerCommissionRate,
+    settlementRows,
     terminalRows: currentWeekTerminalRows,
   });
   const summary = {
