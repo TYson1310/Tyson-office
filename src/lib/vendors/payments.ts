@@ -10,24 +10,20 @@ export type VendorPaymentMethod = (typeof VENDOR_PAYMENT_METHODS)[number];
 export const VENDOR_PAYMENT_STATUSES = ["posted", "void"] as const;
 export type VendorPaymentStatus = (typeof VENDOR_PAYMENT_STATUSES)[number];
 
-export const VENDOR_PAYMENT_METHOD_LABELS: Record<
-  VendorPaymentMethod,
-  string
-> = {
-  check: "Check",
-  bank_transfer: "Bank Transfer",
-  credit_card: "Credit Card",
-  cash: "Cash",
-  other: "Other",
-};
+export const VENDOR_PAYMENT_METHOD_LABELS: Record<VendorPaymentMethod, string> =
+  {
+    check: "Check",
+    bank_transfer: "Bank Transfer",
+    credit_card: "Credit Card",
+    cash: "Cash",
+    other: "Other",
+  };
 
-export const VENDOR_PAYMENT_STATUS_LABELS: Record<
-  VendorPaymentStatus,
-  string
-> = {
-  posted: "Posted",
-  void: "Void",
-};
+export const VENDOR_PAYMENT_STATUS_LABELS: Record<VendorPaymentStatus, string> =
+  {
+    posted: "Posted",
+    void: "Void",
+  };
 
 export type VendorPaymentInvoiceOption = {
   id: string;
@@ -41,6 +37,7 @@ export type VendorPaymentInvoiceOption = {
 export type VendorPaymentPayload = {
   supplierId?: unknown;
   invoiceId?: unknown;
+  invoicePayments?: unknown;
   id?: unknown;
   amountPaid?: unknown;
   paymentDate?: unknown;

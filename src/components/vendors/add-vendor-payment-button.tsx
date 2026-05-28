@@ -16,10 +16,19 @@ import {
   type VendorPaymentInvoiceOption,
 } from "@/lib/vendors/payments";
 
+type VendorPaymentMode = "multiple" | "single";
+
+type VendorPaymentInvoiceAllocation = {
+  amountPaid: string;
+  invoiceId: string;
+};
+
 type VendorPaymentFormState = {
   supplierId: string;
   invoiceId: string;
+  invoicePayments: VendorPaymentInvoiceAllocation[];
   amountPaid: string;
+  paymentMode: VendorPaymentMode;
   paymentDate: string;
   paymentMethod: (typeof VENDOR_PAYMENT_METHODS)[number];
   referenceNumber: string;
@@ -32,6 +41,7 @@ type AddVendorPaymentButtonProps = {
   defaultSupplierId?: string;
   defaultInvoiceId?: string;
   defaultAmount?: number;
+  defaultPaymentMode?: VendorPaymentMode;
   defaultPaymentDate?: string;
   disabled?: boolean;
   disabledReason?: string;
@@ -46,11 +56,28 @@ function todayKey(timeZone = "UTC") {
   return getTodayIsoDateInTimeZone(timeZone);
 }
 
+function getPayableInvoices(
+  invoices: VendorPaymentInvoiceOption[],
+  supplierId: string,
+) {
+  return invoices.filter(
+    (invoice) =>
+      invoice.supplierId === supplierId &&
+      invoice.status !== "cancelled" &&
+      invoice.netBalance > 0,
+  );
+}
+
+function formatCurrencyAmount(currency: string, value: number) {
+  return `${currency} ${Math.abs(value).toFixed(2)}`;
+}
+
 function buildInitialFormState(
   invoices: VendorPaymentInvoiceOption[],
   defaultSupplierId?: string,
   defaultInvoiceId?: string,
   defaultAmount?: number,
+  defaultPaymentMode?: VendorPaymentMode,
   defaultPaymentDate?: string,
 ): VendorPaymentFormState {
   const selectedInvoice = invoices.find(
@@ -64,7 +91,10 @@ function buildInitialFormState(
   return {
     supplierId: selectedInvoice?.supplierId ?? defaultSupplierId ?? "",
     invoiceId: selectedInvoice?.id ?? "",
+    invoicePayments: [],
     amountPaid: suggestedAmount > 0 ? suggestedAmount.toFixed(2) : "",
+    paymentMode:
+      defaultPaymentMode ?? (defaultInvoiceId ? "single" : "multiple"),
     paymentDate: defaultPaymentDate ?? todayKey(),
     paymentMethod: "bank_transfer",
     referenceNumber: "",
@@ -78,6 +108,7 @@ export function AddVendorPaymentButton({
   defaultSupplierId,
   defaultInvoiceId,
   defaultAmount,
+  defaultPaymentMode,
   defaultPaymentDate,
   disabled = false,
   disabledReason,
@@ -94,6 +125,7 @@ export function AddVendorPaymentButton({
       defaultSupplierId,
       defaultInvoiceId,
       defaultAmount,
+      defaultPaymentMode,
       resolvedDefaultPaymentDate,
     ),
   );
@@ -107,6 +139,7 @@ export function AddVendorPaymentButton({
         defaultSupplierId,
         defaultInvoiceId,
         defaultAmount,
+        defaultPaymentMode,
         resolvedDefaultPaymentDate,
       ),
     );
@@ -123,6 +156,7 @@ export function AddVendorPaymentButton({
         defaultSupplierId,
         defaultInvoiceId,
         defaultAmount,
+        defaultPaymentMode,
         resolvedDefaultPaymentDate,
       ),
     );
@@ -133,8 +167,35 @@ export function AddVendorPaymentButton({
   const filteredInvoices = formState.supplierId
     ? invoices.filter((invoice) => invoice.supplierId === formState.supplierId)
     : invoices;
+  const payableInvoices = formState.supplierId
+    ? getPayableInvoices(invoices, formState.supplierId)
+    : [];
   const selectedInvoice =
     invoices.find((invoice) => invoice.id === formState.invoiceId) ?? null;
+  const selectedBatchPayments = formState.invoicePayments
+    .map((payment) => {
+      const invoice = invoices.find((entry) => entry.id === payment.invoiceId);
+      const amountPaid = normalizeVendorPaymentAmount(payment.amountPaid);
+
+      return invoice && amountPaid > 0
+        ? {
+            amountPaid,
+            invoice,
+          }
+        : null;
+    })
+    .filter(
+      (
+        payment,
+      ): payment is {
+        amountPaid: number;
+        invoice: VendorPaymentInvoiceOption;
+      } => Boolean(payment),
+    );
+  const batchTotal = selectedBatchPayments.reduce(
+    (total, payment) => total + payment.amountPaid,
+    0,
+  );
 
   const handleSupplierChange = (supplierId: string) => {
     setFormState((current) => {
@@ -156,6 +217,13 @@ export function AddVendorPaymentButton({
         ...current,
         supplierId,
         invoiceId: nextInvoice,
+        invoicePayments: current.invoicePayments.filter((payment) =>
+          invoices.some(
+            (invoice) =>
+              invoice.id === payment.invoiceId &&
+              invoice.supplierId === supplierId,
+          ),
+        ),
         amountPaid:
           nextSelectedInvoice && nextSelectedInvoice.netBalance > 0
             ? nextSelectedInvoice.netBalance.toFixed(2)
@@ -178,27 +246,131 @@ export function AddVendorPaymentButton({
     }));
   };
 
+  const handlePaymentModeChange = (paymentMode: VendorPaymentMode) => {
+    setFormState((current) => ({
+      ...current,
+      paymentMode,
+      invoiceId: paymentMode === "single" ? current.invoiceId : "",
+      invoicePayments:
+        paymentMode === "multiple" ? current.invoicePayments : [],
+      amountPaid:
+        paymentMode === "single" ? current.amountPaid : batchTotal.toFixed(2),
+    }));
+  };
+
+  const toggleBatchInvoice = (invoice: VendorPaymentInvoiceOption) => {
+    setFormState((current) => {
+      const alreadySelected = current.invoicePayments.some(
+        (payment) => payment.invoiceId === invoice.id,
+      );
+
+      return {
+        ...current,
+        invoicePayments: alreadySelected
+          ? current.invoicePayments.filter(
+              (payment) => payment.invoiceId !== invoice.id,
+            )
+          : [
+              ...current.invoicePayments,
+              {
+                invoiceId: invoice.id,
+                amountPaid: invoice.netBalance.toFixed(2),
+              },
+            ],
+      };
+    });
+  };
+
+  const updateBatchInvoiceAmount = (invoiceId: string, amountPaid: string) => {
+    setFormState((current) => ({
+      ...current,
+      invoicePayments: current.invoicePayments.map((payment) =>
+        payment.invoiceId === invoiceId
+          ? {
+              ...payment,
+              amountPaid,
+            }
+          : payment,
+      ),
+    }));
+  };
+
+  const selectAllPayableInvoices = () => {
+    setFormState((current) => ({
+      ...current,
+      invoicePayments: payableInvoices.map((invoice) => ({
+        invoiceId: invoice.id,
+        amountPaid: invoice.netBalance.toFixed(2),
+      })),
+    }));
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+
+    if (
+      formState.paymentMode === "multiple" &&
+      selectedBatchPayments.length === 0
+    ) {
+      setError("Select at least one invoice to pay.");
+      return;
+    }
+
+    if (
+      formState.paymentMode === "multiple" &&
+      formState.invoicePayments.some(
+        (payment) => normalizeVendorPaymentAmount(payment.amountPaid) <= 0,
+      )
+    ) {
+      setError("Every selected invoice needs a payment amount.");
+      return;
+    }
+
+    const overpaidBatchInvoice = selectedBatchPayments.find(
+      (payment) => payment.amountPaid > payment.invoice.netBalance + 0.005,
+    );
+
+    if (formState.paymentMode === "multiple" && overpaidBatchInvoice) {
+      setError(
+        `Payment for invoice ${overpaidBatchInvoice.invoice.invoiceNumber} cannot exceed its balance.`,
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     void (async () => {
       try {
+        const paymentPayload =
+          formState.paymentMode === "multiple"
+            ? {
+                supplierId: formState.supplierId,
+                invoicePayments: selectedBatchPayments.map((payment) => ({
+                  invoiceId: payment.invoice.id,
+                  amountPaid: payment.amountPaid,
+                })),
+                amountPaid: batchTotal,
+                paymentDate: formState.paymentDate,
+                paymentMethod: formState.paymentMethod,
+                referenceNumber: formState.referenceNumber,
+                notes: formState.notes,
+              }
+            : {
+                supplierId: formState.supplierId,
+                invoiceId: formState.invoiceId || undefined,
+                amountPaid: normalizeVendorPaymentAmount(formState.amountPaid),
+                paymentDate: formState.paymentDate,
+                paymentMethod: formState.paymentMethod,
+                referenceNumber: formState.referenceNumber,
+                notes: formState.notes,
+              };
         const response = await fetch("/api/vendor-payments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            supplierId: formState.supplierId,
-            invoiceId: formState.invoiceId || undefined,
-            amountPaid: normalizeVendorPaymentAmount(formState.amountPaid),
-            paymentDate: formState.paymentDate,
-            paymentMethod: formState.paymentMethod,
-            referenceNumber: formState.referenceNumber,
-            notes: formState.notes,
-          }),
+          body: JSON.stringify(paymentPayload),
         });
         const body = (await response.json()) as { error?: string };
 
@@ -241,7 +413,7 @@ export function AddVendorPaymentButton({
       {isOpen ? (
         <VendorModal>
           <div className="modal-shell z-99999 bg-dark/50">
-            <div className="modal-card-scroll max-w-3xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark">
+            <div className="modal-card-scroll max-w-4xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark">
               <div className="flex items-start justify-between gap-4 border-b border-stroke px-6 py-5 dark:border-dark-3">
                 <div>
                   <h2 className="text-xl font-semibold text-dark dark:text-white">
@@ -277,6 +449,26 @@ export function AddVendorPaymentButton({
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                        Payment type
+                      </label>
+                      <select
+                        value={formState.paymentMode}
+                        onChange={(event) =>
+                          handlePaymentModeChange(
+                            event.target.value as VendorPaymentMode,
+                          )
+                        }
+                        className={INPUT_CLASSNAME}
+                      >
+                        <option value="multiple">Pay multiple invoices</option>
+                        <option value="single">
+                          Single invoice or supplier-level
+                        </option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
                         Supplier
                       </label>
                       <select
@@ -296,52 +488,142 @@ export function AddVendorPaymentButton({
                       </select>
                     </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                        Linked invoice
-                      </label>
-                      <select
-                        value={formState.invoiceId}
-                        onChange={(event) =>
-                          handleInvoiceChange(event.target.value)
-                        }
-                        className={INPUT_CLASSNAME}
-                      >
-                        <option value="">Supplier-level payment</option>
-                        {filteredInvoices.map((invoice) => (
-                          <option key={invoice.id} value={invoice.id}>
-                            {invoice.invoiceNumber}
-                          </option>
-                        ))}
-                      </select>
-                      <p className="mt-2 text-xs text-dark-5 dark:text-dark-6">
-                        {selectedInvoice
-                          ? `Current balance: ${selectedInvoice.currency} ${Math.abs(
-                              selectedInvoice.netBalance,
-                            ).toFixed(
-                              2,
-                            )}${selectedInvoice.netBalance < 0 ? " credit" : " due"}`
-                          : "If no invoice is selected, the payment is logged at the supplier level only."}
-                      </p>
-                    </div>
+                    {formState.paymentMode === "single" ? (
+                      <>
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                            Linked invoice
+                          </label>
+                          <select
+                            value={formState.invoiceId}
+                            onChange={(event) =>
+                              handleInvoiceChange(event.target.value)
+                            }
+                            className={INPUT_CLASSNAME}
+                          >
+                            <option value="">Supplier-level payment</option>
+                            {filteredInvoices.map((invoice) => (
+                              <option key={invoice.id} value={invoice.id}>
+                                {invoice.invoiceNumber}
+                              </option>
+                            ))}
+                          </select>
+                          <p className="mt-2 text-xs text-dark-5 dark:text-dark-6">
+                            {selectedInvoice
+                              ? `Current balance: ${formatCurrencyAmount(
+                                  selectedInvoice.currency,
+                                  selectedInvoice.netBalance,
+                                )}${selectedInvoice.netBalance < 0 ? " credit" : " due"}`
+                              : "If no invoice is selected, the payment is logged at the supplier level only."}
+                          </p>
+                        </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                        Amount paid
-                      </label>
-                      <CurrencyInput
-                        required
-                        value={formState.amountPaid}
-                        currency={selectedInvoice?.currency ?? "USD"}
-                        onValueChange={(decimalValue) =>
-                          setFormState((current) => ({
-                            ...current,
-                            amountPaid: decimalValue,
-                          }))
-                        }
-                        className={INPUT_CLASSNAME}
-                      />
-                    </div>
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                            Amount paid
+                          </label>
+                          <CurrencyInput
+                            required
+                            value={formState.amountPaid}
+                            currency={selectedInvoice?.currency ?? "USD"}
+                            onValueChange={(decimalValue) =>
+                              setFormState((current) => ({
+                                ...current,
+                                amountPaid: decimalValue,
+                              }))
+                            }
+                            className={INPUT_CLASSNAME}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="md:col-span-2">
+                        <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <label className="block text-sm font-medium text-dark dark:text-white">
+                            Invoices to pay
+                          </label>
+                          <button
+                            type="button"
+                            onClick={selectAllPayableInvoices}
+                            disabled={
+                              !formState.supplierId ||
+                              payableInvoices.length === 0
+                            }
+                            className="text-left text-sm font-semibold text-primary disabled:cursor-not-allowed disabled:text-dark-5"
+                          >
+                            Select all open invoices
+                          </button>
+                        </div>
+                        <div className="rounded-2xl border border-stroke dark:border-dark-3">
+                          {!formState.supplierId ? (
+                            <div className="px-4 py-6 text-sm text-dark-5 dark:text-dark-6">
+                              Select a supplier to choose invoices.
+                            </div>
+                          ) : payableInvoices.length === 0 ? (
+                            <div className="px-4 py-6 text-sm text-dark-5 dark:text-dark-6">
+                              This supplier has no open invoice balances.
+                            </div>
+                          ) : (
+                            <div className="divide-y divide-stroke dark:divide-dark-3">
+                              {payableInvoices.map((invoice) => {
+                                const selectedPayment =
+                                  formState.invoicePayments.find(
+                                    (payment) =>
+                                      payment.invoiceId === invoice.id,
+                                  );
+
+                                return (
+                                  <div
+                                    key={invoice.id}
+                                    className="grid gap-3 px-4 py-3 md:grid-cols-[minmax(0,1fr)_11rem]"
+                                  >
+                                    <label className="flex min-w-0 items-start gap-3">
+                                      <input
+                                        type="checkbox"
+                                        checked={Boolean(selectedPayment)}
+                                        onChange={() =>
+                                          toggleBatchInvoice(invoice)
+                                        }
+                                        className="mt-1 h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
+                                      />
+                                      <span className="min-w-0">
+                                        <span className="block truncate text-sm font-semibold text-dark dark:text-white">
+                                          {invoice.invoiceNumber}
+                                        </span>
+                                        <span className="mt-1 block text-xs text-dark-5 dark:text-dark-6">
+                                          Balance{" "}
+                                          {formatCurrencyAmount(
+                                            invoice.currency,
+                                            invoice.netBalance,
+                                          )}
+                                        </span>
+                                      </span>
+                                    </label>
+                                    <CurrencyInput
+                                      value={selectedPayment?.amountPaid ?? ""}
+                                      currency={invoice.currency}
+                                      disabled={!selectedPayment}
+                                      onValueChange={(decimalValue) =>
+                                        updateBatchInvoiceAmount(
+                                          invoice.id,
+                                          decimalValue,
+                                        )
+                                      }
+                                      className={INPUT_CLASSNAME}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-2 text-sm font-semibold text-dark dark:text-white">
+                          Batch total:{" "}
+                          {selectedBatchPayments[0]?.invoice.currency ?? "USD"}{" "}
+                          {batchTotal.toFixed(2)}
+                        </div>
+                      </div>
+                    )}
 
                     <div>
                       <label className="mb-2 block text-sm font-medium text-dark dark:text-white">

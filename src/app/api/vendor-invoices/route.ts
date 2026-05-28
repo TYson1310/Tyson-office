@@ -846,6 +846,9 @@ export async function POST(request: NextRequest) {
     const fileEntry = formData.get("file");
     const file =
       fileEntry instanceof File && fileEntry.size > 0 ? fileEntry : null;
+    const rawEntryMode = normalizeInvoiceText(formData.get("entryMode"));
+    const entryMode =
+      rawEntryMode === "manual" ? "manual" : file ? "upload" : "manual";
     const payload = parsePayload(formData.get("payload"));
 
     const fileError = file ? validateInvoiceFile(file) : null;
@@ -1023,19 +1026,21 @@ export async function POST(request: NextRequest) {
     const description =
       buildInvoiceDescription(items, payload.description) ??
       `Invoice ${invoiceNumber}`;
-    const notes = file
-      ? (buildInvoiceNotes({
-          ...payload,
-          supplierId,
-          invoiceNumber,
-          issueDate,
-          dueDate,
-          currency,
-          items,
-          total,
-          vendorName: normalizeInvoiceText(payload.vendorName) || supplier.name,
-        }) ?? null)
-      : (normalizeOptionalInvoiceText(payload.notes) ?? null);
+    const notes =
+      file && entryMode === "upload"
+        ? (buildInvoiceNotes({
+            ...payload,
+            supplierId,
+            invoiceNumber,
+            issueDate,
+            dueDate,
+            currency,
+            items,
+            total,
+            vendorName:
+              normalizeInvoiceText(payload.vendorName) || supplier.name,
+          }) ?? null)
+        : (normalizeOptionalInvoiceText(payload.notes) ?? null);
     let productUpserts: ProductUpsertRecord[] = [];
     let existingProductsForSync: ProductRecord[] = [];
     let inventoryReceiptMovementCount = 0;
@@ -1333,7 +1338,12 @@ export async function POST(request: NextRequest) {
         productSyncCount: productUpserts.length,
         status: "pending",
         supplierAutoCreated: supplierWasAutoCreated,
-        source: file ? "upload" : "manual",
+        source:
+          entryMode === "manual"
+            ? file
+              ? "manual_upload"
+              : "manual"
+            : "upload",
         documentAttached: Boolean(file),
       },
     });

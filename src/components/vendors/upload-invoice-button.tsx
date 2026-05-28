@@ -130,7 +130,9 @@ export function UploadInvoiceButton({
 
     setError("");
     setSelectedFile(file);
-    setStep("upload");
+    setStep((currentStep) =>
+      currentStep === "verify" ? currentStep : "upload",
+    );
 
     if (!file) {
       return;
@@ -311,6 +313,7 @@ export function UploadInvoiceButton({
       if (selectedFile) {
         requestBody.append("file", selectedFile);
       }
+      requestBody.append("entryMode", entryMode);
       requestBody.append("payload", JSON.stringify(formState));
 
       const response = await fetch("/api/vendor-invoices", {
@@ -432,8 +435,8 @@ export function UploadInvoiceButton({
                     Invoice processing
                   </h2>
                   <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-                    Upload and extract a source document, or enter an invoice
-                    manually when no copy is available.
+                    Upload and extract a source document, or enter invoice
+                    details manually with an optional copy.
                   </p>
                 </div>
                 <button
@@ -450,7 +453,7 @@ export function UploadInvoiceButton({
                 {step === "upload"
                   ? "Choose OCR upload or manual invoice entry"
                   : entryMode === "manual"
-                    ? "Manual entry: enter vendor invoice details"
+                    ? "Manual entry: enter invoice details and attach a copy if available"
                     : "Step 2 of 2: Review and save verified invoice data"}
               </div>
 
@@ -493,7 +496,8 @@ export function UploadInvoiceButton({
                               Manual invoice entry
                             </h3>
                             <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-                              Log vendor invoices without OCR or attachment.
+                              Log vendor invoices without OCR and attach the
+                              invoice copy if you have it.
                             </p>
                           </div>
                         </div>
@@ -871,6 +875,54 @@ export function UploadInvoiceButton({
                       </div>
                     </div>
 
+                    {entryMode === "manual" ? (
+                      <div className="mt-6 rounded-[20px] border border-stroke p-4 dark:border-dark-3">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-dark dark:text-white">
+                              Invoice copy
+                            </div>
+                            <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                              Optional PDF, PNG, JPG, or WEBP up to 10MB.
+                            </div>
+                          </div>
+                          <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-stroke px-4 py-2 text-sm font-semibold text-dark transition hover:bg-gray-2 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2">
+                            <Upload className="h-4 w-4" />
+                            {selectedFile ? "Replace file" : "Upload file"}
+                            <input
+                              type="file"
+                              accept={INVOICE_UPLOAD_ACCEPT}
+                              onChange={handleFileChange}
+                              className="sr-only"
+                            />
+                          </label>
+                        </div>
+
+                        {selectedFile ? (
+                          <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-gray-2 px-4 py-3 dark:bg-dark-2">
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-semibold text-dark dark:text-white">
+                                {selectedFile.name}
+                              </div>
+                              <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                                {formatFileSize(selectedFile.size)}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedFile(null);
+                                setError("");
+                              }}
+                              className="shrink-0 text-sm font-medium text-primary"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+
                     {formState.items.length > 0 ? (
                       <div className="mt-6 rounded-[20px] border border-stroke dark:border-dark-3">
                         <div className="border-b border-stroke px-4 py-3 text-sm font-medium text-dark dark:border-dark-3 dark:text-white">
@@ -1036,6 +1088,7 @@ export function UploadInvoiceButton({
                         onClick={() => {
                           setStep("upload");
                           setEntryMode("upload");
+                          setSelectedFile(null);
                           setError("");
                         }}
                         className="rounded-full border border-stroke px-4 py-2 text-sm font-medium text-dark transition hover:bg-gray-2 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2"

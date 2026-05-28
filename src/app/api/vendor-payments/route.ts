@@ -35,14 +35,55 @@ type VendorPaymentRow = {
   reference_number: string;
 };
 
+type VendorPaymentAllocation = {
+  amountPaid: number;
+  invoiceId: string;
+};
+
 function buildPaymentReference(paymentDate: string) {
   const dateSegment = paymentDate.replace(/-/g, "");
   const randomSegment = randomUUID().slice(0, 8).toUpperCase();
   return `PAY-${dateSegment}-${randomSegment}`;
 }
 
+function buildBatchPaymentReference(
+  baseReferenceNumber: string,
+  index: number,
+  paymentCount: number,
+) {
+  if (paymentCount <= 1) {
+    return baseReferenceNumber;
+  }
+
+  return `${baseReferenceNumber}-${String(index + 1).padStart(2, "0")}`;
+}
+
 function getPaymentId(body: VendorPaymentPayload) {
   return normalizeVendorPaymentText(body.id);
+}
+
+function normalizeVendorPaymentAllocations(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [] as VendorPaymentAllocation[];
+  }
+
+  return value
+    .map((entry) => {
+      const record =
+        typeof entry === "object" && entry !== null
+          ? (entry as Record<string, unknown>)
+          : {};
+      const invoiceId = normalizeVendorPaymentText(record.invoiceId);
+      const amountPaid = normalizeVendorPaymentAmount(record.amountPaid);
+
+      return invoiceId && amountPaid > 0
+        ? {
+            amountPaid,
+            invoiceId,
+          }
+        : null;
+    })
+    .filter((entry): entry is VendorPaymentAllocation => Boolean(entry));
 }
 
 export async function POST(request: NextRequest) {
@@ -55,11 +96,24 @@ export async function POST(request: NextRequest) {
 
     const body = (await request.json()) as VendorPaymentPayload;
     const requestedSupplierId = normalizeVendorPaymentText(body.supplierId);
-    const invoiceId = normalizeVendorPaymentText(body.invoiceId);
+    const invoicePayments = normalizeVendorPaymentAllocations(
+      body.invoicePayments,
+    );
+    const isBatchPayment = invoicePayments.length > 0;
+    const invoiceId = isBatchPayment
+      ? ""
+      : normalizeVendorPaymentText(body.invoiceId);
     const paymentDate =
       toIsoVendorPaymentDate(body.paymentDate) ??
       getTodayIsoDateInTimeZone(access.activeStoreTimeZone);
-    const amountPaid = normalizeVendorPaymentAmount(body.amountPaid);
+    const amountPaid = isBatchPayment
+      ? Math.round(
+          invoicePayments.reduce(
+            (total, payment) => total + payment.amountPaid,
+            0,
+          ) * 100,
+        ) / 100
+      : normalizeVendorPaymentAmount(body.amountPaid);
     const paymentMethod = normalizeVendorPaymentMethod(body.paymentMethod);
     const referenceNumber =
       normalizeVendorPaymentText(body.referenceNumber) ||
@@ -88,6 +142,10 @@ export async function POST(request: NextRequest) {
     }
 
     let linkedInvoice: VendorInvoiceRow | null = null;
+    let batchPayments: Array<{
+      amountPaid: number;
+      invoice: VendorInvoiceRow;
+    }> = [];
 
     if (invoiceId) {
       const { data, error } = await access.supabase
@@ -151,6 +209,118 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (isBatchPayment) {
+      const uniqueInvoiceIds = Array.from(
+        new Set(invoicePayments.map((payment) => payment.invoiceId)),
+      );
+
+      if (uniqueInvoiceIds.length !== invoicePayments.length) {
+        return NextResponse.json(
+          {
+            error: "Each invoice can only be included once in a batch payment",
+          },
+          { status: 400 },
+        );
+      }
+
+      const { data: invoicesToPay, error: invoicesToPayError } =
+        await access.supabase
+          .from("vendor_invoices")
+          .select("id,supplier_id,status")
+          .eq("store_key", access.activeStoreKey)
+          .in("id", uniqueInvoiceIds)
+          .returns<VendorInvoiceRow[]>();
+
+      if (invoicesToPayError) {
+        return NextResponse.json(
+          {
+            error:
+              invoicesToPayError.message ??
+              "Failed to load invoices for batch payment",
+          },
+          { status: 500 },
+        );
+      }
+
+      if ((invoicesToPay ?? []).length !== uniqueInvoiceIds.length) {
+        return NextResponse.json(
+          { error: "One or more selected invoices were not found" },
+          { status: 404 },
+        );
+      }
+
+      const invoiceById = new Map(
+        (invoicesToPay ?? []).map((invoice) => [invoice.id, invoice]),
+      );
+
+      for (const payment of invoicePayments) {
+        const invoice = invoiceById.get(payment.invoiceId);
+
+        if (!invoice) {
+          return NextResponse.json(
+            { error: "One or more selected invoices were not found" },
+            { status: 404 },
+          );
+        }
+
+        if (invoice.supplier_id !== supplierId) {
+          return NextResponse.json(
+            {
+              error:
+                "All selected invoices must belong to the selected supplier",
+            },
+            { status: 400 },
+          );
+        }
+
+        if (invoice.status === "cancelled") {
+          return NextResponse.json(
+            { error: "Cancelled invoices cannot receive payments" },
+            { status: 400 },
+          );
+        }
+
+        const summary = await syncVendorInvoiceLedger(
+          access.supabase,
+          access.activeStoreKey,
+          invoice.id,
+        );
+
+        if (!summary) {
+          return NextResponse.json(
+            { error: "One or more selected invoices were not found" },
+            { status: 404 },
+          );
+        }
+
+        const outstandingBalance = Math.max(summary.netBalance, 0);
+
+        if (outstandingBalance <= 0) {
+          return NextResponse.json(
+            {
+              error: `Invoice ${invoice.id} has no remaining balance to pay`,
+            },
+            { status: 400 },
+          );
+        }
+
+        if (payment.amountPaid > outstandingBalance + 0.005) {
+          return NextResponse.json(
+            {
+              error:
+                "A batch payment amount cannot exceed an invoice balance after supplier adjustments.",
+            },
+            { status: 400 },
+          );
+        }
+
+        batchPayments.push({
+          amountPaid: payment.amountPaid,
+          invoice,
+        });
+      }
+    }
+
     if (linkedInvoice?.status === "cancelled") {
       return NextResponse.json(
         { error: "Cancelled invoices cannot receive payments" },
@@ -192,25 +362,47 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { data: createdPayment, error: insertError } = await access.supabase
-      .from("vendor_payments")
-      .insert({
-        store_key: access.activeStoreKey,
-        supplier_id: supplierId,
-        vendor_invoice_id: linkedInvoice?.id ?? null,
-        status: "posted",
-        amount_paid: amountPaid,
-        payment_date: paymentDate,
-        payment_method: paymentMethod,
-        reference_number: referenceNumber,
-        notes,
-        approved_by: access.currentUser.id,
-        approved_at: new Date().toISOString(),
-      })
-      .select("id,vendor_invoice_id,payment_date,status,reference_number")
-      .single<VendorPaymentRow>();
+    const paymentRows = isBatchPayment
+      ? batchPayments.map((payment, index) => ({
+          store_key: access.activeStoreKey,
+          supplier_id: supplierId,
+          vendor_invoice_id: payment.invoice.id,
+          status: "posted",
+          amount_paid: payment.amountPaid,
+          payment_date: paymentDate,
+          payment_method: paymentMethod,
+          reference_number: buildBatchPaymentReference(
+            referenceNumber,
+            index,
+            batchPayments.length,
+          ),
+          notes,
+          approved_by: access.currentUser.id,
+          approved_at: new Date().toISOString(),
+        }))
+      : [
+          {
+            store_key: access.activeStoreKey,
+            supplier_id: supplierId,
+            vendor_invoice_id: linkedInvoice?.id ?? null,
+            status: "posted",
+            amount_paid: amountPaid,
+            payment_date: paymentDate,
+            payment_method: paymentMethod,
+            reference_number: referenceNumber,
+            notes,
+            approved_by: access.currentUser.id,
+            approved_at: new Date().toISOString(),
+          },
+        ];
 
-    if (insertError || !createdPayment) {
+    const { data: createdPayments, error: insertError } = await access.supabase
+      .from("vendor_payments")
+      .insert(paymentRows)
+      .select("id,vendor_invoice_id,payment_date,status,reference_number")
+      .returns<VendorPaymentRow[]>();
+
+    if (insertError || !createdPayments || createdPayments.length === 0) {
       return NextResponse.json(
         {
           error:
@@ -222,43 +414,64 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (createdPayment.vendor_invoice_id) {
-      await syncVendorInvoiceLedger(
-        access.supabase,
-        access.activeStoreKey,
-        createdPayment.vendor_invoice_id,
-      );
-    }
+    await Promise.all(
+      Array.from(
+        new Set(
+          createdPayments
+            .map((payment) => payment.vendor_invoice_id)
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ).map((paymentInvoiceId) =>
+        syncVendorInvoiceLedger(
+          access.supabase,
+          access.activeStoreKey,
+          paymentInvoiceId,
+        ),
+      ),
+    );
+
+    const firstPayment = createdPayments[0];
 
     await appendAuditEvent({
       supabase: access.supabase,
       storeKey: access.activeStoreKey,
       entityType: "vendor_payment",
-      entityId: createdPayment.id,
-      action: "vendor_payment.posted",
-      summary: `Vendor payment posted: ${referenceNumber}`,
+      entityId: firstPayment.id,
+      action:
+        createdPayments.length > 1
+          ? "vendor_payment.batch_posted"
+          : "vendor_payment.posted",
+      summary:
+        createdPayments.length > 1
+          ? `Vendor payment batch posted: ${referenceNumber}`
+          : `Vendor payment posted: ${referenceNumber}`,
       actorId: access.currentUser.id,
       actorName: access.currentUserName,
       actorRole: access.currentUserRole ?? "employee",
       metadata: {
         supplierId,
         supplierName: supplier.name,
-        invoiceId: createdPayment.vendor_invoice_id,
-        paymentDate: createdPayment.payment_date,
+        invoiceId: firstPayment.vendor_invoice_id,
+        invoiceIds: createdPayments
+          .map((payment) => payment.vendor_invoice_id)
+          .filter(Boolean),
+        paymentDate: firstPayment.payment_date,
         amountPaid,
         paymentMethod,
         referenceNumber,
-        status: createdPayment.status,
+        paymentCount: createdPayments.length,
+        status: firstPayment.status,
       },
     });
 
     return NextResponse.json(
       {
-        id: createdPayment.id,
+        id: firstPayment.id,
+        paymentCount: createdPayments.length,
         referenceNumber,
         supplierId,
         supplierName: supplier.name,
-        status: createdPayment.status,
+        status: firstPayment.status,
       },
       { status: 201 },
     );
