@@ -536,6 +536,9 @@ export function EodReconciliationWorkbench({
   const scratchPayoutTotal = moneyInputToNumber(scratchCardTotalPayout);
   const startingFloatTotal = moneyInputToNumber(startingFloat);
   const tillCashTotal = moneyInputToNumber(tillCash);
+  const lotteryCashAdvanceNetImpact = normalizeMoney(
+    data.lotteryCashAdvanceNetImpact,
+  );
   const scratchSalesTotal = normalizeMoney(
     data.scratchSalesToDate + scratchSales,
   );
@@ -550,7 +553,8 @@ export function EodReconciliationWorkbench({
       startingFloatTotal +
         scratchSalesTotal +
         terminalSalesTotal -
-        totalDeductions,
+        totalDeductions +
+        lotteryCashAdvanceNetImpact,
       0,
     ),
   );
@@ -1265,7 +1269,7 @@ export function EodReconciliationWorkbench({
         <SummaryCard
           label="Expected cash"
           value={formatCurrency(totalExpectedCash)}
-          detail="Float plus sales minus payouts"
+          detail="Cash formula after advances"
           icon={<Calculator className="h-5 w-5" />}
           tone="slate"
         />
@@ -1788,6 +1792,21 @@ export function EodReconciliationWorkbench({
                   <span className="text-dark-5">Deductions</span>
                   <span className="font-bold text-red">
                     -{formatCurrency(totalDeductions)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4 text-sm">
+                  <span className="text-dark-5">Lottery cash advances</span>
+                  <span
+                    className={`font-bold ${
+                      lotteryCashAdvanceNetImpact < 0
+                        ? "text-red"
+                        : lotteryCashAdvanceNetImpact > 0
+                          ? "text-green"
+                          : "text-dark dark:text-white"
+                    }`}
+                  >
+                    {lotteryCashAdvanceNetImpact > 0 ? "+" : ""}
+                    {formatCurrency(lotteryCashAdvanceNetImpact)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4 text-sm">

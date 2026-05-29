@@ -8,6 +8,10 @@ import {
   loadScratchAuditScreenData,
   type ScratchAuditBin,
 } from "@/lib/scratch-cards/data";
+import {
+  loadLotteryCashAdvanceSummary,
+  type LotteryCashAdvanceRecord,
+} from "@/lib/lottery/cash-advances";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveStoreContext } from "@/lib/stores/server";
@@ -85,6 +89,13 @@ export type LotteryEodReconciliationData = {
   ticketCancels: number;
   cashingBonus: number;
   lotteryBondFee: number;
+  lotteryCashAdvanceNetImpact: number;
+  lotteryCashAdvancesAvailable: boolean;
+  lotteryCashAdvancesWarning?: string;
+  lotteryCashAdvancesTaken: number;
+  lotteryCashOpenAdvanceBalance: number;
+  lotteryCashOpenAdvances: LotteryCashAdvanceRecord[];
+  lotteryCashPaybacksReceived: number;
   onlineTotalPayout: number;
   scratchCardTotalPayout: number;
   scratchSalesToDate: number;
@@ -296,6 +307,12 @@ export async function loadLotteryEodReconciliationData(input?: {
       onlineTotalPayout: 0,
       cashingBonus: 0,
       lotteryBondFee: 0,
+      lotteryCashAdvanceNetImpact: 0,
+      lotteryCashAdvancesAvailable: false,
+      lotteryCashAdvancesTaken: 0,
+      lotteryCashOpenAdvanceBalance: 0,
+      lotteryCashOpenAdvances: [],
+      lotteryCashPaybacksReceived: 0,
       scratchCardTotalPayout: 0,
       scratchSalesToDate: 0,
       startingFloat: 0,
@@ -306,24 +323,33 @@ export async function loadLotteryEodReconciliationData(input?: {
   }
 
   const supabase = await createClient();
-  const [terminalReportResult, reconciliationResult, auditResult] =
-    await Promise.all([
-      supabase
-        .from("terminal_reports")
-        .select(
-          "draw_sales,draw_payouts,scratch_payouts,total_cashing_bonus,total_cancels,lottery_bonding_fee",
-        )
-        .eq("store_key", auditData.storeKey)
-        .eq("report_date", businessDate)
-        .maybeSingle<TerminalReportRow>(),
-      loadEodReconciliationRow(supabase, auditData.storeKey, businessDate),
-      supabase
-        .from("daily_audits")
-        .select("calculated_revenue")
-        .eq("store_key", auditData.storeKey)
-        .eq("audit_date", businessDate)
-        .returns<Array<{ calculated_revenue: number | string }>>(),
-    ]);
+  const [
+    terminalReportResult,
+    reconciliationResult,
+    auditResult,
+    cashAdvanceSummary,
+  ] = await Promise.all([
+    supabase
+      .from("terminal_reports")
+      .select(
+        "draw_sales,draw_payouts,scratch_payouts,total_cashing_bonus,total_cancels,lottery_bonding_fee",
+      )
+      .eq("store_key", auditData.storeKey)
+      .eq("report_date", businessDate)
+      .maybeSingle<TerminalReportRow>(),
+    loadEodReconciliationRow(supabase, auditData.storeKey, businessDate),
+    supabase
+      .from("daily_audits")
+      .select("calculated_revenue")
+      .eq("store_key", auditData.storeKey)
+      .eq("audit_date", businessDate)
+      .returns<Array<{ calculated_revenue: number | string }>>(),
+    loadLotteryCashAdvanceSummary({
+      supabase,
+      storeKey: auditData.storeKey,
+      businessDate,
+    }),
+  ]);
 
   const error =
     terminalReportResult.error ??
@@ -341,6 +367,14 @@ export async function loadLotteryEodReconciliationData(input?: {
       onlineTotalPayout: 0,
       cashingBonus: 0,
       lotteryBondFee: 0,
+      lotteryCashAdvanceNetImpact: 0,
+      lotteryCashAdvancesAvailable: false,
+      lotteryCashAdvancesTaken: 0,
+      lotteryCashAdvancesWarning:
+        error.message ?? "Lottery EOD data could not be loaded.",
+      lotteryCashOpenAdvanceBalance: 0,
+      lotteryCashOpenAdvances: [],
+      lotteryCashPaybacksReceived: 0,
       scratchCardTotalPayout: 0,
       scratchSalesToDate: 0,
       startingFloat: 0,
@@ -367,6 +401,13 @@ export async function loadLotteryEodReconciliationData(input?: {
     lotteryBondFee: normalizeStoredMoney(
       terminalReportResult.data?.lottery_bonding_fee,
     ),
+    lotteryCashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
+    lotteryCashAdvancesAvailable: cashAdvanceSummary.available,
+    lotteryCashAdvancesTaken: cashAdvanceSummary.dailyAdvanceTotal,
+    lotteryCashAdvancesWarning: cashAdvanceSummary.warning,
+    lotteryCashOpenAdvanceBalance: cashAdvanceSummary.openBalance,
+    lotteryCashOpenAdvances: cashAdvanceSummary.openAdvances,
+    lotteryCashPaybacksReceived: cashAdvanceSummary.dailyPaybackTotal,
     scratchCardTotalPayout: normalizeStoredMoney(
       terminalReportResult.data?.scratch_payouts,
     ),
@@ -424,6 +465,7 @@ function getDiscrepancyStatus(shortOverAmount: number) {
 
 function calculateExpectedLotteryCash(input: {
   cashingBonus: number;
+  cashAdvanceNetImpact: number;
   onlineTotalPayout: number;
   scratchCardTotalPayout: number;
   scratchSalesTotal: number;
@@ -433,6 +475,7 @@ function calculateExpectedLotteryCash(input: {
 }) {
   const {
     cashingBonus,
+    cashAdvanceNetImpact,
     onlineTotalPayout,
     scratchCardTotalPayout,
     scratchSalesTotal,
@@ -449,7 +492,8 @@ function calculateExpectedLotteryCash(input: {
         ticketCancels -
         onlineTotalPayout -
         scratchCardTotalPayout -
-        cashingBonus,
+        cashingBonus +
+        cashAdvanceNetImpact,
       0,
     ),
   );
@@ -1275,8 +1319,14 @@ async function saveLotteryEodWithClientFallback(input: {
     access.activeStoreKey,
     reportDate,
   );
+  const cashAdvanceSummary = await loadLotteryCashAdvanceSummary({
+    supabase: access.supabase,
+    storeKey: access.activeStoreKey,
+    businessDate: reportDate,
+  });
   const expectedCashTotal = calculateExpectedLotteryCash({
     cashingBonus,
+    cashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
     onlineTotalPayout,
     scratchCardTotalPayout,
     scratchSalesTotal,
@@ -1346,6 +1396,9 @@ async function saveLotteryEodWithClientFallback(input: {
   return {
     ...savedResult,
     lotteryBondFee: roundMoney(lotteryBondFee),
+    lotteryCashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
+    lotteryCashAdvancesTaken: cashAdvanceSummary.dailyAdvanceTotal,
+    lotteryCashPaybacksReceived: cashAdvanceSummary.dailyPaybackTotal,
   };
 }
 
@@ -1456,8 +1509,14 @@ export async function submitLotteryEodReconciliation(
     reportDate,
   });
   const savedResult = mapSaveLotteryEodRow(row);
+  const cashAdvanceSummary = await loadLotteryCashAdvanceSummary({
+    supabase: access.supabase,
+    storeKey: access.activeStoreKey,
+    businessDate: reportDate,
+  });
   const totalExpectedCash = calculateExpectedLotteryCash({
     cashingBonus,
+    cashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
     onlineTotalPayout,
     scratchCardTotalPayout,
     scratchSalesTotal: savedResult.scratchSales,
@@ -1493,6 +1552,9 @@ export async function submitLotteryEodReconciliation(
     ...savedResult,
     discrepancyStatus: getDiscrepancyStatus(shortOverAmount),
     lotteryBondFee,
+    lotteryCashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
+    lotteryCashAdvancesTaken: cashAdvanceSummary.dailyAdvanceTotal,
+    lotteryCashPaybacksReceived: cashAdvanceSummary.dailyPaybackTotal,
     shortOverAmount,
     startingFloat: roundMoney(startingFloat),
     totalExpectedCash,

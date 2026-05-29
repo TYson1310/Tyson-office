@@ -93,6 +93,11 @@ const ROUTE_ACCESS_RULES: RouteAccessRule[] = [
     permissions: ["view:lottery_reconciliation"],
   },
   {
+    prefix: "/lottery/cash-advances",
+    roles: ["admin", "manager"],
+    permissions: ["view:lottery"],
+  },
+  {
     prefix: "/lottery/eft",
     roles: ["admin", "manager", "employee"],
     permissions: ["view:lottery_eft"],

@@ -91,6 +91,10 @@ const headerCopy: Record<string, { title: string; subtitle: string }> = {
     title: "Lottery EOD Reconciliation",
     subtitle: "Match bin end tickets, terminal totals, payouts, and till cash.",
   },
+  "/lottery/cash-advances": {
+    title: "Lottery Cash Advances",
+    subtitle: "Track temporary lottery cash taken and paid back.",
+  },
   "/lottery/eft": {
     title: "Lottery EFT",
     subtitle:
