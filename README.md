@@ -51,6 +51,7 @@ This app is currently configured as a private internal system, not a public mark
 - Node.js 20 or newer
 - npm
 - Supabase project
+- Supabase CLI and Docker Desktop for local database backups
 - Gemini API key for invoice extraction
 
 ## Environment Variables
@@ -69,6 +70,9 @@ Create `.env.local` from `.env.example` and set real values.
 | `PRIVATE_ADMIN_MASTER_PASSWORD` | Recommended | Master password for the private admin portal |
 | `GEMINI_API_KEY` | Required for invoice extraction | Google Gemini API key |
 | `GEMINI_INVOICE_MODEL` | Optional | Invoice extraction model, default `gemini-2.5-flash` |
+| `SUPABASE_DB_URL` | Required for local backups | Supabase Postgres connection string used by `npm run backup:local` |
+| `SUPABASE_BACKUP_DIR` | Optional | Local backup output folder, default `backups/supabase` |
+| `SUPABASE_BACKUP_STORAGE_BUCKETS` | Optional | Comma-separated Storage buckets to download during backups |
 
 Notes:
 
@@ -124,6 +128,18 @@ Create these Supabase Storage buckets:
 If you use different bucket names, update the matching env vars.
 
 The `vendor-invoices` bucket also stores supplier adjustment attachments such as credit notes and return documents.
+
+## Local Backups
+
+Run a full local backup of Supabase Postgres and configured Supabase Storage buckets:
+
+```bash
+npm run backup:local
+```
+
+Use `npm run backup:db` for database-only dumps or `npm run backup:storage` for storage-only downloads.
+
+See `docs/local-backups.md` for setup, scheduling, and restore steps.
 
 ## Local Development
 
