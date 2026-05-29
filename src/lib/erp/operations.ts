@@ -29,7 +29,10 @@ import { requireActiveStoreContext } from "@/lib/stores/server";
 import { normalizeExpenseCategory } from "@/lib/expenses/categories";
 import { isPostedVendorAdjustmentStatus } from "@/lib/vendors/adjustments";
 import { getVendorDocumentHref } from "@/lib/vendors/documents";
-import { isPostedVendorPaymentStatus } from "@/lib/vendors/payments";
+import {
+  isPostedVendorPaymentStatus,
+  normalizeVendorPaymentMethod,
+} from "@/lib/vendors/payments";
 import {
   addDaysToIsoDateKey,
   dateKeyToUtcNoonDate,
@@ -351,7 +354,7 @@ type VendorPaymentRow = {
   status: "posted" | "void";
   amount_paid: number | string;
   payment_date: string;
-  payment_method: "check" | "bank_transfer" | "credit_card" | "cash" | "other";
+  payment_method: string;
   reference_number: string;
   notes: string | null;
   approved_by: string | null;
@@ -1687,7 +1690,7 @@ export async function getOperationsDataset(): Promise<OperationsDataset> {
         status: row.status,
         amountPaid: toNumber(row.amount_paid),
         paymentDate: toDate(row.payment_date),
-        paymentMethod: row.payment_method,
+        paymentMethod: normalizeVendorPaymentMethod(row.payment_method),
         referenceNumber: row.reference_number,
         notes: row.notes ?? undefined,
         approvedBy: row.approved_by ?? undefined,

@@ -630,7 +630,7 @@ export interface VendorPayment {
   status: VendorPaymentStatus;
   amountPaid: number;
   paymentDate: Date;
-  paymentMethod: "check" | "bank_transfer" | "credit_card" | "cash" | "other";
+  paymentMethod: "cash" | "card" | "check";
   referenceNumber: string;
   notes?: string;
   approvedBy?: string;

@@ -77,6 +77,7 @@ type ManualEntryFormState = {
 };
 
 type LedgerFilter = "all" | "live" | "pending" | "verified" | "paid";
+type LedgerHistoryRange = "30" | "90" | "180" | "365" | "all";
 type LedgerSourceFilter = "all" | ShiftEntry["type"];
 
 const DEFAULT_START_TIME = "09:00";
@@ -89,6 +90,16 @@ const WEEKDAY_OPTIONS = [
   { value: 5, label: "Fri" },
   { value: 6, label: "Sat" },
   { value: 0, label: "Sun" },
+];
+const LEDGER_HISTORY_OPTIONS: Array<{
+  label: string;
+  value: LedgerHistoryRange;
+}> = [
+  { value: "30", label: "Last 30 days" },
+  { value: "90", label: "Last 90 days" },
+  { value: "180", label: "Last 180 days" },
+  { value: "365", label: "Last year" },
+  { value: "all", label: "All history" },
 ];
 const INPUT_CLASSNAME = "app-input";
 
@@ -366,6 +377,8 @@ export default function ShiftManagementPage() {
   const [isResolutionModalOpen, setIsResolutionModalOpen] = useState(false);
   const [isManualEntryModalOpen, setIsManualEntryModalOpen] = useState(false);
   const [ledgerFilter, setLedgerFilter] = useState<LedgerFilter>("all");
+  const [ledgerHistoryRange, setLedgerHistoryRange] =
+    useState<LedgerHistoryRange>("90");
   const [ledgerSearchTerm, setLedgerSearchTerm] = useState("");
   const [ledgerSourceFilter, setLedgerSourceFilter] =
     useState<LedgerSourceFilter>("all");
@@ -410,7 +423,15 @@ export default function ShiftManagementPage() {
     setIsLoadingData(true);
 
     try {
-      const response = await fetch("/api/shifts", {
+      const params = new URLSearchParams();
+
+      if (ledgerHistoryRange === "all") {
+        params.set("history", "all");
+      } else {
+        params.set("historyDays", ledgerHistoryRange);
+      }
+
+      const response = await fetch(`/api/shifts?${params.toString()}`, {
         cache: "no-store",
       });
       const payload = (await response.json().catch(() => null)) as
@@ -427,7 +448,10 @@ export default function ShiftManagementPage() {
       }
 
       if (isShiftPayload(payload)) {
-        if (typeof payload.timeZone === "string" && payload.timeZone.length > 0) {
+        if (
+          typeof payload.timeZone === "string" &&
+          payload.timeZone.length > 0
+        ) {
           setTimeZone(payload.timeZone);
         }
         setEmployees(payload.employees);
@@ -452,47 +476,30 @@ export default function ShiftManagementPage() {
     } finally {
       setIsLoadingData(false);
     }
-  }, [showNotify]);
+  }, [ledgerHistoryRange, showNotify]);
 
   useEffect(() => {
     void loadShiftData();
   }, [loadShiftData]);
 
   const dedupedShifts = useMemo(
-    () =>
-      dedupeByKey(
-        shifts,
-        (shift) =>
-          [
-            shift.employeeId,
-            shift.date,
-            shift.clockInAt,
-            shift.clockOutAt ?? "",
-            shift.type,
-            shift.scheduleId ?? "",
-            shift.verificationStatus,
-            shift.payrollStatus,
-            shift.notes ?? "",
-          ].join("|"),
-      ),
+    () => dedupeByKey(shifts, (shift) => shift.id),
     [shifts],
   );
 
   const dedupedExceptions = useMemo(
     () =>
-      dedupeByKey(
-        exceptions,
-        (exception) =>
-          [
-            exception.employeeId,
-            exception.date,
-            exception.type,
-            exception.status,
-            exception.shiftId ?? "",
-            exception.scheduleId ?? "",
-            exception.detail,
-            exception.resolvedAt ?? "",
-          ].join("|"),
+      dedupeByKey(exceptions, (exception) =>
+        [
+          exception.employeeId,
+          exception.date,
+          exception.type,
+          exception.status,
+          exception.shiftId ?? "",
+          exception.scheduleId ?? "",
+          exception.detail,
+          exception.resolvedAt ?? "",
+        ].join("|"),
       ),
     [exceptions],
   );
@@ -566,59 +573,53 @@ export default function ShiftManagementPage() {
     [dedupedShifts],
   );
 
-  const filteredLedgerShifts = useMemo(
-    () => {
-      const normalizedLedgerSearch = ledgerSearchTerm.trim().toLowerCase();
+  const filteredLedgerShifts = useMemo(() => {
+    const normalizedLedgerSearch = ledgerSearchTerm.trim().toLowerCase();
 
-      return dedupedShifts.filter((shift) => {
-        const matchesLedgerFilter =
-          ledgerFilter === "all"
-            ? true
-            : ledgerFilter === "live"
-              ? shift.isOpen
-              : ledgerFilter === "pending"
-                ? shift.isOpen ||
-                  shift.verificationStatus === "pending" ||
-                  shift.verificationStatus === "needs_attention"
-                : ledgerFilter === "verified"
-                  ? shift.verificationStatus === "verified" &&
-                    shift.payrollStatus !== "paid"
-                  : shift.payrollStatus === "paid";
+    return dedupedShifts.filter((shift) => {
+      const matchesLedgerFilter =
+        ledgerFilter === "all"
+          ? true
+          : ledgerFilter === "live"
+            ? shift.isOpen
+            : ledgerFilter === "pending"
+              ? shift.isOpen ||
+                shift.verificationStatus === "pending" ||
+                shift.verificationStatus === "needs_attention"
+              : ledgerFilter === "verified"
+                ? shift.verificationStatus === "verified" &&
+                  shift.payrollStatus !== "paid"
+                : shift.payrollStatus === "paid";
 
-        if (!matchesLedgerFilter) {
-          return false;
-        }
+      if (!matchesLedgerFilter) {
+        return false;
+      }
 
-        if (
-          ledgerSourceFilter !== "all" &&
-          shift.type !== ledgerSourceFilter
-        ) {
-          return false;
-        }
+      if (ledgerSourceFilter !== "all" && shift.type !== ledgerSourceFilter) {
+        return false;
+      }
 
-        if (normalizedLedgerSearch.length === 0) {
-          return true;
-        }
+      if (normalizedLedgerSearch.length === 0) {
+        return true;
+      }
 
-        const sourceLabel = shift.type === "manual" ? "manual" : "attendance";
-        const searchHaystack = [
-          shift.employeeName,
-          shift.date,
-          formatDateKeyLabel(shift.date),
-          sourceLabel,
-          getVerificationLabel(shift),
-          shift.payrollStatus === "paid" ? "paid" : "unpaid",
-          shift.paidPeriodLabel ?? "",
-          shift.notes ?? "",
-        ]
-          .join(" ")
-          .toLowerCase();
+      const sourceLabel = shift.type === "manual" ? "manual" : "attendance";
+      const searchHaystack = [
+        shift.employeeName,
+        shift.date,
+        formatDateKeyLabel(shift.date),
+        sourceLabel,
+        getVerificationLabel(shift),
+        shift.payrollStatus === "paid" ? "paid" : "unpaid",
+        shift.paidPeriodLabel ?? "",
+        shift.notes ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
 
-        return searchHaystack.includes(normalizedLedgerSearch);
-      });
-    },
-    [dedupedShifts, ledgerFilter, ledgerSearchTerm, ledgerSourceFilter],
-  );
+      return searchHaystack.includes(normalizedLedgerSearch);
+    });
+  }, [dedupedShifts, ledgerFilter, ledgerSearchTerm, ledgerSourceFilter]);
 
   const stats = useMemo(
     () => ({
@@ -634,7 +635,13 @@ export default function ShiftManagementPage() {
           shift.date === todayKey && shift.verificationStatus === "verified",
       ).length,
     }),
-    [dedupedShifts, employees, openExceptions.length, todayKey, visibleSchedules],
+    [
+      dedupedShifts,
+      employees,
+      openExceptions.length,
+      todayKey,
+      visibleSchedules,
+    ],
   );
 
   const scheduleHoursPreview = useMemo(() => {
@@ -1014,7 +1021,13 @@ export default function ShiftManagementPage() {
       setIsSubmitting(false);
       setActiveScheduleId(null);
     }
-  }, [loadShiftData, scheduleForm, selectedScheduleDates, showNotify, todayKey]);
+  }, [
+    loadShiftData,
+    scheduleForm,
+    selectedScheduleDates,
+    showNotify,
+    todayKey,
+  ]);
 
   const handleScheduleDelete = useCallback(
     async (schedule: ShiftSchedule) => {
@@ -1268,97 +1281,102 @@ export default function ShiftManagementPage() {
 
                     return (
                       <TableRow key={employee.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-2 dark:bg-dark-3">
-                            <User className="h-5 w-5 text-dark-5" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-dark dark:text-white">
-                              {employee.name}
-                            </p>
-                            <p className="text-xs text-dark-5 dark:text-dark-6">
-                              {formatRoleLabel(employee.role)}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          tone={
-                            employee.status === "clocked_in" ? "green" : "slate"
-                          }
-                        >
-                          {employee.status === "clocked_in"
-                            ? "Clocked In"
-                            : "Clocked Out"}
-                        </StatusBadge>
-                      </TableCell>
-                      <TableCell className="text-sm text-dark dark:text-white">
-                        {scheduledTodayCount > 0
-                          ? `${scheduledTodayCount} today`
-                          : "Off"}
-                      </TableCell>
-                      <TableCell className="font-semibold text-primary">
-                        {employee.hoursToday.toFixed(2)}h
-                      </TableCell>
-                      <TableCell className="text-sm text-dark dark:text-white">
-                        {typeof employee.currentPayrollHours === "number" ? (
-                          <div>
-                            <div className="font-semibold text-dark dark:text-white">
-                              {employee.currentPayrollHours.toFixed(2)}h
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-2 dark:bg-dark-3">
+                              <User className="h-5 w-5 text-dark-5" />
                             </div>
-                            <div className="text-xs text-dark-5 dark:text-dark-6">
-                              {employee.currentPayrollPeriodLabel ?? "Current payroll"}
+                            <div>
+                              <p className="font-semibold text-dark dark:text-white">
+                                {employee.name}
+                              </p>
+                              <p className="text-xs text-dark-5 dark:text-dark-6">
+                                {formatRoleLabel(employee.role)}
+                              </p>
                             </div>
                           </div>
-                        ) : (
-                          <span className="text-dark-5 dark:text-dark-6">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          tone={openExceptionCount > 0 ? "amber" : "green"}
-                        >
-                          {openExceptionCount > 0
-                            ? `${openExceptionCount} open`
-                            : "Clear"}
-                        </StatusBadge>
-                      </TableCell>
-                      <TableCell className="text-sm text-dark-5 dark:text-dark-6">
-                        {employee.lastActionAt
-                          ? actionFormatter.format(
-                              new Date(employee.lastActionAt),
-                            )
-                          : "-"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {employee.status === "clocked_out" ? (
-                          <button
-                            onClick={() =>
-                              void handleClockAction(employee, "clock_in")
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge
+                            tone={
+                              employee.status === "clocked_in"
+                                ? "green"
+                                : "slate"
                             }
-                            disabled={isSubmitting}
-                            className="inline-flex min-w-[132px] items-center justify-center rounded-lg bg-green/10 px-3 py-1 text-xs font-bold text-green transition-colors hover:bg-green/20 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            {isSubmitting && activeEmployeeId === employee.id
-                              ? "Saving..."
-                              : "Clock In Override"}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() =>
-                              void handleClockAction(employee, "clock_out")
-                            }
-                            disabled={isSubmitting}
-                            className="inline-flex min-w-[132px] items-center justify-center rounded-lg bg-red/10 px-3 py-1 text-xs font-bold text-red transition-colors hover:bg-red/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            {employee.status === "clocked_in"
+                              ? "Clocked In"
+                              : "Clocked Out"}
+                          </StatusBadge>
+                        </TableCell>
+                        <TableCell className="text-sm text-dark dark:text-white">
+                          {scheduledTodayCount > 0
+                            ? `${scheduledTodayCount} today`
+                            : "Off"}
+                        </TableCell>
+                        <TableCell className="font-semibold text-primary">
+                          {employee.hoursToday.toFixed(2)}h
+                        </TableCell>
+                        <TableCell className="text-sm text-dark dark:text-white">
+                          {typeof employee.currentPayrollHours === "number" ? (
+                            <div>
+                              <div className="font-semibold text-dark dark:text-white">
+                                {employee.currentPayrollHours.toFixed(2)}h
+                              </div>
+                              <div className="text-xs text-dark-5 dark:text-dark-6">
+                                {employee.currentPayrollPeriodLabel ??
+                                  "Current payroll"}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-dark-5 dark:text-dark-6">
+                              -
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge
+                            tone={openExceptionCount > 0 ? "amber" : "green"}
                           >
-                            {isSubmitting && activeEmployeeId === employee.id
-                              ? "Saving..."
-                              : "Clock Out Override"}
-                          </button>
-                        )}
-                      </TableCell>
+                            {openExceptionCount > 0
+                              ? `${openExceptionCount} open`
+                              : "Clear"}
+                          </StatusBadge>
+                        </TableCell>
+                        <TableCell className="text-sm text-dark-5 dark:text-dark-6">
+                          {employee.lastActionAt
+                            ? actionFormatter.format(
+                                new Date(employee.lastActionAt),
+                              )
+                            : "-"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {employee.status === "clocked_out" ? (
+                            <button
+                              onClick={() =>
+                                void handleClockAction(employee, "clock_in")
+                              }
+                              disabled={isSubmitting}
+                              className="inline-flex min-w-[132px] items-center justify-center rounded-lg bg-green/10 px-3 py-1 text-xs font-bold text-green transition-colors hover:bg-green/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {isSubmitting && activeEmployeeId === employee.id
+                                ? "Saving..."
+                                : "Clock In Override"}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                void handleClockAction(employee, "clock_out")
+                              }
+                              disabled={isSubmitting}
+                              className="inline-flex min-w-[132px] items-center justify-center rounded-lg bg-red/10 px-3 py-1 text-xs font-bold text-red transition-colors hover:bg-red/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {isSubmitting && activeEmployeeId === employee.id
+                                ? "Saving..."
+                                : "Clock Out Override"}
+                            </button>
+                          )}
+                        </TableCell>
                       </TableRow>
                     );
                   })
@@ -1607,7 +1625,7 @@ export default function ShiftManagementPage() {
             </div>
           }
         >
-          <div className="mb-4 grid gap-3 lg:grid-cols-[1.2fr_220px_auto]">
+          <div className="mb-4 grid gap-3 lg:grid-cols-[1.2fr_180px_220px_auto]">
             <label className="relative block">
               <Search className="pointer-events-none absolute left-4 top-3.5 h-4 w-4 text-dark-5 dark:text-dark-6" />
               <input
@@ -1619,11 +1637,23 @@ export default function ShiftManagementPage() {
             </label>
 
             <select
+              value={ledgerHistoryRange}
+              onChange={(event) =>
+                setLedgerHistoryRange(event.target.value as LedgerHistoryRange)
+              }
+              className={INPUT_CLASSNAME}
+            >
+              {LEDGER_HISTORY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <select
               value={ledgerSourceFilter}
               onChange={(event) =>
-                setLedgerSourceFilter(
-                  event.target.value as LedgerSourceFilter,
-                )
+                setLedgerSourceFilter(event.target.value as LedgerSourceFilter)
               }
               className={INPUT_CLASSNAME}
             >
@@ -1633,7 +1663,8 @@ export default function ShiftManagementPage() {
             </select>
 
             <div className="flex items-center text-sm text-dark-5 dark:text-dark-6">
-              Showing {filteredLedgerShifts.length} of {dedupedShifts.length} shifts
+              Showing {filteredLedgerShifts.length} of {dedupedShifts.length}{" "}
+              shifts
             </div>
           </div>
 
@@ -1755,662 +1786,215 @@ export default function ShiftManagementPage() {
       {isScheduleModalOpen ? (
         <ModalPortal>
           <div className="modal-shell z-99999 bg-slate-950/50 backdrop-blur-sm">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={
-              scheduleForm.scheduleId
-                ? "Edit scheduled shift"
-                : "Publish scheduled shift"
-            }
-            className="modal-card-scroll max-w-xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark"
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-stroke px-5 py-4 dark:border-dark-3">
-              <div>
-                <h2 className="text-lg font-semibold text-dark dark:text-white">
-                  {scheduleForm.scheduleId
-                    ? "Edit Scheduled Shift"
-                    : "Publish Scheduled Shift"}
-                </h2>
-                <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-                  Schedules drive the exception queue and determine what
-                  managers review before payroll finalization.
-                </p>
-              </div>
-              <button
-                onClick={closeScheduleModal}
-                className="app-icon-button"
-                aria-label="Close schedule dialog"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="max-h-[calc(100vh-6rem)] space-y-4 overflow-y-auto p-5">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                  Select Employee
-                </label>
-                <select
-                  className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                  value={scheduleForm.employeeId}
-                  onChange={(event) =>
-                    setScheduleForm((current) => ({
-                      ...current,
-                      employeeId: event.target.value,
-                    }))
-                  }
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={
+                scheduleForm.scheduleId
+                  ? "Edit scheduled shift"
+                  : "Publish scheduled shift"
+              }
+              className="modal-card-scroll max-w-xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark"
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-stroke px-5 py-4 dark:border-dark-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-dark dark:text-white">
+                    {scheduleForm.scheduleId
+                      ? "Edit Scheduled Shift"
+                      : "Publish Scheduled Shift"}
+                  </h2>
+                  <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
+                    Schedules drive the exception queue and determine what
+                    managers review before payroll finalization.
+                  </p>
+                </div>
+                <button
+                  onClick={closeScheduleModal}
+                  className="app-icon-button"
+                  aria-label="Close schedule dialog"
                 >
-                  <option value="">Choose employee...</option>
-                  {employees.map((employee) => (
-                    <option key={employee.id} value={employee.id}>
-                      {employee.name}
-                    </option>
-                  ))}
-                </select>
+                  <X className="h-4 w-4" />
+                </button>
               </div>
 
-              {scheduleForm.scheduleId ? null : (
-                <label className="flex items-start gap-3 rounded-lg border border-stroke px-4 py-3 text-sm text-dark dark:border-dark-3 dark:text-dark-6">
-                  <input
-                    type="checkbox"
-                    checked={scheduleForm.isRecurring}
-                    onChange={(event) =>
-                      setScheduleForm((current) => ({
-                        ...current,
-                        isRecurring: event.target.checked,
-                        endDate: event.target.checked
-                          ? current.endDate >= current.shiftDate
-                            ? current.endDate
-                            : current.shiftDate
-                          : current.shiftDate,
-                        repeatWeekdays:
-                          current.repeatWeekdays.length > 0
-                            ? current.repeatWeekdays
-                            : getDefaultRepeatWeekdays(current.shiftDate),
-                      }))
-                    }
-                    className="mt-1 h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
-                  />
-                  <span>
-                    Repeat this schedule across a date range. Leave this off to
-                    publish a single shift.
-                  </span>
-                </label>
-              )}
-
-              <div
-                className={
-                  scheduleForm.scheduleId || !scheduleForm.isRecurring
-                    ? ""
-                    : "grid gap-4 md:grid-cols-2"
-                }
-              >
+              <div className="max-h-[calc(100vh-6rem)] space-y-4 overflow-y-auto p-5">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    {scheduleForm.scheduleId || !scheduleForm.isRecurring
-                      ? "Date"
-                      : "Start Date"}
+                    Select Employee
                   </label>
-                  <input
-                    type="date"
+                  <select
                     className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                    value={scheduleForm.shiftDate}
+                    value={scheduleForm.employeeId}
                     onChange={(event) =>
                       setScheduleForm((current) => ({
                         ...current,
-                        shiftDate: event.target.value,
-                        endDate:
-                          current.scheduleId || !current.isRecurring
-                            ? event.target.value
-                            : current.endDate >= event.target.value
-                              ? current.endDate
-                              : event.target.value,
-                        repeatWeekdays: current.isRecurring
-                          ? current.repeatWeekdays
-                          : getDefaultRepeatWeekdays(event.target.value),
+                        employeeId: event.target.value,
                       }))
                     }
-                  />
+                  >
+                    <option value="">Choose employee...</option>
+                    {employees.map((employee) => (
+                      <option key={employee.id} value={employee.id}>
+                        {employee.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {scheduleForm.scheduleId ? null : (
+                  <label className="flex items-start gap-3 rounded-lg border border-stroke px-4 py-3 text-sm text-dark dark:border-dark-3 dark:text-dark-6">
+                    <input
+                      type="checkbox"
+                      checked={scheduleForm.isRecurring}
+                      onChange={(event) =>
+                        setScheduleForm((current) => ({
+                          ...current,
+                          isRecurring: event.target.checked,
+                          endDate: event.target.checked
+                            ? current.endDate >= current.shiftDate
+                              ? current.endDate
+                              : current.shiftDate
+                            : current.shiftDate,
+                          repeatWeekdays:
+                            current.repeatWeekdays.length > 0
+                              ? current.repeatWeekdays
+                              : getDefaultRepeatWeekdays(current.shiftDate),
+                        }))
+                      }
+                      className="mt-1 h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
+                    />
+                    <span>
+                      Repeat this schedule across a date range. Leave this off
+                      to publish a single shift.
+                    </span>
+                  </label>
+                )}
+
+                <div
+                  className={
+                    scheduleForm.scheduleId || !scheduleForm.isRecurring
+                      ? ""
+                      : "grid gap-4 md:grid-cols-2"
+                  }
+                >
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      {scheduleForm.scheduleId || !scheduleForm.isRecurring
+                        ? "Date"
+                        : "Start Date"}
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                      value={scheduleForm.shiftDate}
+                      onChange={(event) =>
+                        setScheduleForm((current) => ({
+                          ...current,
+                          shiftDate: event.target.value,
+                          endDate:
+                            current.scheduleId || !current.isRecurring
+                              ? event.target.value
+                              : current.endDate >= event.target.value
+                                ? current.endDate
+                                : event.target.value,
+                          repeatWeekdays: current.isRecurring
+                            ? current.repeatWeekdays
+                            : getDefaultRepeatWeekdays(event.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {scheduleForm.scheduleId ||
+                  !scheduleForm.isRecurring ? null : (
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                        End Date
+                      </label>
+                      <input
+                        type="date"
+                        min={scheduleForm.shiftDate}
+                        className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                        value={scheduleForm.endDate}
+                        onChange={(event) =>
+                          setScheduleForm((current) => ({
+                            ...current,
+                            endDate: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {scheduleForm.scheduleId || !scheduleForm.isRecurring ? null : (
                   <div>
                     <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                      End Date
+                      Publish On
                     </label>
-                    <input
-                      type="date"
-                      min={scheduleForm.shiftDate}
-                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                      value={scheduleForm.endDate}
-                      onChange={(event) =>
-                        setScheduleForm((current) => ({
-                          ...current,
-                          endDate: event.target.value,
-                        }))
-                      }
-                    />
+                    <div className="flex flex-wrap gap-2">
+                      {WEEKDAY_OPTIONS.map((option) => {
+                        const isSelected = scheduleForm.repeatWeekdays.includes(
+                          option.value,
+                        );
+
+                        return (
+                          <button
+                            type="button"
+                            key={option.value}
+                            onClick={() =>
+                              setScheduleForm((current) => ({
+                                ...current,
+                                repeatWeekdays: isSelected
+                                  ? current.repeatWeekdays.filter(
+                                      (value) => value !== option.value,
+                                    )
+                                  : [
+                                      ...current.repeatWeekdays,
+                                      option.value,
+                                    ].sort((left, right) => left - right),
+                              }))
+                            }
+                            className={`inline-flex min-w-[64px] items-center justify-center rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                              isSelected
+                                ? "border-primary bg-primary text-white"
+                                : "border-stroke text-dark hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-2 text-xs text-dark-5 dark:text-dark-6">
+                      {selectedScheduleDates.length === 0
+                        ? "Choose at least one weekday inside the selected date range."
+                        : selectedScheduleDates.length === 1
+                          ? `This will publish 1 shift on ${formatDateKeyLabel(
+                              selectedScheduleDates[0],
+                            )}.`
+                          : `This will publish ${selectedScheduleDates.length} shifts from ${formatDateKeyLabel(
+                              selectedScheduleDates[0],
+                            )} through ${formatDateKeyLabel(
+                              selectedScheduleDates[
+                                selectedScheduleDates.length - 1
+                              ],
+                            )}.`}
+                    </p>
                   </div>
                 )}
-              </div>
 
-              {scheduleForm.scheduleId || !scheduleForm.isRecurring ? null : (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    Publish On
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {WEEKDAY_OPTIONS.map((option) => {
-                      const isSelected = scheduleForm.repeatWeekdays.includes(
-                        option.value,
-                      );
-
-                      return (
-                        <button
-                          type="button"
-                          key={option.value}
-                          onClick={() =>
-                            setScheduleForm((current) => ({
-                              ...current,
-                              repeatWeekdays: isSelected
-                                ? current.repeatWeekdays.filter(
-                                    (value) => value !== option.value,
-                                  )
-                                : [...current.repeatWeekdays, option.value].sort(
-                                    (left, right) => left - right,
-                                  ),
-                            }))
-                          }
-                          className={`inline-flex min-w-[64px] items-center justify-center rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                            isSelected
-                              ? "border-primary bg-primary text-white"
-                              : "border-stroke text-dark hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p className="mt-2 text-xs text-dark-5 dark:text-dark-6">
-                    {selectedScheduleDates.length === 0
-                      ? "Choose at least one weekday inside the selected date range."
-                      : selectedScheduleDates.length === 1
-                        ? `This will publish 1 shift on ${formatDateKeyLabel(
-                            selectedScheduleDates[0],
-                          )}.`
-                        : `This will publish ${selectedScheduleDates.length} shifts from ${formatDateKeyLabel(
-                            selectedScheduleDates[0],
-                          )} through ${formatDateKeyLabel(
-                            selectedScheduleDates[selectedScheduleDates.length - 1],
-                          )}.`}
-                  </p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    Start Time
-                  </label>
-                  <input
-                    type="time"
-                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                    value={scheduleForm.startTime}
-                    onChange={(event) =>
-                      setScheduleForm((current) => ({
-                        ...current,
-                        startTime: event.target.value,
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    End Time
-                  </label>
-                  <input
-                    type="time"
-                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                    value={scheduleForm.endTime}
-                    onChange={(event) =>
-                      setScheduleForm((current) => ({
-                        ...current,
-                        endTime: event.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-[1fr_auto]">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    Notes
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                    value={scheduleForm.notes}
-                    onChange={(event) =>
-                      setScheduleForm((current) => ({
-                        ...current,
-                        notes: event.target.value,
-                      }))
-                    }
-                    placeholder="Optional shift note"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    Break (min)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                    value={scheduleForm.breakMinutes}
-                    onChange={(event) =>
-                      setScheduleForm((current) => ({
-                        ...current,
-                        breakMinutes: event.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-dark-5 dark:text-dark-6">
-                Scheduled duration:{" "}
-                <span className="font-semibold text-dark dark:text-white">
-                  {scheduleHoursPreview > 0
-                    ? `${scheduleHoursPreview.toFixed(2)} hours`
-                    : "Invalid range"}
-                </span>
-                {crossesMidnight(scheduleForm.startTime, scheduleForm.endTime)
-                  ? " • ends next day"
-                  : ""}
-              </div>
-
-              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button
-                  onClick={closeScheduleModal}
-                  className="inline-flex items-center justify-center rounded-lg border border-stroke px-4 py-2 text-sm font-medium text-dark transition hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => void handleScheduleSave()}
-                  disabled={isSubmitting || employees.length === 0}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <Plus className="h-4 w-4" />
-                  {isSubmitting && activeScheduleId
-                    ? "Saving..."
-                    : scheduleForm.scheduleId
-                      ? "Update Schedule"
-                      : selectedScheduleDates.length > 1
-                        ? `Publish ${selectedScheduleDates.length} Shifts`
-                        : "Publish Shift"}
-                </button>
-              </div>
-            </div>
-          </div>
-          </div>
-        </ModalPortal>
-      ) : null}
-
-      {isManualEntryModalOpen ? (
-        <ModalPortal>
-          <div className="modal-shell z-99999 bg-slate-950/50 backdrop-blur-sm">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Manual shift entry"
-            className="modal-card-scroll max-w-xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark"
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-stroke px-5 py-4 dark:border-dark-3">
-              <div>
-                <h2 className="text-lg font-semibold text-dark dark:text-white">
-                  Manual Shift Entry
-                </h2>
-                <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-                  Create a retro shift, record yourself as the actor, and mark
-                  the entry verified immediately.
-                </p>
-              </div>
-              <button
-                onClick={closeManualEntryModal}
-                className="app-icon-button"
-                aria-label="Close manual entry dialog"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="max-h-[calc(100vh-6rem)] space-y-4 overflow-y-auto p-5">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                  Employee
-                </label>
-                <select
-                  className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                  value={manualEntryForm.employeeId}
-                  onChange={(event) =>
-                    setManualEntryForm((current) => ({
-                      ...current,
-                      employeeId: event.target.value,
-                    }))
-                  }
-                >
-                  <option value="">Choose employee...</option>
-                  {employees.map((employee) => (
-                    <option key={employee.id} value={employee.id}>
-                      {employee.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <label className="flex items-start gap-3 rounded-lg border border-stroke px-4 py-3 text-sm text-dark dark:border-dark-3 dark:text-dark-6">
-                <input
-                  type="checkbox"
-                  checked={manualEntryForm.isRecurring}
-                  onChange={(event) =>
-                    setManualEntryForm((current) => ({
-                      ...current,
-                      isRecurring: event.target.checked,
-                      endDate: event.target.checked
-                        ? current.endDate >= current.entryDate
-                          ? current.endDate
-                          : current.entryDate
-                        : current.entryDate,
-                      repeatWeekdays:
-                        current.repeatWeekdays.length > 0
-                          ? current.repeatWeekdays
-                          : getDefaultRepeatWeekdays(current.entryDate),
-                    }))
-                  }
-                  className="mt-1 h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
-                />
-                <span>
-                  Repeat this manual entry across a date range. Leave this off
-                  to create one corrected shift.
-                </span>
-              </label>
-
-              <div
-                className={
-                  manualEntryForm.isRecurring
-                    ? "grid gap-4 md:grid-cols-2"
-                    : ""
-                }
-              >
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    {manualEntryForm.isRecurring ? "Start Date" : "Date"}
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                    value={manualEntryForm.entryDate}
-                    onChange={(event) =>
-                      setManualEntryForm((current) => ({
-                        ...current,
-                        entryDate: event.target.value,
-                        endDate: current.isRecurring
-                          ? current.endDate >= event.target.value
-                            ? current.endDate
-                            : event.target.value
-                          : event.target.value,
-                        repeatWeekdays: current.isRecurring
-                          ? current.repeatWeekdays
-                          : getDefaultRepeatWeekdays(event.target.value),
-                      }))
-                    }
-                  />
-                </div>
-
-                {manualEntryForm.isRecurring ? (
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                      End Date
-                    </label>
-                    <input
-                      type="date"
-                      min={manualEntryForm.entryDate}
-                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                      value={manualEntryForm.endDate}
-                      onChange={(event) =>
-                        setManualEntryForm((current) => ({
-                          ...current,
-                          endDate: event.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                ) : null}
-              </div>
-
-              {manualEntryForm.isRecurring ? (
-              <div>
-                <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                  Apply On
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {WEEKDAY_OPTIONS.map((option) => {
-                    const isSelected = manualEntryForm.repeatWeekdays.includes(
-                      option.value,
-                    );
-
-                    return (
-                      <button
-                        type="button"
-                        key={option.value}
-                        onClick={() =>
-                          setManualEntryForm((current) => ({
-                            ...current,
-                            repeatWeekdays: isSelected
-                              ? current.repeatWeekdays.filter(
-                                  (value) => value !== option.value,
-                                )
-                              : [...current.repeatWeekdays, option.value].sort(
-                                  (left, right) => left - right,
-                                ),
-                          }))
-                        }
-                        className={`inline-flex min-w-[64px] items-center justify-center rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                          isSelected
-                            ? "border-primary bg-primary text-white"
-                            : "border-stroke text-dark hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="mt-2 text-xs text-dark-5 dark:text-dark-6">
-                  {selectedManualEntryDates.length === 0
-                    ? "Choose at least one weekday inside the selected date range."
-                    : selectedManualEntryDates.length === 1
-                      ? `This will create 1 manual shift on ${formatDateKeyLabel(
-                          selectedManualEntryDates[0],
-                        )}.`
-                      : `This will create ${selectedManualEntryDates.length} manual shifts from ${formatDateKeyLabel(
-                          selectedManualEntryDates[0],
-                        )} through ${formatDateKeyLabel(
-                          selectedManualEntryDates[selectedManualEntryDates.length - 1],
-                          )}.`}
-                </p>
-              </div>
-              ) : null}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    Start Time
-                  </label>
-                  <input
-                    type="time"
-                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                    value={manualEntryForm.startTime}
-                    onChange={(event) =>
-                      setManualEntryForm((current) => ({
-                        ...current,
-                        startTime: event.target.value,
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                    End Time
-                  </label>
-                  <input
-                    type="time"
-                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                    value={manualEntryForm.endTime}
-                    onChange={(event) =>
-                      setManualEntryForm((current) => ({
-                        ...current,
-                        endTime: event.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                  Notes
-                </label>
-                <textarea
-                  rows={4}
-                  className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                  value={manualEntryForm.notes}
-                  onChange={(event) =>
-                    setManualEntryForm((current) => ({
-                      ...current,
-                      notes: event.target.value,
-                    }))
-                  }
-                  placeholder="Explain why this retro shift is being added."
-                />
-              </div>
-
-              <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-dark-5 dark:text-dark-6">
-                Manual entries create a closed shift, preserve the audit trail,
-                and bypass the live punch flow.
-                {crossesMidnight(
-                  manualEntryForm.startTime,
-                  manualEntryForm.endTime,
-                )
-                  ? " This entry will clock out on the next day."
-                  : ""}
-              </div>
-
-              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button
-                  onClick={closeManualEntryModal}
-                  className="inline-flex items-center justify-center rounded-lg border border-stroke px-4 py-2 text-sm font-medium text-dark transition hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => void handleManualEntrySave()}
-                  disabled={isSubmitting || employees.length === 0}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <Plus className="h-4 w-4" />
-                  {isSubmitting
-                    ? "Saving..."
-                    : selectedManualEntryDates.length > 1
-                      ? `Save ${selectedManualEntryDates.length} Entries`
-                      : "Save Manual Entry"}
-                </button>
-              </div>
-            </div>
-          </div>
-          </div>
-        </ModalPortal>
-      ) : null}
-
-      {isResolutionModalOpen ? (
-        <ModalPortal>
-          <div className="modal-shell z-99999 bg-slate-950/50 backdrop-blur-sm">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Resolve attendance exception"
-            className="modal-card-scroll max-w-xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark"
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-stroke px-5 py-4 dark:border-dark-3">
-              <div>
-                <h2 className="text-lg font-semibold text-dark dark:text-white">
-                  Resolve Attendance Exception
-                </h2>
-                <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-                  {selectedResolutionException?.detail ??
-                    "Clear the issue, add corrected times if needed, and optionally finalize the shift."}
-                </p>
-              </div>
-              <button
-                onClick={closeResolutionModal}
-                className="app-icon-button"
-                aria-label="Close exception dialog"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="max-h-[calc(100vh-6rem)] space-y-4 overflow-y-auto p-5">
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() =>
-                    setResolutionForm((current) => ({
-                      ...current,
-                      resolution: "resolved",
-                    }))
-                  }
-                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                    resolutionForm.resolution === "resolved"
-                      ? "border-primary bg-primary text-white"
-                      : "border-stroke text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-3"
-                  }`}
-                >
-                  Resolve
-                </button>
-                <button
-                  onClick={() =>
-                    setResolutionForm((current) => ({
-                      ...current,
-                      resolution: "ignored",
-                    }))
-                  }
-                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                    resolutionForm.resolution === "ignored"
-                      ? "border-primary bg-primary text-white"
-                      : "border-stroke text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-3"
-                  }`}
-                >
-                  Ignore
-                </button>
-              </div>
-
-              {resolutionForm.resolution === "resolved" ? (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                      Corrected Start
+                      Start Time
                     </label>
                     <input
                       type="time"
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                      value={resolutionForm.startTime}
+                      value={scheduleForm.startTime}
                       onChange={(event) =>
-                        setResolutionForm((current) => ({
+                        setScheduleForm((current) => ({
                           ...current,
                           startTime: event.target.value,
                         }))
@@ -2419,14 +2003,14 @@ export default function ShiftManagementPage() {
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                      Corrected End
+                      End Time
                     </label>
                     <input
                       type="time"
                       className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                      value={resolutionForm.endTime}
+                      value={scheduleForm.endTime}
                       onChange={(event) =>
-                        setResolutionForm((current) => ({
+                        setScheduleForm((current) => ({
                           ...current,
                           endTime: event.target.value,
                         }))
@@ -2434,80 +2018,533 @@ export default function ShiftManagementPage() {
                     />
                   </div>
                 </div>
-              ) : null}
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                  Resolution Notes
-                </label>
-                <textarea
-                  rows={4}
-                  className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
-                  value={resolutionForm.notes}
-                  onChange={(event) =>
-                    setResolutionForm((current) => ({
-                      ...current,
-                      notes: event.target.value,
-                    }))
-                  }
-                  placeholder="Explain what changed or why this issue is being ignored."
-                />
-              </div>
-
-              {resolutionForm.resolution === "resolved" ? (
-                <div className="space-y-3">
-                  {resolutionForm.startTime &&
-                  resolutionForm.endTime &&
-                  crossesMidnight(
-                    resolutionForm.startTime,
-                    resolutionForm.endTime,
-                  ) ? (
-                    <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-dark-5 dark:text-dark-6">
-                      Corrected end time will be saved on the next day.
-                    </div>
-                  ) : null}
-                  <label className="flex items-start gap-3 rounded-lg border border-stroke px-4 py-3 text-sm text-dark dark:border-dark-3 dark:text-dark-6">
+                <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      Notes
+                    </label>
                     <input
-                      type="checkbox"
-                      checked={resolutionForm.verifyShift}
+                      type="text"
+                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                      value={scheduleForm.notes}
                       onChange={(event) =>
-                        setResolutionForm((current) => ({
+                        setScheduleForm((current) => ({
                           ...current,
-                          verifyShift: event.target.checked,
+                          notes: event.target.value,
                         }))
                       }
-                      className="mt-1 h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
+                      placeholder="Optional shift note"
                     />
-                    <span>
-                      Finalize the shift after the exception is cleared if the
-                      record is complete.
-                    </span>
-                  </label>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      Break (min)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                      value={scheduleForm.breakMinutes}
+                      onChange={(event) =>
+                        setScheduleForm((current) => ({
+                          ...current,
+                          breakMinutes: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
-              ) : null}
 
-              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button
-                  onClick={closeResolutionModal}
-                  className="inline-flex items-center justify-center rounded-lg border border-stroke px-4 py-2 text-sm font-medium text-dark transition hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => void handleResolveException()}
-                  disabled={isSubmitting || !resolutionForm.exceptionId}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isSubmitting &&
-                  activeExceptionId === resolutionForm.exceptionId
-                    ? "Saving..."
-                    : resolutionForm.resolution === "ignored"
-                      ? "Ignore Exception"
-                      : "Resolve Exception"}
-                </button>
+                <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-dark-5 dark:text-dark-6">
+                  Scheduled duration:{" "}
+                  <span className="font-semibold text-dark dark:text-white">
+                    {scheduleHoursPreview > 0
+                      ? `${scheduleHoursPreview.toFixed(2)} hours`
+                      : "Invalid range"}
+                  </span>
+                  {crossesMidnight(scheduleForm.startTime, scheduleForm.endTime)
+                    ? " • ends next day"
+                    : ""}
+                </div>
+
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    onClick={closeScheduleModal}
+                    className="inline-flex items-center justify-center rounded-lg border border-stroke px-4 py-2 text-sm font-medium text-dark transition hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => void handleScheduleSave()}
+                    disabled={isSubmitting || employees.length === 0}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {isSubmitting && activeScheduleId
+                      ? "Saving..."
+                      : scheduleForm.scheduleId
+                        ? "Update Schedule"
+                        : selectedScheduleDates.length > 1
+                          ? `Publish ${selectedScheduleDates.length} Shifts`
+                          : "Publish Shift"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+        </ModalPortal>
+      ) : null}
+
+      {isManualEntryModalOpen ? (
+        <ModalPortal>
+          <div className="modal-shell z-99999 bg-slate-950/50 backdrop-blur-sm">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Manual shift entry"
+              className="modal-card-scroll max-w-xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark"
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-stroke px-5 py-4 dark:border-dark-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-dark dark:text-white">
+                    Manual Shift Entry
+                  </h2>
+                  <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
+                    Create a retro shift, record yourself as the actor, and mark
+                    the entry verified immediately.
+                  </p>
+                </div>
+                <button
+                  onClick={closeManualEntryModal}
+                  className="app-icon-button"
+                  aria-label="Close manual entry dialog"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="max-h-[calc(100vh-6rem)] space-y-4 overflow-y-auto p-5">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                    Employee
+                  </label>
+                  <select
+                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                    value={manualEntryForm.employeeId}
+                    onChange={(event) =>
+                      setManualEntryForm((current) => ({
+                        ...current,
+                        employeeId: event.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Choose employee...</option>
+                    {employees.map((employee) => (
+                      <option key={employee.id} value={employee.id}>
+                        {employee.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <label className="flex items-start gap-3 rounded-lg border border-stroke px-4 py-3 text-sm text-dark dark:border-dark-3 dark:text-dark-6">
+                  <input
+                    type="checkbox"
+                    checked={manualEntryForm.isRecurring}
+                    onChange={(event) =>
+                      setManualEntryForm((current) => ({
+                        ...current,
+                        isRecurring: event.target.checked,
+                        endDate: event.target.checked
+                          ? current.endDate >= current.entryDate
+                            ? current.endDate
+                            : current.entryDate
+                          : current.entryDate,
+                        repeatWeekdays:
+                          current.repeatWeekdays.length > 0
+                            ? current.repeatWeekdays
+                            : getDefaultRepeatWeekdays(current.entryDate),
+                      }))
+                    }
+                    className="mt-1 h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
+                  />
+                  <span>
+                    Repeat this manual entry across a date range. Leave this off
+                    to create one corrected shift.
+                  </span>
+                </label>
+
+                <div
+                  className={
+                    manualEntryForm.isRecurring
+                      ? "grid gap-4 md:grid-cols-2"
+                      : ""
+                  }
+                >
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      {manualEntryForm.isRecurring ? "Start Date" : "Date"}
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                      value={manualEntryForm.entryDate}
+                      onChange={(event) =>
+                        setManualEntryForm((current) => ({
+                          ...current,
+                          entryDate: event.target.value,
+                          endDate: current.isRecurring
+                            ? current.endDate >= event.target.value
+                              ? current.endDate
+                              : event.target.value
+                            : event.target.value,
+                          repeatWeekdays: current.isRecurring
+                            ? current.repeatWeekdays
+                            : getDefaultRepeatWeekdays(event.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {manualEntryForm.isRecurring ? (
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                        End Date
+                      </label>
+                      <input
+                        type="date"
+                        min={manualEntryForm.entryDate}
+                        className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                        value={manualEntryForm.endDate}
+                        onChange={(event) =>
+                          setManualEntryForm((current) => ({
+                            ...current,
+                            endDate: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  ) : null}
+                </div>
+
+                {manualEntryForm.isRecurring ? (
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      Apply On
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {WEEKDAY_OPTIONS.map((option) => {
+                        const isSelected =
+                          manualEntryForm.repeatWeekdays.includes(option.value);
+
+                        return (
+                          <button
+                            type="button"
+                            key={option.value}
+                            onClick={() =>
+                              setManualEntryForm((current) => ({
+                                ...current,
+                                repeatWeekdays: isSelected
+                                  ? current.repeatWeekdays.filter(
+                                      (value) => value !== option.value,
+                                    )
+                                  : [
+                                      ...current.repeatWeekdays,
+                                      option.value,
+                                    ].sort((left, right) => left - right),
+                              }))
+                            }
+                            className={`inline-flex min-w-[64px] items-center justify-center rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                              isSelected
+                                ? "border-primary bg-primary text-white"
+                                : "border-stroke text-dark hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-2 text-xs text-dark-5 dark:text-dark-6">
+                      {selectedManualEntryDates.length === 0
+                        ? "Choose at least one weekday inside the selected date range."
+                        : selectedManualEntryDates.length === 1
+                          ? `This will create 1 manual shift on ${formatDateKeyLabel(
+                              selectedManualEntryDates[0],
+                            )}.`
+                          : `This will create ${selectedManualEntryDates.length} manual shifts from ${formatDateKeyLabel(
+                              selectedManualEntryDates[0],
+                            )} through ${formatDateKeyLabel(
+                              selectedManualEntryDates[
+                                selectedManualEntryDates.length - 1
+                              ],
+                            )}.`}
+                    </p>
+                  </div>
+                ) : null}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      Start Time
+                    </label>
+                    <input
+                      type="time"
+                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                      value={manualEntryForm.startTime}
+                      onChange={(event) =>
+                        setManualEntryForm((current) => ({
+                          ...current,
+                          startTime: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      End Time
+                    </label>
+                    <input
+                      type="time"
+                      className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                      value={manualEntryForm.endTime}
+                      onChange={(event) =>
+                        setManualEntryForm((current) => ({
+                          ...current,
+                          endTime: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                    Notes
+                  </label>
+                  <textarea
+                    rows={4}
+                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                    value={manualEntryForm.notes}
+                    onChange={(event) =>
+                      setManualEntryForm((current) => ({
+                        ...current,
+                        notes: event.target.value,
+                      }))
+                    }
+                    placeholder="Explain why this retro shift is being added."
+                  />
+                </div>
+
+                <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-dark-5 dark:text-dark-6">
+                  Manual entries create a closed shift, preserve the audit
+                  trail, and bypass the live punch flow.
+                  {crossesMidnight(
+                    manualEntryForm.startTime,
+                    manualEntryForm.endTime,
+                  )
+                    ? " This entry will clock out on the next day."
+                    : ""}
+                </div>
+
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    onClick={closeManualEntryModal}
+                    className="inline-flex items-center justify-center rounded-lg border border-stroke px-4 py-2 text-sm font-medium text-dark transition hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => void handleManualEntrySave()}
+                    disabled={isSubmitting || employees.length === 0}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {isSubmitting
+                      ? "Saving..."
+                      : selectedManualEntryDates.length > 1
+                        ? `Save ${selectedManualEntryDates.length} Entries`
+                        : "Save Manual Entry"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      ) : null}
+
+      {isResolutionModalOpen ? (
+        <ModalPortal>
+          <div className="modal-shell z-99999 bg-slate-950/50 backdrop-blur-sm">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Resolve attendance exception"
+              className="modal-card-scroll max-w-xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark"
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-stroke px-5 py-4 dark:border-dark-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-dark dark:text-white">
+                    Resolve Attendance Exception
+                  </h2>
+                  <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
+                    {selectedResolutionException?.detail ??
+                      "Clear the issue, add corrected times if needed, and optionally finalize the shift."}
+                  </p>
+                </div>
+                <button
+                  onClick={closeResolutionModal}
+                  className="app-icon-button"
+                  aria-label="Close exception dialog"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="max-h-[calc(100vh-6rem)] space-y-4 overflow-y-auto p-5">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() =>
+                      setResolutionForm((current) => ({
+                        ...current,
+                        resolution: "resolved",
+                      }))
+                    }
+                    className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                      resolutionForm.resolution === "resolved"
+                        ? "border-primary bg-primary text-white"
+                        : "border-stroke text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-3"
+                    }`}
+                  >
+                    Resolve
+                  </button>
+                  <button
+                    onClick={() =>
+                      setResolutionForm((current) => ({
+                        ...current,
+                        resolution: "ignored",
+                      }))
+                    }
+                    className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                      resolutionForm.resolution === "ignored"
+                        ? "border-primary bg-primary text-white"
+                        : "border-stroke text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-3"
+                    }`}
+                  >
+                    Ignore
+                  </button>
+                </div>
+
+                {resolutionForm.resolution === "resolved" ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                        Corrected Start
+                      </label>
+                      <input
+                        type="time"
+                        className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                        value={resolutionForm.startTime}
+                        onChange={(event) =>
+                          setResolutionForm((current) => ({
+                            ...current,
+                            startTime: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                        Corrected End
+                      </label>
+                      <input
+                        type="time"
+                        className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                        value={resolutionForm.endTime}
+                        onChange={(event) =>
+                          setResolutionForm((current) => ({
+                            ...current,
+                            endTime: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                    Resolution Notes
+                  </label>
+                  <textarea
+                    rows={4}
+                    className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-dark outline-none focus:border-primary dark:border-dark-3 dark:text-white"
+                    value={resolutionForm.notes}
+                    onChange={(event) =>
+                      setResolutionForm((current) => ({
+                        ...current,
+                        notes: event.target.value,
+                      }))
+                    }
+                    placeholder="Explain what changed or why this issue is being ignored."
+                  />
+                </div>
+
+                {resolutionForm.resolution === "resolved" ? (
+                  <div className="space-y-3">
+                    {resolutionForm.startTime &&
+                    resolutionForm.endTime &&
+                    crossesMidnight(
+                      resolutionForm.startTime,
+                      resolutionForm.endTime,
+                    ) ? (
+                      <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-dark-5 dark:text-dark-6">
+                        Corrected end time will be saved on the next day.
+                      </div>
+                    ) : null}
+                    <label className="flex items-start gap-3 rounded-lg border border-stroke px-4 py-3 text-sm text-dark dark:border-dark-3 dark:text-dark-6">
+                      <input
+                        type="checkbox"
+                        checked={resolutionForm.verifyShift}
+                        onChange={(event) =>
+                          setResolutionForm((current) => ({
+                            ...current,
+                            verifyShift: event.target.checked,
+                          }))
+                        }
+                        className="mt-1 h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
+                      />
+                      <span>
+                        Finalize the shift after the exception is cleared if the
+                        record is complete.
+                      </span>
+                    </label>
+                  </div>
+                ) : null}
+
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    onClick={closeResolutionModal}
+                    className="inline-flex items-center justify-center rounded-lg border border-stroke px-4 py-2 text-sm font-medium text-dark transition hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => void handleResolveException()}
+                    disabled={isSubmitting || !resolutionForm.exceptionId}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSubmitting &&
+                    activeExceptionId === resolutionForm.exceptionId
+                      ? "Saving..."
+                      : resolutionForm.resolution === "ignored"
+                        ? "Ignore Exception"
+                        : "Resolve Exception"}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </ModalPortal>
       ) : null}

@@ -96,7 +96,7 @@ function buildInitialFormState(
     paymentMode:
       defaultPaymentMode ?? (defaultInvoiceId ? "single" : "multiple"),
     paymentDate: defaultPaymentDate ?? todayKey(),
-    paymentMethod: "bank_transfer",
+    paymentMethod: "check",
     referenceNumber: "",
     notes: "",
   };

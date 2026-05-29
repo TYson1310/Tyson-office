@@ -178,6 +178,9 @@ const SHIFT_SCHEDULE_SELECT =
 const ATTENDANCE_EXCEPTION_SELECT =
   "id,employee_id,shift_entry_id,schedule_id,exception_date,exception_type,status,severity,title,details,resolution_notes,resolved_at,created_at,updated_at";
 
+const DEFAULT_MANAGER_SHIFT_HISTORY_DAYS = 90;
+const MAX_MANAGER_SHIFT_HISTORY_DAYS = 365;
+
 const timeFormatter = new Intl.DateTimeFormat("en-US", {
   hour: "numeric",
   minute: "2-digit",
@@ -225,6 +228,25 @@ function addDays(dateKey: string, days: number) {
   const date = new Date(`${dateKey}T00:00:00.000Z`);
   date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
+}
+
+function getManagerShiftHistoryStart(
+  searchParams: URLSearchParams,
+  todayKey: string,
+) {
+  if (searchParams.get("history") === "all") {
+    return null;
+  }
+
+  const requestedDays = Number(searchParams.get("historyDays"));
+  const historyDays = Number.isFinite(requestedDays)
+    ? Math.min(
+        Math.max(Math.trunc(requestedDays), 1),
+        MAX_MANAGER_SHIFT_HISTORY_DAYS,
+      )
+    : DEFAULT_MANAGER_SHIFT_HISTORY_DAYS;
+
+  return addDays(todayKey, -historyDays);
 }
 
 function buildGroupKey(employeeId: string, dateKey: string) {
@@ -1746,7 +1768,10 @@ export async function GET(request: NextRequest) {
     const todayKey =
       normalizeDateKey(request.nextUrl.searchParams.get("today")) ??
       getTodayKey(new Date(), access.storeTimeZone);
-    const historyStart = addDays(todayKey, -21);
+    const historyStart = getManagerShiftHistoryStart(
+      request.nextUrl.searchParams,
+      todayKey,
+    );
     const scheduleStart = addDays(todayKey, -7);
     const scheduleEnd = addDays(todayKey, 14);
     const exceptionSyncStart = addDays(todayKey, -14);
@@ -1787,6 +1812,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    let shiftQuery = access.db
+      .from("shift_time_entries")
+      .select(SHIFT_ENTRY_SELECT)
+      .eq("store_key", access.activeStoreKey)
+      .lte("entry_date", todayKey)
+      .order("clock_in_at", { ascending: false });
+
+    if (historyStart) {
+      shiftQuery = shiftQuery.gte("entry_date", historyStart);
+    }
+
     const [todaysShiftResult, shiftResult, scheduleResult, exceptionResult] =
       await Promise.all([
         access.db
@@ -1796,13 +1832,7 @@ export async function GET(request: NextRequest) {
           .eq("entry_date", todayKey)
           .order("clock_in_at", { ascending: false })
           .returns<ShiftEntryRow[]>(),
-        access.db
-          .from("shift_time_entries")
-          .select(SHIFT_ENTRY_SELECT)
-          .eq("store_key", access.activeStoreKey)
-          .gte("entry_date", historyStart)
-          .order("clock_in_at", { ascending: false })
-          .returns<ShiftEntryRow[]>(),
+        shiftQuery.returns<ShiftEntryRow[]>(),
         access.db
           .from("shift_schedules")
           .select(SHIFT_SCHEDULE_SELECT)
@@ -1845,7 +1875,9 @@ export async function GET(request: NextRequest) {
         }
 
         return earliest;
-      }, null) ?? historyStart;
+      }, null) ??
+      historyStart ??
+      todayKey;
 
     const referenceNowIso = new Date().toISOString();
     const exceptionCountMap = buildOpenExceptionCountMap(

@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/erp/status-badge";
 import { AddVendorAdjustmentButton } from "@/components/vendors/add-vendor-adjustment-button";
 import { DeleteVendorAdjustmentButton } from "@/components/vendors/delete-vendor-adjustment-button";
 import { VendorAdjustmentStatusButton } from "@/components/vendors/vendor-adjustment-status-button";
+import { EditVendorPaymentButton } from "@/components/vendors/edit-vendor-payment-button";
 import { VendorPaymentStatusButton } from "@/components/vendors/vendor-payment-status-button";
 import { DeleteVendorInvoiceButton } from "@/components/vendors/delete-vendor-invoice-button";
 import { VendorAttachmentActions } from "@/components/vendors/vendor-attachment-actions";
@@ -40,8 +41,8 @@ import {
   isPostedVendorAdjustmentStatus,
 } from "@/lib/vendors/adjustments";
 import {
-  VENDOR_PAYMENT_METHOD_LABELS,
   VENDOR_PAYMENT_STATUS_LABELS,
+  formatVendorPaymentMethod,
   isPostedVendorPaymentStatus,
   type VendorPaymentInvoiceOption,
 } from "@/lib/vendors/payments";
@@ -739,9 +740,7 @@ export default async function VendorInvoicesPage({ searchParams }: PageProps) {
                     </TableCell>
                     <TableCell>{formatDate(payment.paymentDate)}</TableCell>
                     <TableCell>
-                      {VENDOR_PAYMENT_METHOD_LABELS[
-                        payment.paymentMethod as keyof typeof VENDOR_PAYMENT_METHOD_LABELS
-                      ] ?? payment.paymentMethod}
+                      {formatVendorPaymentMethod(payment.paymentMethod)}
                     </TableCell>
                     <TableCell>
                       <StatusBadge tone={paymentStatusTone(payment.status)}>
@@ -754,11 +753,19 @@ export default async function VendorInvoicesPage({ searchParams }: PageProps) {
                     <TableCell className="text-center">
                       <div className="flex flex-wrap items-center justify-center gap-2">
                         {payment.status === "posted" ? (
-                          <VendorPaymentStatusButton
-                            paymentId={payment.id}
-                            referenceNumber={payment.referenceNumber}
-                            disabled={!canManageInvoices}
-                          />
+                          <>
+                            <EditVendorPaymentButton
+                              paymentId={payment.id}
+                              paymentMethod={payment.paymentMethod}
+                              referenceNumber={payment.referenceNumber}
+                              disabled={!canManageInvoices}
+                            />
+                            <VendorPaymentStatusButton
+                              paymentId={payment.id}
+                              referenceNumber={payment.referenceNumber}
+                              disabled={!canManageInvoices}
+                            />
+                          </>
                         ) : (
                           <span className="text-xs text-dark-5 dark:text-dark-6">
                             Locked

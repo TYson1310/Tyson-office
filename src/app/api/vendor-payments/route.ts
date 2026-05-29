@@ -29,6 +29,7 @@ type VendorInvoiceRow = {
 
 type VendorPaymentRow = {
   id: string;
+  payment_method: string;
   vendor_invoice_id: string | null;
   payment_date: string;
   status: "posted" | "void";
@@ -500,7 +501,14 @@ export async function PATCH(request: NextRequest) {
 
     const body = (await request.json()) as VendorPaymentPayload;
     const id = getPaymentId(body);
-    const requestedStatus = normalizeVendorPaymentStatus(body.status);
+    const requestedStatus =
+      body.status === undefined
+        ? null
+        : normalizeVendorPaymentStatus(body.status);
+    const requestedPaymentMethod =
+      body.paymentMethod === undefined
+        ? null
+        : normalizeVendorPaymentMethod(body.paymentMethod);
 
     if (!id) {
       return NextResponse.json(
@@ -509,16 +517,18 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    if (requestedStatus !== "void") {
+    if (requestedStatus !== "void" && !requestedPaymentMethod) {
       return NextResponse.json(
-        { error: "Vendor payments can only be voided after posting" },
+        { error: "Choose a payment type to update or void the payment" },
         { status: 400 },
       );
     }
 
     const { data: payment, error: paymentError } = await access.supabase
       .from("vendor_payments")
-      .select("id,vendor_invoice_id,payment_date,status,reference_number")
+      .select(
+        "id,vendor_invoice_id,payment_date,status,reference_number,payment_method",
+      )
       .eq("id", id)
       .eq("store_key", access.activeStoreKey)
       .maybeSingle<VendorPaymentRow>();
@@ -532,6 +542,83 @@ export async function PATCH(request: NextRequest) {
 
     if (!payment) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
+    }
+
+    if (requestedPaymentMethod && requestedStatus !== "void") {
+      if (payment.status === "void") {
+        return NextResponse.json(
+          { error: "Voided payments cannot be edited" },
+          { status: 400 },
+        );
+      }
+
+      const periodLock = await assertAccountingPeriodUnlocked(
+        access.supabase,
+        access.activeStoreKey,
+        payment.payment_date,
+        `Payment ${payment.reference_number}`,
+      );
+
+      if (periodLock) {
+        return NextResponse.json(
+          { error: periodLock.error },
+          { status: periodLock.status },
+        );
+      }
+
+      const { data: updatedPayment, error: updateError } = await access.supabase
+        .from("vendor_payments")
+        .update({
+          payment_method: requestedPaymentMethod,
+        })
+        .eq("id", id)
+        .eq("store_key", access.activeStoreKey)
+        .select("id,vendor_invoice_id,status,payment_method")
+        .maybeSingle<
+          Pick<
+            VendorPaymentRow,
+            "id" | "vendor_invoice_id" | "status" | "payment_method"
+          >
+        >();
+
+      if (updateError || !updatedPayment) {
+        return NextResponse.json(
+          {
+            error:
+              updateError?.message ?? "Failed to update vendor payment type",
+          },
+          { status: updateError ? 500 : 404 },
+        );
+      }
+
+      await appendAuditEvent({
+        supabase: access.supabase,
+        storeKey: access.activeStoreKey,
+        entityType: "vendor_payment",
+        entityId: updatedPayment.id,
+        action: "vendor_payment.method_updated",
+        summary: `Vendor payment type updated: ${payment.reference_number}`,
+        actorId: access.currentUser.id,
+        actorName: access.currentUserName,
+        actorRole: access.currentUserRole ?? "employee",
+        metadata: {
+          invoiceId: updatedPayment.vendor_invoice_id,
+          paymentDate: payment.payment_date,
+          referenceNumber: payment.reference_number,
+          previousPaymentMethod: normalizeVendorPaymentMethod(
+            payment.payment_method,
+          ),
+          nextPaymentMethod: updatedPayment.payment_method,
+          status: updatedPayment.status,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        id: updatedPayment.id,
+        paymentMethod: updatedPayment.payment_method,
+        status: updatedPayment.status,
+      });
     }
 
     if (payment.status === "void") {

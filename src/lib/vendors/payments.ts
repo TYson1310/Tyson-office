@@ -1,10 +1,4 @@
-export const VENDOR_PAYMENT_METHODS = [
-  "check",
-  "bank_transfer",
-  "credit_card",
-  "cash",
-  "other",
-] as const;
+export const VENDOR_PAYMENT_METHODS = ["cash", "card", "check"] as const;
 
 export type VendorPaymentMethod = (typeof VENDOR_PAYMENT_METHODS)[number];
 export const VENDOR_PAYMENT_STATUSES = ["posted", "void"] as const;
@@ -12,11 +6,9 @@ export type VendorPaymentStatus = (typeof VENDOR_PAYMENT_STATUSES)[number];
 
 export const VENDOR_PAYMENT_METHOD_LABELS: Record<VendorPaymentMethod, string> =
   {
-    check: "Check",
-    bank_transfer: "Bank Transfer",
-    credit_card: "Credit Card",
     cash: "Cash",
-    other: "Other",
+    card: "Card",
+    check: "Check",
   };
 
 export const VENDOR_PAYMENT_STATUS_LABELS: Record<VendorPaymentStatus, string> =
@@ -76,14 +68,26 @@ export function normalizeVendorPaymentMethod(
   value: unknown,
 ): VendorPaymentMethod {
   if (typeof value === "string") {
-    const normalized = value.trim().toLowerCase() as VendorPaymentMethod;
+    const normalized = value.trim().toLowerCase();
+    const legacyNormalized =
+      normalized === "credit_card"
+        ? "card"
+        : normalized === "bank_transfer"
+          ? "check"
+          : normalized;
 
-    if (VENDOR_PAYMENT_METHODS.includes(normalized)) {
-      return normalized;
+    if (
+      VENDOR_PAYMENT_METHODS.includes(legacyNormalized as VendorPaymentMethod)
+    ) {
+      return legacyNormalized as VendorPaymentMethod;
     }
   }
 
-  return "other";
+  return "check";
+}
+
+export function formatVendorPaymentMethod(value: unknown) {
+  return VENDOR_PAYMENT_METHOD_LABELS[normalizeVendorPaymentMethod(value)];
 }
 
 export function normalizeVendorPaymentStatus(
