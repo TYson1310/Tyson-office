@@ -90,6 +90,7 @@ export function LotteryCashAdvancesPanel({
   const [advanceReason, setAdvanceReason] = useState("");
   const [expectedPaybackDate, setExpectedPaybackDate] = useState(businessDate);
   const [advanceNotes, setAdvanceNotes] = useState("");
+  const [sendToCashVault, setSendToCashVault] = useState(false);
   const [paybackAmount, setPaybackAmount] = useState("");
   const [paymentDate, setPaymentDate] = useState(businessDate);
   const [paybackNotes, setPaybackNotes] = useState("");
@@ -110,6 +111,7 @@ export function LotteryCashAdvancesPanel({
     setAdvanceReason("");
     setExpectedPaybackDate(businessDate);
     setAdvanceNotes("");
+    setSendToCashVault(false);
   }
 
   function resetPaybackForm(advance?: LotteryCashAdvanceRecord) {
@@ -139,6 +141,7 @@ export function LotteryCashAdvancesPanel({
           notes: advanceNotes,
           personName,
           reason: advanceReason,
+          sendToCashVault,
         }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
@@ -352,6 +355,9 @@ export function LotteryCashAdvancesPanel({
                     <StatusBadge tone={getStatusTone(advance.status)}>
                       {advance.status}
                     </StatusBadge>
+                    {advance.sendToCashVault ? (
+                      <StatusBadge tone="violet">Cash Vault</StatusBadge>
+                    ) : null}
                   </div>
                   <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
                     {advance.reason}
@@ -416,7 +422,7 @@ export function LotteryCashAdvancesPanel({
                       ? `This will reduce expected lottery cash for ${formatDate(
                           advanceDate,
                         )}.`
-                      : `Outstanding balance: ${formatCurrency(
+                      : `${modal.advance.sendToCashVault ? "Cash Vault payback. " : ""}Outstanding balance: ${formatCurrency(
                           modal.advance.balance,
                         )}`}
                   </p>
@@ -499,6 +505,27 @@ export function LotteryCashAdvancesPanel({
                       onChange={(event) => setAdvanceReason(event.target.value)}
                       disabled={isSubmitting}
                     />
+                  </label>
+
+                  <label className="flex items-start gap-3 rounded-xl border border-stroke bg-gray-1/60 px-4 py-3 dark:border-dark-3 dark:bg-dark-3/50">
+                    <input
+                      type="checkbox"
+                      checked={sendToCashVault}
+                      onChange={(event) =>
+                        setSendToCashVault(event.target.checked)
+                      }
+                      disabled={isSubmitting}
+                      className="mt-1 h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
+                    />
+                    <span>
+                      <span className="block text-sm font-bold text-dark dark:text-white">
+                        Send cash into Cash Vault
+                      </span>
+                      <span className="mt-1 block text-xs text-dark-5 dark:text-dark-6">
+                        Adds a matching Cash Vault inflow for this lottery cash
+                        transfer.
+                      </span>
+                    </span>
                   </label>
 
                   <label className="block">

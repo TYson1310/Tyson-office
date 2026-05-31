@@ -24,6 +24,7 @@ type LotteryCashAdvanceMutationRow = {
   reason: string;
   expected_payback_date: string | null;
   notes: string | null;
+  send_to_cash_vault?: boolean | null;
   status: "posted" | "void";
   void_reason: string | null;
   created_at: string;
@@ -114,7 +115,7 @@ async function loadAdvance(
   const { data, error } = await access.supabase
     .from("lottery_cash_advances")
     .select(
-      "id,advance_date,person_name,amount,reason,expected_payback_date,notes,status,void_reason,created_at",
+      "id,advance_date,person_name,amount,reason,expected_payback_date,notes,send_to_cash_vault,status,void_reason,created_at",
     )
     .eq("store_key", access.activeStoreKey)
     .eq("id", advanceId)
@@ -281,6 +282,7 @@ export async function POST(request: NextRequest) {
     );
     const reason = normalizeRequiredText(body?.reason, "Reason");
     const notes = normalizeOptionalText(body?.notes);
+    const sendToCashVault = body?.sendToCashVault === true;
 
     if (expectedPaybackDate && expectedPaybackDate < advanceDate) {
       return NextResponse.json(
@@ -315,11 +317,12 @@ export async function POST(request: NextRequest) {
         notes,
         person_name: personName,
         reason,
+        send_to_cash_vault: sendToCashVault,
         status: "posted",
         store_key: access.activeStoreKey,
       })
       .select(
-        "id,advance_date,person_name,amount,reason,expected_payback_date,notes,status,void_reason,created_at",
+        "id,advance_date,person_name,amount,reason,expected_payback_date,notes,send_to_cash_vault,status,void_reason,created_at",
       )
       .single<LotteryCashAdvanceMutationRow>();
 
@@ -353,6 +356,7 @@ export async function POST(request: NextRequest) {
         expectedPaybackDate,
         personName,
         reason,
+        sendToCashVault,
       },
     });
 
@@ -362,6 +366,7 @@ export async function POST(request: NextRequest) {
         amount: roundLotteryCashAdvanceMoney(data.amount),
         id: data.id,
         personName: data.person_name,
+        sendToCashVault: Boolean(data.send_to_cash_vault),
       },
       { status: 201 },
     );
@@ -513,6 +518,7 @@ export async function PATCH(request: NextRequest) {
           balanceBefore: balance,
           paymentDate,
           personName: advance.person_name,
+          sendToCashVault: Boolean(advance.send_to_cash_vault),
         },
       });
 
@@ -623,6 +629,7 @@ export async function PATCH(request: NextRequest) {
           amount: roundLotteryCashAdvanceMoney(advance.amount),
           paybacksVoided: payments.length,
           personName: advance.person_name,
+          sendToCashVault: Boolean(advance.send_to_cash_vault),
           voidReason,
         },
       });

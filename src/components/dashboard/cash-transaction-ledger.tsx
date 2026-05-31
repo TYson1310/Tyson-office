@@ -22,6 +22,8 @@ export type CashTransactionLedgerRow = {
     | "Vendor Payment"
     | "Cash Payroll"
     | "Bank Deposit"
+    | "Lottery Cash Advance"
+    | "Lottery Cash Payback"
     | "Opening Balance"
     | "Manual Adjustment";
   details: string;
@@ -40,6 +42,8 @@ const TRANSACTION_TYPE_ORDER: CashTransactionLedgerRow["type"][] = [
   "Vendor Payment",
   "Cash Payroll",
   "Bank Deposit",
+  "Lottery Cash Advance",
+  "Lottery Cash Payback",
   "Opening Balance",
   "Manual Adjustment",
 ];

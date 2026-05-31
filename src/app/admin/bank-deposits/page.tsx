@@ -68,6 +68,14 @@ function toLedgerLabel(
     return "Bank Deposit";
   }
 
+  if (movementType === "lottery_cash_advance_to_vault") {
+    return "Lottery Cash Advance";
+  }
+
+  if (movementType === "lottery_cash_advance_payback_from_vault") {
+    return "Lottery Cash Payback";
+  }
+
   if (movementType === "opening_balance") {
     return "Opening Balance";
   }

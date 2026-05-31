@@ -18,7 +18,7 @@ type SchemaError = {
 };
 
 export const LOTTERY_CASH_ADVANCE_MIGRATION_MESSAGE =
-  "Apply Supabase migration 202605290001_lottery_cash_advances.sql before using lottery cash advances.";
+  "Apply the latest lottery cash advance Supabase migrations before using lottery cash advances.";
 
 export type LotteryCashAdvanceStatus = "open" | "paid" | "partial" | "void";
 
@@ -32,6 +32,7 @@ export type LotteryCashAdvanceRecord = {
   reason: string;
   expectedPaybackDate?: string;
   notes?: string;
+  sendToCashVault: boolean;
   status: LotteryCashAdvanceStatus;
   createdAt: string;
 };
@@ -54,6 +55,7 @@ type LotteryCashAdvanceRow = {
   reason: string;
   expected_payback_date: string | null;
   notes: string | null;
+  send_to_cash_vault?: boolean | null;
   status: "posted" | "void";
   created_at: string;
 };
@@ -84,15 +86,21 @@ export function isMissingLotteryCashAdvanceMigration(
     error?.code === "42703" ||
     error?.code === "PGRST204" ||
     message.includes("schema cache") ||
-    message.includes("does not exist");
+    message.includes("does not exist") ||
+    message.includes("violates check constraint");
 
   if (!missingSchema) {
     return false;
   }
 
-  return ["lottery_cash_advances", "lottery_cash_advance_payments"].some(
-    (token) => message.includes(token),
-  );
+  return [
+    "lottery_cash_advances",
+    "lottery_cash_advance_payments",
+    "lottery_cash_advance_to_vault",
+    "lottery_cash_advance_payback_from_vault",
+    "cash_vault_transactions_movement_type_check",
+    "send_to_cash_vault",
+  ].some((token) => message.includes(token));
 }
 
 function getEmptyCashAdvanceSummary(
@@ -156,7 +164,7 @@ export async function loadLotteryCashAdvanceSummary(input: {
       supabase
         .from("lottery_cash_advances")
         .select(
-          "id,advance_date,person_name,amount,reason,expected_payback_date,notes,status,created_at",
+          "id,advance_date,person_name,amount,reason,expected_payback_date,notes,send_to_cash_vault,status,created_at",
         )
         .eq("store_key", storeKey)
         .eq("advance_date", businessDate)
@@ -172,7 +180,7 @@ export async function loadLotteryCashAdvanceSummary(input: {
       supabase
         .from("lottery_cash_advances")
         .select(
-          "id,advance_date,person_name,amount,reason,expected_payback_date,notes,status,created_at",
+          "id,advance_date,person_name,amount,reason,expected_payback_date,notes,send_to_cash_vault,status,created_at",
         )
         .eq("store_key", storeKey)
         .eq("status", "posted")
@@ -267,6 +275,7 @@ export async function loadLotteryCashAdvanceSummary(input: {
         notes: advance.notes ?? undefined,
         personName: advance.person_name,
         reason: advance.reason,
+        sendToCashVault: Boolean(advance.send_to_cash_vault),
         status,
       };
     })

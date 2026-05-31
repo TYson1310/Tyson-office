@@ -802,6 +802,8 @@ export type CashVaultMovementType =
   | "vendor_payment_cash"
   | "payroll_cash"
   | "bank_deposit"
+  | "lottery_cash_advance_to_vault"
+  | "lottery_cash_advance_payback_from_vault"
   | "opening_balance"
   | "manual_adjustment";
 
