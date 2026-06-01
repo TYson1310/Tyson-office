@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import {
   enumerateIsoDateRange,
   getTodayIsoDateInTimeZone,
@@ -10,6 +11,7 @@ import {
   calculateLotteryCashInHandFromReconciliation,
   calculateLotteryExpectedCashInHandFromReconciliation,
 } from "./cash";
+import { isMissingLotteryCashAdvanceMigration } from "./cash-advances";
 import { calculateLotteryEftFormula } from "./eft-calculation";
 import { calculateAppliedLotteryEftPayment } from "./eft-paid-amount";
 import {
@@ -89,6 +91,16 @@ type CashInHandSummaryRpcRow = {
   paid_eft_total: number | string | null;
   paid_eft_weeks: number | null;
   recorded_days: number | null;
+};
+
+type LotteryCashAdvanceImpactRow = {
+  advance_date: string;
+  amount: number | string;
+};
+
+type LotteryCashAdvancePaymentImpactRow = {
+  payment_date: string;
+  amount: number | string;
 };
 
 export type LotteryDashboardSummary = {
@@ -499,6 +511,81 @@ async function loadEodReconciliationRowsForDateRange(
   );
 }
 
+async function loadLotteryCashAdvanceImpactByDate(
+  supabase: SupabaseServerClient,
+  storeKey: string,
+  endDate: string,
+) {
+  const [advanceResult, paymentResult] = await Promise.all([
+    supabase
+      .from("lottery_cash_advances")
+      .select("advance_date,amount")
+      .eq("store_key", storeKey)
+      .eq("status", "posted")
+      .lte("advance_date", endDate)
+      .returns<LotteryCashAdvanceImpactRow[]>(),
+    supabase
+      .from("lottery_cash_advance_payments")
+      .select("payment_date,amount")
+      .eq("store_key", storeKey)
+      .eq("status", "posted")
+      .lte("payment_date", endDate)
+      .returns<LotteryCashAdvancePaymentImpactRow[]>(),
+  ]);
+
+  if (
+    isMissingLotteryCashAdvanceMigration(advanceResult.error) ||
+    isMissingLotteryCashAdvanceMigration(paymentResult.error)
+  ) {
+    return {
+      data: new Map<string, number>(),
+      error: null,
+    };
+  }
+
+  const error = advanceResult.error ?? paymentResult.error;
+
+  if (error) {
+    return {
+      data: new Map<string, number>(),
+      error,
+    };
+  }
+
+  const impactByDate = new Map<string, number>();
+
+  for (const advance of advanceResult.data ?? []) {
+    impactByDate.set(
+      advance.advance_date,
+      normalizeMoney(
+        (impactByDate.get(advance.advance_date) ?? 0) -
+          normalizeMoney(advance.amount),
+      ),
+    );
+  }
+
+  for (const payment of paymentResult.data ?? []) {
+    impactByDate.set(
+      payment.payment_date,
+      normalizeMoney(
+        (impactByDate.get(payment.payment_date) ?? 0) +
+          normalizeMoney(payment.amount),
+      ),
+    );
+  }
+
+  for (const [dateKey, impact] of impactByDate) {
+    if (impact === 0) {
+      impactByDate.delete(dateKey);
+    }
+  }
+
+  return {
+    data: impactByDate,
+    error: null,
+  };
+}
+
 function isMissingEftWeeklyStatusTableError(error: {
   code?: string | null;
   message?: string | null;
@@ -596,6 +683,7 @@ async function loadEftWeeklyStatusRowsThroughSweepDate(
 }
 
 async function loadCashInHandSummary({
+  cashAdvanceImpactByDate,
   businessDate,
   cashingBonusRate,
   retailerCommissionRate,
@@ -604,6 +692,7 @@ async function loadCashInHandSummary({
   supabase,
   sweepDate,
 }: {
+  cashAdvanceImpactByDate: Map<string, number>;
   businessDate: string;
   cashingBonusRate: number;
   retailerCommissionRate: number;
@@ -612,7 +701,7 @@ async function loadCashInHandSummary({
   supabase: SupabaseServerClient;
   sweepDate: string;
 }) {
-  if (settlementRows.length === 0) {
+  if (settlementRows.length === 0 && cashAdvanceImpactByDate.size === 0) {
     const rpcResult = await supabase
       .rpc("get_lottery_cash_in_hand_summary", {
         p_end_date: businessDate,
@@ -676,6 +765,7 @@ async function loadCashInHandSummary({
   return {
     data: buildCashInHandSummary({
       auditRows: auditRowsResult.data ?? [],
+      cashAdvanceImpactByDate,
       cashingBonusRate,
       eftStatusRows: eftStatusRowsResult.data ?? [],
       reconciliationRows: reconciliationRowsResult.data ?? [],
@@ -1039,6 +1129,7 @@ function calculateNetEftDueForPeriod({
 
 function buildCashInHandSummary({
   auditRows,
+  cashAdvanceImpactByDate,
   cashingBonusRate,
   eftStatusRows,
   reconciliationRows,
@@ -1047,6 +1138,7 @@ function buildCashInHandSummary({
   terminalRows,
 }: {
   auditRows: DailyAuditRow[];
+  cashAdvanceImpactByDate: Map<string, number>;
   cashingBonusRate: number;
   eftStatusRows: EftWeeklyStatusRow[];
   reconciliationRows: EodReconciliationRow[];
@@ -1063,11 +1155,15 @@ function buildCashInHandSummary({
       ...settlementRows.map((row) => row.reportDate),
       ...terminalRows.map((row) => row.report_date),
       ...reconciliationRows.map((row) => row.report_date),
+      ...cashAdvanceImpactByDate.keys(),
     ]),
   ).sort();
   const cashAvailableBeforePaidEft = normalizeMoney(
     reportDates.reduce((total, reportDate) => {
       const reconciliation = reconciliationsByDate.get(reportDate);
+      const cashAdvanceImpact = reconciliation
+        ? 0
+        : (cashAdvanceImpactByDate.get(reportDate) ?? 0);
 
       if (reconciliation) {
         return (
@@ -1085,7 +1181,8 @@ function buildCashInHandSummary({
           auditsByDate,
           reportDate,
           terminal: terminalsByDate.get(reportDate),
-        })
+        }) +
+        cashAdvanceImpact
       );
     }, 0),
   );
@@ -1132,6 +1229,8 @@ function buildCashInHandSummary({
 }
 
 export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> {
+  noStore();
+
   const { activeStore, activeStoreKey } = await requireActiveStoreContext();
   const businessDate = getTodayIsoDateInTimeZone(activeStore.timeZone);
   const sweepDate = getLatestLotteryEftSweepDate(businessDate);
@@ -1178,6 +1277,7 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     eftStatusResult,
     currentWeekTerminalReportsResult,
     settlementAuditResult,
+    cashAdvanceImpactResult,
   ] = await Promise.all([
     loadAuditRowsForDateRange(
       supabase,
@@ -1226,6 +1326,7 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
       .not("end_ticket_no", "is", null)
       .lte("audit_date", businessDate)
       .returns<ScratchSettlementAuditRow[]>(),
+    loadLotteryCashAdvanceImpactByDate(supabase, activeStoreKey, businessDate),
   ]);
 
   const eftStatusError =
@@ -1240,7 +1341,8 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     scratchLedgerResult.error ??
     eftStatusError ??
     currentWeekTerminalReportsResult.error ??
-    settlementAuditResult.error;
+    settlementAuditResult.error ??
+    cashAdvanceImpactResult.error;
 
   if (firstError) {
     return {
@@ -1288,6 +1390,7 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
   });
   const cashInHandSummaryResult = await loadCashInHandSummary({
     businessDate,
+    cashAdvanceImpactByDate: cashAdvanceImpactResult.data,
     cashingBonusRate,
     retailerCommissionRate,
     settlementRows,

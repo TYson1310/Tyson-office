@@ -465,7 +465,6 @@ function getDiscrepancyStatus(shortOverAmount: number) {
 
 function calculateExpectedLotteryCash(input: {
   cashingBonus: number;
-  cashAdvanceNetImpact: number;
   onlineTotalPayout: number;
   scratchCardTotalPayout: number;
   scratchSalesTotal: number;
@@ -475,7 +474,6 @@ function calculateExpectedLotteryCash(input: {
 }) {
   const {
     cashingBonus,
-    cashAdvanceNetImpact,
     onlineTotalPayout,
     scratchCardTotalPayout,
     scratchSalesTotal,
@@ -492,8 +490,7 @@ function calculateExpectedLotteryCash(input: {
         ticketCancels -
         onlineTotalPayout -
         scratchCardTotalPayout -
-        cashingBonus +
-        cashAdvanceNetImpact,
+        cashingBonus,
       0,
     ),
   );
@@ -1326,7 +1323,6 @@ async function saveLotteryEodWithClientFallback(input: {
   });
   const expectedCashTotal = calculateExpectedLotteryCash({
     cashingBonus,
-    cashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
     onlineTotalPayout,
     scratchCardTotalPayout,
     scratchSalesTotal,
@@ -1516,7 +1512,6 @@ export async function submitLotteryEodReconciliation(
   });
   const totalExpectedCash = calculateExpectedLotteryCash({
     cashingBonus,
-    cashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
     onlineTotalPayout,
     scratchCardTotalPayout,
     scratchSalesTotal: savedResult.scratchSales,

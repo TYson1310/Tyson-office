@@ -553,8 +553,7 @@ export function EodReconciliationWorkbench({
       startingFloatTotal +
         scratchSalesTotal +
         terminalSalesTotal -
-        totalDeductions +
-        lotteryCashAdvanceNetImpact,
+        totalDeductions,
       0,
     ),
   );
@@ -1269,7 +1268,7 @@ export function EodReconciliationWorkbench({
         <SummaryCard
           label="Expected cash"
           value={formatCurrency(totalExpectedCash)}
-          detail="Cash formula after advances"
+          detail="Advances excluded"
           icon={<Calculator className="h-5 w-5" />}
           tone="slate"
         />
@@ -1795,7 +1794,9 @@ export function EodReconciliationWorkbench({
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4 text-sm">
-                  <span className="text-dark-5">Lottery cash advances</span>
+                  <span className="text-dark-5">
+                    Lottery cash advances (tracked only)
+                  </span>
                   <span
                     className={`font-bold ${
                       lotteryCashAdvanceNetImpact < 0
