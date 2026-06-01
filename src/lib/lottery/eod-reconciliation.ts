@@ -60,6 +60,29 @@ type InventoryPackRow = {
   pack_ticket_count: number | string | null;
 };
 
+type ActiveBinRequirementInventoryRow = {
+  id: string;
+  game_id: string;
+  bin_number: number | null;
+  pack_ticket_count: number | string | null;
+};
+
+type ActiveBinRequirementGameRow = {
+  game_id: string;
+  ticket_count: number | string | null;
+};
+
+type ActiveBinRequirementAuditRow = {
+  inventory_id: string | null;
+  end_ticket_no: string | null;
+  audit_date: string;
+  created_at: string;
+};
+
+type LotteryEodBinAccountability = {
+  skippedSoldOutBinNumbers: Set<number>;
+};
+
 type GameCatalogRow = {
   game_id: string;
   ticket_count: number | string | null;
@@ -208,6 +231,67 @@ function normalizeTicketNumber(value: unknown, label: string) {
   }
 
   return String(Number(normalized)).padStart(3, "0");
+}
+
+function normalizeStoredTicketValue(value: string | null | undefined) {
+  const normalized = value?.trim() ?? "";
+
+  if (!/^[0-9]{1,3}$/.test(normalized)) {
+    return null;
+  }
+
+  return Number(normalized);
+}
+
+function normalizeStoredTicketCount(value: number | string | null | undefined) {
+  const normalized = typeof value === "number" ? value : Number(value);
+
+  if (
+    !Number.isInteger(normalized) ||
+    normalized <= 0 ||
+    normalized > 1000
+  ) {
+    return null;
+  }
+
+  return normalized;
+}
+
+function getFinalTicketValueFromCounts(
+  packTicketCount: number | string | null | undefined,
+  gameTicketCount: number | string | null | undefined,
+) {
+  const ticketCount =
+    normalizeStoredTicketCount(packTicketCount) ??
+    normalizeStoredTicketCount(gameTicketCount);
+
+  return ticketCount === null ? null : ticketCount - 1;
+}
+
+function isNewerRequirementAudit(
+  candidate: ActiveBinRequirementAuditRow,
+  current: ActiveBinRequirementAuditRow,
+) {
+  return (
+    candidate.audit_date > current.audit_date ||
+    (candidate.audit_date === current.audit_date &&
+      candidate.created_at > current.created_at)
+  );
+}
+
+function isSoldOutRequirementAudit(input: {
+  audit: ActiveBinRequirementAuditRow | undefined;
+  finalTicketValue: number | null;
+}) {
+  const { audit, finalTicketValue } = input;
+
+  if (!audit || finalTicketValue === null) {
+    return false;
+  }
+
+  const endTicketValue = normalizeStoredTicketValue(audit.end_ticket_no);
+
+  return endTicketValue !== null && endTicketValue >= finalTicketValue;
 }
 
 function normalizeBinEntries(value: unknown) {
@@ -771,45 +855,120 @@ async function assertBinEntryFinalTicketBounds(input: {
   }
 }
 
-async function getActiveBinCount(
+async function getLotteryEodBinRequirement(
   supabase: SupabaseServerClient,
   storeKey: string,
+  reportDate: string,
 ) {
-  const { count, error } = await supabase
+  const { data: inventoryRows, error: inventoryError } = await supabase
     .from("inventory")
-    .select("id", { count: "exact", head: true })
-    .eq("store_key", storeKey)
-    .eq("status", "active")
-    .not("bin_number", "is", null);
-
-  if (error) {
-    throwDatabaseError("Failed to count active lottery bins", error);
-  }
-
-  return count ?? 0;
-}
-
-async function getActiveBinNumbers(
-  supabase: SupabaseServerClient,
-  storeKey: string,
-) {
-  const { data, error } = await supabase
-    .from("inventory")
-    .select("bin_number")
+    .select("id,game_id,bin_number,pack_ticket_count")
     .eq("store_key", storeKey)
     .eq("status", "active")
     .not("bin_number", "is", null)
-    .returns<Array<{ bin_number: number | null }>>();
+    .returns<ActiveBinRequirementInventoryRow[]>();
 
-  if (error) {
-    throwDatabaseError("Failed to load active lottery bins", error);
+  if (inventoryError) {
+    throwDatabaseError("Failed to load active lottery bins", inventoryError);
   }
 
-  return new Set(
-    (data ?? [])
-      .map((row) => row.bin_number)
-      .filter((binNumber): binNumber is number => binNumber !== null),
+  const activeInventory = (inventoryRows ?? []).filter(
+    (
+      row,
+    ): row is ActiveBinRequirementInventoryRow & { bin_number: number } =>
+      row.bin_number !== null,
   );
+
+  if (activeInventory.length === 0) {
+    return {
+      requiredBinNumbers: new Set<number>(),
+      skippedSoldOutBinNumbers: new Set<number>(),
+    };
+  }
+
+  const inventoryIds = activeInventory.map((row) => row.id);
+  const gameIds = Array.from(
+    new Set(activeInventory.map((row) => row.game_id)),
+  );
+  let gameRows: ActiveBinRequirementGameRow[] = [];
+  let auditRows: ActiveBinRequirementAuditRow[] = [];
+
+  if (gameIds.length > 0) {
+    const { data, error } = await supabase
+      .from("game_catalog")
+      .select("game_id,ticket_count")
+      .in("game_id", gameIds)
+      .returns<ActiveBinRequirementGameRow[]>();
+
+    if (error) {
+      throwDatabaseError("Failed to load scratch game ticket counts", error);
+    }
+
+    gameRows = data ?? [];
+  }
+
+  if (inventoryIds.length > 0) {
+    const { data, error } = await supabase
+      .from("daily_audits")
+      .select("inventory_id,end_ticket_no,audit_date,created_at")
+      .eq("store_key", storeKey)
+      .in("inventory_id", inventoryIds)
+      .lte("audit_date", reportDate)
+      .order("audit_date", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(5000)
+      .returns<ActiveBinRequirementAuditRow[]>();
+
+    if (error) {
+      throwDatabaseError("Failed to load scratch audit history", error);
+    }
+
+    auditRows = data ?? [];
+  }
+
+  const gameById = new Map(gameRows.map((game) => [game.game_id, game]));
+  const latestAuditByInventory = new Map<string, ActiveBinRequirementAuditRow>();
+
+  for (const audit of auditRows) {
+    if (!audit.inventory_id) {
+      continue;
+    }
+
+    const current = latestAuditByInventory.get(audit.inventory_id);
+
+    if (!current || isNewerRequirementAudit(audit, current)) {
+      latestAuditByInventory.set(audit.inventory_id, audit);
+    }
+  }
+
+  const requiredBinNumbers = new Set<number>();
+  const skippedSoldOutBinNumbers = new Set<number>();
+
+  for (const inventory of activeInventory) {
+    const game = gameById.get(inventory.game_id);
+    const finalTicketValue = getFinalTicketValueFromCounts(
+      inventory.pack_ticket_count,
+      game?.ticket_count,
+    );
+    const latestAudit = latestAuditByInventory.get(inventory.id);
+
+    if (
+      isSoldOutRequirementAudit({
+        audit: latestAudit,
+        finalTicketValue,
+      })
+    ) {
+      skippedSoldOutBinNumbers.add(inventory.bin_number);
+      continue;
+    }
+
+    requiredBinNumbers.add(inventory.bin_number);
+  }
+
+  return {
+    requiredBinNumbers,
+    skippedSoldOutBinNumbers,
+  };
 }
 
 async function getExistingEodBinCount(
@@ -920,22 +1079,26 @@ async function assertLotteryEodBinAccountability(input: {
   access: ScratchCardAccess;
   reportDate: string;
   binEntries: NormalizedLotteryBinEntry[];
-}) {
+}): Promise<LotteryEodBinAccountability> {
   const { access, reportDate, binEntries } = input;
   const todayDate = getTodayIsoDate(access.activeStoreTimeZone);
 
   if (reportDate === todayDate) {
-    const activeBinNumbers = await getActiveBinNumbers(
+    const binRequirement = await getLotteryEodBinRequirement(
       access.supabase,
       access.activeStoreKey,
+      reportDate,
     );
 
     assertBinEntryAccountability({
       binEntries,
-      requiredBinNumbers: activeBinNumbers,
+      requiredBinNumbers: binRequirement.requiredBinNumbers,
       scopeLabel: "today's Lottery EOD",
     });
-    return;
+
+    return {
+      skippedSoldOutBinNumbers: binRequirement.skippedSoldOutBinNumbers,
+    };
   }
 
   const existingEodBinNumbers = await getExistingEodBinNumbers(
@@ -951,6 +1114,10 @@ async function assertLotteryEodBinAccountability(input: {
     requiredBinNumbers: existingEodBinNumbers,
     scopeLabel: `Lottery EOD for ${reportDate}`,
   });
+
+  return {
+    skippedSoldOutBinNumbers: new Set<number>(),
+  };
 }
 
 async function assertLotteryEodCanBeSubmitted(
@@ -1182,19 +1349,29 @@ async function saveLotteryEodWithClientFallback(input: {
     managerNotes,
   } = input;
   const todayDate = getTodayIsoDate(access.activeStoreTimeZone);
-  const activeBinCount = await getActiveBinCount(
-    access.supabase,
-    access.activeStoreKey,
-  );
-  const existingEodBinCount = await getExistingEodBinCount(
-    access.supabase,
-    access.activeStoreKey,
-    reportDate,
-  );
+  const todayBinRequirement =
+    reportDate === todayDate
+      ? await getLotteryEodBinRequirement(
+          access.supabase,
+          access.activeStoreKey,
+          reportDate,
+        )
+      : null;
+  const existingEodBinCount =
+    reportDate !== todayDate
+      ? await getExistingEodBinCount(
+          access.supabase,
+          access.activeStoreKey,
+          reportDate,
+        )
+      : 0;
 
-  if (reportDate === todayDate && activeBinCount > binEntries.length) {
+  if (
+    todayBinRequirement &&
+    todayBinRequirement.requiredBinNumbers.size > binEntries.length
+  ) {
     throw new LotteryEodReconciliationError(
-      "Enter ending ticket numbers for every active bin",
+      "Enter ending ticket numbers for every bin that is not sold out",
       400,
     );
   }
@@ -1407,7 +1584,7 @@ export async function submitLotteryEodReconciliation(
   assertAdminBackdateAccess(access, reportDate);
   await assertLotteryEodCanBeSubmitted(access, reportDate);
   const binEntries = normalizeBinEntries(payload.binEntries);
-  await assertLotteryEodBinAccountability({
+  const binAccountability = await assertLotteryEodBinAccountability({
     access,
     reportDate,
     binEntries,
@@ -1442,7 +1619,10 @@ export async function submitLotteryEodReconciliation(
   const tillCash = normalizeMoney(payload.tillCash, "Lottery cash counted");
   const managerNotes = normalizeString(payload.managerNotes);
 
-  if (reportDate !== todayDate) {
+  if (
+    reportDate !== todayDate ||
+    binAccountability.skippedSoldOutBinNumbers.size > 0
+  ) {
     return saveLotteryEodWithClientFallback({
       access,
       reportDate,

@@ -469,8 +469,12 @@ function DailySalesEntryContent() {
     void loadEntries();
   }, [hasResolvedDateAccess, loadEntries]);
 
+  const canModifyClosedOutDay = isAdmin && isClosedOut;
+  const isSalesDeskLocked = isClosedOut && !canModifyClosedOutDay;
+  const canModifySalesEntries = !isClosedOut || canModifyClosedOutDay;
+
   const handleDeleteEntry = async (entry: LogEntry) => {
-    if (entry.reconciled) {
+    if (entry.reconciled && !canModifyClosedOutDay) {
       showNotify(
         "error",
         "Reconciled sales entries cannot be reversed. Record a new offsetting log on the correct business day instead.",
@@ -478,7 +482,7 @@ function DailySalesEntryContent() {
       return;
     }
 
-    if (isClosedOut) {
+    if (isClosedOut && !canModifyClosedOutDay) {
       showNotify("error", "Cannot reverse entries from a closed-out day.");
       return;
     }
@@ -582,7 +586,7 @@ function DailySalesEntryContent() {
   const handleLogSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isClosedOut) {
+    if (isClosedOut && !canModifyClosedOutDay) {
       showNotify("error", "This day is already closed out.");
       return;
     }
@@ -692,7 +696,7 @@ function DailySalesEntryContent() {
   const handleCloseoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isClosedOut) {
+    if (isClosedOut && !canModifyClosedOutDay) {
       showNotify("error", "This day is already closed out.");
       return;
     }
@@ -870,7 +874,11 @@ function DailySalesEntryContent() {
             ) : (
               <Lock className="h-4 w-4" />
             )}
-            {isClosedOut ? "Day Closed" : "Daily Closeout"}
+            {isClosedOut
+              ? canModifyClosedOutDay
+                ? "Edit Closeout"
+                : "Day Closed"
+              : "Daily Closeout"}
           </button>
         </div>
       </div>
@@ -890,14 +898,16 @@ function DailySalesEntryContent() {
                 <div>
                   <p className="text-sm font-bold">Day Closed Out</p>
                   <p className="text-xs opacity-80">
-                    This day has been reconciled and locked.
+                    {canModifyClosedOutDay
+                      ? "Admin override is active for this reconciled day."
+                      : "This day has been reconciled and locked."}
                   </p>
                 </div>
               </div>
             )}
 
             <div
-              className={`rounded-[28px] border border-stroke bg-white p-6 shadow-sm dark:border-dark-3 dark:bg-dark-2 ${isClosedOut ? "pointer-events-none opacity-50" : ""}`}
+              className={`rounded-[28px] border border-stroke bg-white p-6 shadow-sm dark:border-dark-3 dark:bg-dark-2 ${isSalesDeskLocked ? "pointer-events-none opacity-50" : ""}`}
             >
               <h2 className="font-satoshi mb-6 flex items-center justify-between text-xl font-bold text-dark dark:text-white">
                 <div className="flex items-center gap-2">
@@ -1261,7 +1271,9 @@ function DailySalesEntryContent() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              {!entry.reconciled && !isClosedOut && (
+                              {canModifySalesEntries &&
+                                (!entry.reconciled ||
+                                  canModifyClosedOutDay) && (
                                 <button
                                   onClick={() => handleEditEntry(entry)}
                                   className="text-blue-500 transition-colors hover:text-blue-700"
@@ -1270,7 +1282,9 @@ function DailySalesEntryContent() {
                                   <FileText className="h-4 w-4" />
                                 </button>
                               )}
-                              {!entry.reconciled && !isClosedOut && (
+                              {canModifySalesEntries &&
+                                (!entry.reconciled ||
+                                  canModifyClosedOutDay) && (
                                 <button
                                   onClick={() => handleDeleteEntry(entry)}
                                   className="text-red-500 transition-colors hover:text-red-700"
@@ -1299,7 +1313,7 @@ function DailySalesEntryContent() {
             </h2>
             <form
               onSubmit={handleCloseoutSubmit}
-              className={`space-y-8 ${isClosedOut ? "pointer-events-none opacity-50" : ""}`}
+              className={`space-y-8 ${isSalesDeskLocked ? "pointer-events-none opacity-50" : ""}`}
             >
               {isClosedOut && (
                 <div className="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 text-primary">
@@ -1307,7 +1321,9 @@ function DailySalesEntryContent() {
                   <div>
                     <p className="text-sm font-bold">Closeout Completed</p>
                     <p className="text-xs opacity-80">
-                      Reconciliation has been submitted and locked for today.
+                      {canModifyClosedOutDay
+                        ? "Admin can update this saved reconciliation."
+                        : "Reconciliation has been submitted and locked for today."}
                     </p>
                   </div>
                 </div>
@@ -1446,11 +1462,13 @@ function DailySalesEntryContent() {
 
               <button
                 type="submit"
-                disabled={isSaving || isClosedOut}
+                disabled={isSaving || isSalesDeskLocked}
                 className="w-full rounded-xl bg-dark py-4 font-black uppercase tracking-widest text-white transition-all hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-dark"
               >
                 {isClosedOut
-                  ? "Report Submitted"
+                  ? canModifyClosedOutDay
+                    ? "Update Daily Report"
+                    : "Report Submitted"
                   : "Finalize & Submit Daily Report"}
               </button>
             </form>

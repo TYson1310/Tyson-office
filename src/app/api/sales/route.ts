@@ -147,6 +147,10 @@ function canManageHistoricalSalesLogs(role: string | null) {
   return role === "admin";
 }
 
+function canModifyClosedOutSalesLogs(role: string | null) {
+  return role === "admin";
+}
+
 function createTransactionId(lineType: SalesLineType, lineId: string) {
   return `${lineType}:${lineId}`;
 }
@@ -583,6 +587,78 @@ async function recalculateSalesSummaryForDate(
   };
 }
 
+async function refreshSalesDayAfterMutation(
+  supabase: SupabaseClient,
+  {
+    businessDate,
+    reconciliation,
+    reconciledAt,
+    settings,
+    storeKey,
+    userId,
+  }: {
+    businessDate: string;
+    reconciliation: DailySalesReconciliationRow | null;
+    reconciledAt?: string | null;
+    settings: Awaited<ReturnType<typeof loadStoreSettingsForStore>>;
+    storeKey: string;
+    userId: string;
+  },
+) {
+  const nextReconciledAt = reconciliation
+    ? (reconciledAt ?? new Date().toISOString())
+    : null;
+  const summaryState = await recalculateSalesSummaryForDate(supabase, {
+    storeKey,
+    businessDate,
+    userId,
+    settings,
+    reconciled: Boolean(reconciliation),
+    reconciledBy: reconciliation ? userId : null,
+    reconciledAt: nextReconciledAt,
+  });
+
+  if (!reconciliation || !summaryState || !nextReconciledAt) {
+    return summaryState;
+  }
+
+  const expectedCash =
+    toNumber(reconciliation.opening_float) +
+    summaryState.totals.cashSales -
+    toNumber(reconciliation.total_payouts);
+  const actualCash = toNumber(reconciliation.cash_counted);
+  const { error } = await supabase
+    .from("daily_sales_reconciliations")
+    .update({
+      total_cash_sales: summaryState.totals.cashSales,
+      total_card_sales: summaryState.totals.cashlessSales,
+      total_expected: expectedCash,
+      total_actual: actualCash,
+      variance: expectedCash - actualCash,
+      variance_percent:
+        ((expectedCash - actualCash) / (expectedCash || 1)) * 100,
+      product_breakdown: summaryState.totals.productBreakdown,
+      reconciled_by: userId,
+      reconciled_at: nextReconciledAt,
+    })
+    .eq("id", reconciliation.id)
+    .eq("store_key", storeKey);
+
+  if (error) {
+    throw error;
+  }
+
+  await updateSalesLineReconciliationState(
+    supabase,
+    storeKey,
+    businessDate,
+    userId,
+    nextReconciledAt,
+  );
+
+  return summaryState;
+}
+
 async function updateSalesLineReconciliationState(
   supabase: SupabaseClient,
   storeKey: string,
@@ -746,6 +822,9 @@ export async function POST(request: NextRequest) {
     const canAccessHistoricalDates = canManageHistoricalSalesLogs(
       currentUser.role,
     );
+    const canModifyClosedOutDay = canModifyClosedOutSalesLogs(
+      currentUser.role,
+    );
     const isoDate = toIsoDate(body.date);
     const storeResult = await getActiveStoreKey();
 
@@ -803,7 +882,7 @@ export async function POST(request: NextRequest) {
       isoDate,
     );
 
-    if (reconciliation) {
+    if (reconciliation && !canModifyClosedOutDay) {
       return NextResponse.json(
         { message: "Cannot add entries to a closed-out day" },
         { status: 409 },
@@ -817,6 +896,7 @@ export async function POST(request: NextRequest) {
       user.id,
     );
     const isPaymentEntry = String(body.productType) === PAYMENT_ENTRY_SENTINEL;
+    const reconciledAt = reconciliation ? new Date().toISOString() : null;
 
     if (isPaymentEntry) {
       const { data, error } = await supabase
@@ -829,7 +909,9 @@ export async function POST(request: NextRequest) {
           payment_method: body.paymentMethod,
           description: body.description || null,
           employee_id: user.id,
-          reconciled: false,
+          reconciled: Boolean(reconciliation),
+          reconciled_by: reconciliation ? user.id : null,
+          reconciled_at: reconciledAt,
         })
         .select(PAYMENT_LINE_SELECT)
         .single<DailySalesPaymentLineRow>();
@@ -841,11 +923,13 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      await recalculateSalesSummaryForDate(supabase, {
+      await refreshSalesDayAfterMutation(supabase, {
         storeKey: activeStoreKey,
         businessDate: isoDate,
         userId: user.id,
         settings,
+        reconciliation,
+        reconciledAt,
       });
 
       await appendAuditEvent({
@@ -879,7 +963,9 @@ export async function POST(request: NextRequest) {
         product_type: body.productType || "other",
         description: body.description || null,
         employee_id: user.id,
-        reconciled: false,
+        reconciled: Boolean(reconciliation),
+        reconciled_by: reconciliation ? user.id : null,
+        reconciled_at: reconciledAt,
       })
       .select(PRODUCT_LINE_SELECT)
       .single<DailySalesProductLineRow>();
@@ -891,11 +977,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await recalculateSalesSummaryForDate(supabase, {
+    await refreshSalesDayAfterMutation(supabase, {
       storeKey: activeStoreKey,
       businessDate: isoDate,
       userId: user.id,
       settings,
+      reconciliation,
+      reconciledAt,
     });
 
     await appendAuditEvent({
@@ -1104,7 +1192,7 @@ export async function GET(request: NextRequest) {
     );
     const summaries = (summaryRows ?? []).map(mapSummaryRow);
     const isClosedOut = requestedDate
-      ? (summaries[0]?.reconciled ?? false)
+      ? Boolean(summaries[0]?.reconciled || reconciliations?.length)
       : false;
 
     return NextResponse.json({
@@ -1159,6 +1247,9 @@ export async function PATCH(request: NextRequest) {
     const canAccessHistoricalDates = canManageHistoricalSalesLogs(
       currentUser.role,
     );
+    const canModifyClosedOutDay = canModifyClosedOutSalesLogs(
+      currentUser.role,
+    );
     const isoDate = toIsoDate(reconciliationData.date);
     const storeResult = await getActiveStoreKey();
 
@@ -1198,6 +1289,22 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json(
         { message: periodLock.error },
         { status: periodLock.status },
+      );
+    }
+
+    const existingReconciliation = await getSalesReconciliationForDate(
+      supabase,
+      activeStoreKey,
+      isoDate,
+    );
+
+    if (existingReconciliation && !canModifyClosedOutDay) {
+      return NextResponse.json(
+        {
+          message:
+            "Only admin accounts can update a sales day after closeout",
+        },
+        { status: 403 },
       );
     }
 
@@ -1365,6 +1472,9 @@ export async function DELETE(request: NextRequest) {
     const canAccessHistoricalDates = canManageHistoricalSalesLogs(
       currentUser.role,
     );
+    const canModifyClosedOutDay = canModifyClosedOutSalesLogs(
+      currentUser.role,
+    );
     const storeResult = await getActiveStoreKey();
 
     if ("error" in storeResult) {
@@ -1382,7 +1492,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ message: "Entry not found" }, { status: 404 });
     }
 
-    if (entry.reconciled) {
+    if (entry.reconciled && !canModifyClosedOutDay) {
       return NextResponse.json(
         {
           message:
@@ -1394,6 +1504,18 @@ export async function DELETE(request: NextRequest) {
 
     const settings = await loadStoreSettingsForStore(supabase, activeStoreKey);
     const todayIsoDate = getTodayIsoDateInTimeZone(settings.profile.timezone);
+    const reconciliation = await getSalesReconciliationForDate(
+      supabase,
+      activeStoreKey,
+      entry.businessDate,
+    );
+
+    if (reconciliation && !canModifyClosedOutDay) {
+      return NextResponse.json(
+        { message: "Cannot reverse entries from a closed-out day" },
+        { status: 409 },
+      );
+    }
 
     if (!canAccessHistoricalDates && entry.businessDate !== todayIsoDate) {
       return NextResponse.json(
@@ -1431,6 +1553,7 @@ export async function DELETE(request: NextRequest) {
       description: entry.description ?? undefined,
     });
     const reversalAmount = entry.amount * -1;
+    const reconciledAt = reconciliation ? new Date().toISOString() : null;
 
     if (entry.lineType === "payment") {
       const { data: existingReversal, error: lookupError } = await supabase
@@ -1472,7 +1595,9 @@ export async function DELETE(request: NextRequest) {
           payment_method: entry.paymentMethod,
           description: reversalDescription,
           employee_id: user.id,
-          reconciled: false,
+          reconciled: Boolean(reconciliation),
+          reconciled_by: reconciliation ? user.id : null,
+          reconciled_at: reconciledAt,
         })
         .select(PAYMENT_LINE_SELECT)
         .single<DailySalesPaymentLineRow>();
@@ -1484,11 +1609,13 @@ export async function DELETE(request: NextRequest) {
         );
       }
 
-      await recalculateSalesSummaryForDate(supabase, {
+      await refreshSalesDayAfterMutation(supabase, {
         storeKey: activeStoreKey,
         businessDate: entry.businessDate,
         userId: user.id,
         settings,
+        reconciliation,
+        reconciledAt,
       });
 
       await appendAuditEvent({
@@ -1556,7 +1683,9 @@ export async function DELETE(request: NextRequest) {
         product_type: entry.productType,
         description: reversalDescription,
         employee_id: user.id,
-        reconciled: false,
+        reconciled: Boolean(reconciliation),
+        reconciled_by: reconciliation ? user.id : null,
+        reconciled_at: reconciledAt,
       })
       .select(PRODUCT_LINE_SELECT)
       .single<DailySalesProductLineRow>();
@@ -1568,11 +1697,13 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await recalculateSalesSummaryForDate(supabase, {
+    await refreshSalesDayAfterMutation(supabase, {
       storeKey: activeStoreKey,
       businessDate: entry.businessDate,
       userId: user.id,
       settings,
+      reconciliation,
+      reconciledAt,
     });
 
     await appendAuditEvent({
@@ -1645,6 +1776,9 @@ export async function PUT(request: NextRequest) {
     const canAccessHistoricalDates = canManageHistoricalSalesLogs(
       currentUser.role,
     );
+    const canModifyClosedOutDay = canModifyClosedOutSalesLogs(
+      currentUser.role,
+    );
     const storeResult = await getActiveStoreKey();
 
     if ("error" in storeResult) {
@@ -1658,7 +1792,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ message: "Entry not found" }, { status: 404 });
     }
 
-    if (entry.reconciled) {
+    if (entry.reconciled && !canModifyClosedOutDay) {
       return NextResponse.json(
         { message: "Cannot edit reconciled entries" },
         { status: 409 },
@@ -1726,21 +1860,23 @@ export async function PUT(request: NextRequest) {
       entry.businessDate,
     );
 
-    if (currentDayReconciliation) {
+    if (currentDayReconciliation && !canModifyClosedOutDay) {
       return NextResponse.json(
         { message: "Cannot edit entries from a closed-out day" },
         { status: 409 },
       );
     }
 
+    let targetDayReconciliation: DailySalesReconciliationRow | null = null;
+
     if (requestedIsoDate !== entry.businessDate) {
-      const targetDayReconciliation = await getSalesReconciliationForDate(
+      targetDayReconciliation = await getSalesReconciliationForDate(
         supabase,
         activeStoreKey,
         requestedIsoDate,
       );
 
-      if (targetDayReconciliation) {
+      if (targetDayReconciliation && !canModifyClosedOutDay) {
         return NextResponse.json(
           { message: "Cannot move entries into a closed-out day" },
           { status: 409 },
@@ -1776,6 +1912,13 @@ export async function PUT(request: NextRequest) {
       requestedIsoDate,
       user.id,
     );
+    const nextDayReconciliation =
+      requestedIsoDate === entry.businessDate
+        ? currentDayReconciliation
+        : targetDayReconciliation;
+    const reconciledAt = nextDayReconciliation
+      ? new Date().toISOString()
+      : null;
 
     if (entry.lineType === "payment") {
       const updatePayload = {
@@ -1786,6 +1929,9 @@ export async function PUT(request: NextRequest) {
         payment_method: nextPaymentMethod,
         description:
           description !== undefined ? description : entry.description,
+        reconciled: Boolean(nextDayReconciliation),
+        reconciled_by: nextDayReconciliation ? user.id : null,
+        reconciled_at: reconciledAt,
       };
       const { data, error } = await supabase
         .from("daily_sales_payment_lines")
@@ -1802,19 +1948,24 @@ export async function PUT(request: NextRequest) {
         );
       }
 
-      await recalculateSalesSummaryForDate(supabase, {
+      await refreshSalesDayAfterMutation(supabase, {
         storeKey: activeStoreKey,
         businessDate: entry.businessDate,
         userId: user.id,
         settings,
+        reconciliation: currentDayReconciliation,
+        reconciledAt:
+          requestedIsoDate === entry.businessDate ? reconciledAt : null,
       });
 
       if (requestedIsoDate !== entry.businessDate) {
-        await recalculateSalesSummaryForDate(supabase, {
+        await refreshSalesDayAfterMutation(supabase, {
           storeKey: activeStoreKey,
           businessDate: requestedIsoDate,
           userId: user.id,
           settings,
+          reconciliation: targetDayReconciliation,
+          reconciledAt,
         });
       }
 
@@ -1850,6 +2001,9 @@ export async function PUT(request: NextRequest) {
       amount: amount !== undefined ? Number(amount) : entry.amount,
       product_type: nextProductType,
       description: description !== undefined ? description : entry.description,
+      reconciled: Boolean(nextDayReconciliation),
+      reconciled_by: nextDayReconciliation ? user.id : null,
+      reconciled_at: reconciledAt,
     };
     const { data, error } = await supabase
       .from("daily_sales_product_lines")
@@ -1866,19 +2020,24 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    await recalculateSalesSummaryForDate(supabase, {
+    await refreshSalesDayAfterMutation(supabase, {
       storeKey: activeStoreKey,
       businessDate: entry.businessDate,
       userId: user.id,
       settings,
+      reconciliation: currentDayReconciliation,
+      reconciledAt:
+        requestedIsoDate === entry.businessDate ? reconciledAt : null,
     });
 
     if (requestedIsoDate !== entry.businessDate) {
-      await recalculateSalesSummaryForDate(supabase, {
+      await refreshSalesDayAfterMutation(supabase, {
         storeKey: activeStoreKey,
         businessDate: requestedIsoDate,
         userId: user.id,
         settings,
+        reconciliation: targetDayReconciliation,
+        reconciledAt,
       });
     }
 

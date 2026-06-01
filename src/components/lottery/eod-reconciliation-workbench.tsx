@@ -443,7 +443,11 @@ export function EodReconciliationWorkbench({
   const loadedBusinessDateRef = useRef(data.businessDate);
   const scannerBinNumberRef = useRef<number | null>(null);
   const activeBins = useMemo(
-    () => data.bins.filter((bin) => bin.inventoryId),
+    () => data.bins.filter((bin) => bin.inventoryId && !bin.isSoldOutForEod),
+    [data.bins],
+  );
+  const skippedSoldOutBins = useMemo(
+    () => data.bins.filter((bin) => bin.inventoryId && bin.isSoldOutForEod),
     [data.bins],
   );
   const shouldLockSavedReconciliation = data.isReconciled && !canSelectDate;
@@ -728,7 +732,9 @@ export function EodReconciliationWorkbench({
     }
 
     if (!binsReady) {
-      notifyError("Enter valid ending ticket numbers for every active bin.");
+      notifyError(
+        "Enter valid ending ticket numbers for every bin that is not sold out.",
+      );
       return;
     }
 
@@ -850,7 +856,7 @@ export function EodReconciliationWorkbench({
       }
 
       setScannerMessage(
-        `Bin ${targetBin.binNumber} set to ${parsed.ticketNumber}. All active bins are done.`,
+        `Bin ${targetBin.binNumber} set to ${parsed.ticketNumber}. All required bins are done.`,
       );
     },
     [success],
@@ -1091,7 +1097,9 @@ export function EodReconciliationWorkbench({
 
   async function saveReconciliation() {
     if (!binsReady) {
-      notifyError("Enter valid ending ticket numbers for every active bin.");
+      notifyError(
+        "Enter valid ending ticket numbers for every bin that is not sold out.",
+      );
       return;
     }
 
@@ -1254,7 +1262,11 @@ export function EodReconciliationWorkbench({
         <SummaryCard
           label="Scratch sales"
           value={formatCurrency(scratchSalesTotal)}
-          detail={`${activeBins.length} active bins`}
+          detail={
+            skippedSoldOutBins.length > 0
+              ? `${activeBins.length} to scan; ${skippedSoldOutBins.length} sold out skipped`
+              : `${activeBins.length} active bins`
+          }
           icon={<Ticket className="h-5 w-5" />}
           tone="green"
         />
@@ -1296,8 +1308,13 @@ export function EodReconciliationWorkbench({
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge tone="blue">
-                  {activeBins.length} active
+                  {activeBins.length} to scan
                 </StatusBadge>
+                {skippedSoldOutBins.length > 0 ? (
+                  <StatusBadge tone="amber">
+                    {skippedSoldOutBins.length} sold out skipped
+                  </StatusBadge>
+                ) : null}
                 <StatusBadge tone={binSubmissionStatus.tone}>
                   {binSubmissionStatus.label}
                 </StatusBadge>
@@ -1582,7 +1599,7 @@ export function EodReconciliationWorkbench({
               </>
             ) : (
               <div className="rounded-xl border border-dashed border-stroke px-4 py-10 text-center text-sm text-dark-5">
-                No active lottery bins.
+                No lottery bins need EOD scanning.
               </div>
             )}
           </div>

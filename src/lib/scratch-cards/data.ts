@@ -84,6 +84,7 @@ export type ScratchBackstockPack = {
 export type ScratchAuditBin = {
   binNumber: number;
   inventoryId: string | null;
+  isSoldOutForEod: boolean;
   packNumber: string | null;
   gameId: string | null;
   gameName: string | null;
@@ -142,6 +143,49 @@ function normalizeTicketNumber(value: string | null | undefined) {
   }
 
   return String(Number(normalized)).padStart(3, "0");
+}
+
+function normalizeTicketCount(value: number | string | null | undefined) {
+  const normalized = typeof value === "number" ? value : Number(value);
+
+  if (
+    !Number.isInteger(normalized) ||
+    normalized <= 0 ||
+    normalized > 1000
+  ) {
+    return null;
+  }
+
+  return normalized;
+}
+
+function getFinalTicketValue(
+  inventory: InventoryRow,
+  game: GameCatalogRow | undefined,
+) {
+  const ticketCount =
+    normalizeTicketCount(inventory.pack_ticket_count) ??
+    normalizeTicketCount(game?.ticket_count);
+
+  return ticketCount === null ? null : ticketCount - 1;
+}
+
+function isPackSoldOutForEod(
+  inventory: InventoryRow,
+  game: GameCatalogRow | undefined,
+  audit: AuditRow | undefined,
+) {
+  if (!audit?.end_ticket_no) {
+    return false;
+  }
+
+  const finalTicketValue = getFinalTicketValue(inventory, game);
+
+  if (finalTicketValue === null) {
+    return false;
+  }
+
+  return Number(normalizeTicketNumber(audit.end_ticket_no)) >= finalTicketValue;
 }
 
 function getExpectedDailyAverageByBin(audits: AuditRow[]) {
@@ -243,6 +287,7 @@ function buildEmptyBins(binCount: number) {
   return Array.from({ length: binCount }, (_, index) => ({
     binNumber: index + 1,
     inventoryId: null,
+    isSoldOutForEod: false,
     packNumber: null,
     gameId: null,
     gameName: null,
@@ -454,6 +499,7 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
   const activeInventoryIdSet = new Set(inventoryIds);
   let gameRows: GameCatalogRow[] = [];
   let auditRows: AuditRow[] = [];
+  let activeInventoryAuditRows: AuditRow[] = [];
   let previousInventoryRows: InventoryRow[] = [];
   let backstockInventoryRows: InventoryRow[] = [];
 
@@ -488,16 +534,30 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
       -30,
     );
 
-    const { data, error } = await supabase
-      .from("daily_audits")
-      .select(
-        "inventory_id,bin_number,audit_date,start_ticket_no,end_ticket_no,tickets_sold,calculated_revenue,audit_type,created_at",
-      )
-      .eq("store_key", activeStoreKey)
-      .gte("audit_date", thirtyDaysAgo)
-      .order("created_at", { ascending: false })
-      .limit(2000)
-      .returns<AuditRow[]>();
+    const [recentAuditResult, activeInventoryAuditResult] = await Promise.all([
+      supabase
+        .from("daily_audits")
+        .select(
+          "inventory_id,bin_number,audit_date,start_ticket_no,end_ticket_no,tickets_sold,calculated_revenue,audit_type,created_at",
+        )
+        .eq("store_key", activeStoreKey)
+        .gte("audit_date", thirtyDaysAgo)
+        .order("created_at", { ascending: false })
+        .limit(2000)
+        .returns<AuditRow[]>(),
+      supabase
+        .from("daily_audits")
+        .select(
+          "inventory_id,bin_number,audit_date,start_ticket_no,end_ticket_no,tickets_sold,calculated_revenue,audit_type,created_at",
+        )
+        .eq("store_key", activeStoreKey)
+        .in("inventory_id", inventoryIds)
+        .order("audit_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(5000)
+        .returns<AuditRow[]>(),
+    ]);
+    const error = recentAuditResult.error ?? activeInventoryAuditResult.error;
 
     if (error) {
       return {
@@ -510,8 +570,11 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
       };
     }
 
-    auditRows = data ?? [];
+    auditRows = recentAuditResult.data ?? [];
+    activeInventoryAuditRows = activeInventoryAuditResult.data ?? [];
   }
+
+  const activeAuditRows = [...auditRows, ...activeInventoryAuditRows];
 
   const previousAuditByBin = getLatestPreviousAuditByBin(
     auditRows,
@@ -590,8 +653,8 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
       .filter((row) => row.bin_number !== null)
       .map((row) => [row.bin_number as number, row]),
   );
-  const latestAuditByInventory = getLatestAuditByInventory(auditRows);
-  const hasSoldAuditByInventory = getHasSoldAuditByInventory(auditRows);
+  const latestAuditByInventory = getLatestAuditByInventory(activeAuditRows);
+  const hasSoldAuditByInventory = getHasSoldAuditByInventory(activeAuditRows);
   const expectedAverageByBin = getExpectedDailyAverageByBin(auditRows);
   const bins = buildEmptyBins(binCount).map((bin) => {
     const inventory = inventoryByBin.get(bin.binNumber);
@@ -613,6 +676,7 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
     return {
       binNumber: bin.binNumber,
       inventoryId: inventory.id,
+      isSoldOutForEod: isPackSoldOutForEod(inventory, game, latestAudit),
       packNumber: inventory.pack_number,
       gameId: inventory.game_id,
       gameImageUrl: game?.image_url ?? null,
@@ -827,6 +891,7 @@ export async function loadScratchEodAuditScreenData(
     return {
       binNumber: bin.binNumber,
       inventoryId: inventory.id,
+      isSoldOutForEod: isPackSoldOutForEod(inventory, game, latestAudit),
       packNumber: inventory.pack_number,
       gameId: inventory.game_id,
       gameImageUrl: game?.image_url ?? null,
