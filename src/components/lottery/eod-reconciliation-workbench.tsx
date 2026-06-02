@@ -1220,9 +1220,9 @@ export function EodReconciliationWorkbench({
           "Lottery EOD reconciliation is already saved for this date",
         )
       ) {
-        setReconciliationLocked(true);
-        setSaveState(getSavedReconciliationState());
+        setSaveState({ status: "error", message });
         notifyError(message);
+        router.refresh();
         return;
       }
 

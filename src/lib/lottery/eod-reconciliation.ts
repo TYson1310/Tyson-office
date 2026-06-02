@@ -31,6 +31,11 @@ type EodReconciliationRow = {
   pos_register_total: number | string;
 };
 
+type LotteryEodSubmissionState = {
+  hasExistingReconciliation: boolean;
+  hasTerminalReport: boolean;
+};
+
 type SaveLotteryEodRow = {
   report_date: string;
   bins_reconciled: number;
@@ -74,7 +79,9 @@ type ActiveBinRequirementGameRow = {
 
 type ActiveBinRequirementAuditRow = {
   inventory_id: string | null;
+  start_ticket_no: string | null;
   end_ticket_no: string | null;
+  tickets_sold: number | string | null;
   audit_date: string;
   created_at: string;
 };
@@ -257,13 +264,24 @@ function normalizeStoredTicketCount(value: number | string | null | undefined) {
   return normalized;
 }
 
+function getTicketCountFromCounts(
+  packTicketCount: number | string | null | undefined,
+  gameTicketCount: number | string | null | undefined,
+) {
+  return (
+    normalizeStoredTicketCount(packTicketCount) ??
+    normalizeStoredTicketCount(gameTicketCount)
+  );
+}
+
 function getFinalTicketValueFromCounts(
   packTicketCount: number | string | null | undefined,
   gameTicketCount: number | string | null | undefined,
 ) {
-  const ticketCount =
-    normalizeStoredTicketCount(packTicketCount) ??
-    normalizeStoredTicketCount(gameTicketCount);
+  const ticketCount = getTicketCountFromCounts(
+    packTicketCount,
+    gameTicketCount,
+  );
 
   return ticketCount === null ? null : ticketCount - 1;
 }
@@ -281,17 +299,24 @@ function isNewerRequirementAudit(
 
 function isSoldOutRequirementAudit(input: {
   audit: ActiveBinRequirementAuditRow | undefined;
-  finalTicketValue: number | null;
+  ticketCount: number | null;
 }) {
-  const { audit, finalTicketValue } = input;
+  const { audit, ticketCount } = input;
 
-  if (!audit || finalTicketValue === null) {
+  if (!audit || ticketCount === null) {
     return false;
   }
 
   const endTicketValue = normalizeStoredTicketValue(audit.end_ticket_no);
+  const startTicketValue = normalizeStoredTicketValue(audit.start_ticket_no);
+  const ticketsSold = normalizeStoredMoney(audit.tickets_sold);
 
-  return endTicketValue !== null && endTicketValue >= finalTicketValue;
+  return (
+    endTicketValue !== null &&
+    startTicketValue !== null &&
+    endTicketValue >= ticketCount - 1 &&
+    ticketsSold >= ticketCount - startTicketValue
+  );
 }
 
 function normalizeBinEntries(value: unknown) {
@@ -594,6 +619,22 @@ async function loadEodReconciliationRow(
     .eq("store_key", storeKey)
     .eq("report_date", businessDate)
     .maybeSingle<EodReconciliationRow>();
+}
+
+async function loadTerminalReportMarker(
+  supabase: SupabaseServerClient,
+  storeKey: string,
+  businessDate: string,
+): Promise<{
+  data: { report_date: string } | null;
+  error: { message?: string | null } | null;
+}> {
+  return supabase
+    .from("terminal_reports")
+    .select("report_date")
+    .eq("store_key", storeKey)
+    .eq("report_date", businessDate)
+    .maybeSingle<{ report_date: string }>();
 }
 
 function throwDatabaseError(
@@ -910,7 +951,9 @@ async function getLotteryEodBinRequirement(
   if (inventoryIds.length > 0) {
     const { data, error } = await supabase
       .from("daily_audits")
-      .select("inventory_id,end_ticket_no,audit_date,created_at")
+      .select(
+        "inventory_id,start_ticket_no,end_ticket_no,tickets_sold,audit_date,created_at",
+      )
       .eq("store_key", storeKey)
       .in("inventory_id", inventoryIds)
       .lte("audit_date", reportDate)
@@ -946,7 +989,7 @@ async function getLotteryEodBinRequirement(
 
   for (const inventory of activeInventory) {
     const game = gameById.get(inventory.game_id);
-    const finalTicketValue = getFinalTicketValueFromCounts(
+    const ticketCount = getTicketCountFromCounts(
       inventory.pack_ticket_count,
       game?.ticket_count,
     );
@@ -955,7 +998,7 @@ async function getLotteryEodBinRequirement(
     if (
       isSoldOutRequirementAudit({
         audit: latestAudit,
-        finalTicketValue,
+        ticketCount,
       })
     ) {
       skippedSoldOutBinNumbers.add(inventory.bin_number);
@@ -1123,16 +1166,20 @@ async function assertLotteryEodBinAccountability(input: {
 async function assertLotteryEodCanBeSubmitted(
   access: ScratchCardAccess,
   reportDate: string,
-) {
-  if (access.currentUserRole === "admin") {
-    return;
-  }
-
-  const { data, error } = await loadEodReconciliationRow(
-    access.supabase,
-    access.activeStoreKey,
-    reportDate,
-  );
+): Promise<LotteryEodSubmissionState> {
+  const [reconciliationResult, terminalReportResult] = await Promise.all([
+    loadEodReconciliationRow(
+      access.supabase,
+      access.activeStoreKey,
+      reportDate,
+    ),
+    loadTerminalReportMarker(
+      access.supabase,
+      access.activeStoreKey,
+      reportDate,
+    ),
+  ]);
+  const error = reconciliationResult.error ?? terminalReportResult.error;
 
   if (error) {
     throwDatabaseError(
@@ -1141,12 +1188,19 @@ async function assertLotteryEodCanBeSubmitted(
     );
   }
 
-  if (data) {
+  const state = {
+    hasExistingReconciliation: Boolean(reconciliationResult.data),
+    hasTerminalReport: Boolean(terminalReportResult.data),
+  };
+
+  if (state.hasTerminalReport && access.currentUserRole !== "admin") {
     throw new LotteryEodReconciliationError(
       "Lottery EOD reconciliation is already saved for this date",
       409,
     );
   }
+
+  return state;
 }
 
 async function upsertLotteryEodAudit(input: {
@@ -1582,7 +1636,10 @@ export async function submitLotteryEodReconciliation(
   const todayDate = getTodayIsoDate(access.activeStoreTimeZone);
   const reportDate = normalizeDate(payload.date, todayDate);
   assertAdminBackdateAccess(access, reportDate);
-  await assertLotteryEodCanBeSubmitted(access, reportDate);
+  const submissionState = await assertLotteryEodCanBeSubmitted(
+    access,
+    reportDate,
+  );
   const binEntries = normalizeBinEntries(payload.binEntries);
   const binAccountability = await assertLotteryEodBinAccountability({
     access,
@@ -1621,7 +1678,9 @@ export async function submitLotteryEodReconciliation(
 
   if (
     reportDate !== todayDate ||
-    binAccountability.skippedSoldOutBinNumbers.size > 0
+    binAccountability.skippedSoldOutBinNumbers.size > 0 ||
+    (submissionState.hasExistingReconciliation &&
+      !submissionState.hasTerminalReport)
   ) {
     return saveLotteryEodWithClientFallback({
       access,

@@ -159,13 +159,21 @@ function normalizeTicketCount(value: number | string | null | undefined) {
   return normalized;
 }
 
+function getPackTicketCount(
+  inventory: InventoryRow,
+  game: GameCatalogRow | undefined,
+) {
+  return (
+    normalizeTicketCount(inventory.pack_ticket_count) ??
+    normalizeTicketCount(game?.ticket_count)
+  );
+}
+
 function getFinalTicketValue(
   inventory: InventoryRow,
   game: GameCatalogRow | undefined,
 ) {
-  const ticketCount =
-    normalizeTicketCount(inventory.pack_ticket_count) ??
-    normalizeTicketCount(game?.ticket_count);
+  const ticketCount = getPackTicketCount(inventory, game);
 
   return ticketCount === null ? null : ticketCount - 1;
 }
@@ -179,13 +187,26 @@ function isPackSoldOutForEod(
     return false;
   }
 
-  const finalTicketValue = getFinalTicketValue(inventory, game);
+  const ticketCount = getPackTicketCount(inventory, game);
 
-  if (finalTicketValue === null) {
+  if (ticketCount === null) {
     return false;
   }
 
-  return Number(normalizeTicketNumber(audit.end_ticket_no)) >= finalTicketValue;
+  const finalTicketValue = ticketCount - 1;
+  const endTicketValue = Number(normalizeTicketNumber(audit.end_ticket_no));
+
+  if (endTicketValue < finalTicketValue || !audit.start_ticket_no) {
+    return false;
+  }
+
+  const startTicketValue = Number(normalizeTicketNumber(audit.start_ticket_no));
+  const ticketsSold = Number(audit.tickets_sold);
+
+  return (
+    Number.isFinite(ticketsSold) &&
+    ticketsSold >= ticketCount - startTicketValue
+  );
 }
 
 function getExpectedDailyAverageByBin(audits: AuditRow[]) {
