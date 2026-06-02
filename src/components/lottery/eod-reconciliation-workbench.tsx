@@ -296,7 +296,7 @@ function getShortOverStatus(shortOver: number) {
 }
 
 function getPackTicketCount(bin: ScratchAuditBin) {
-  return bin.currentPack?.gameTicketCount ?? null;
+  return bin.currentPack?.packTicketCount ?? bin.currentPack?.gameTicketCount ?? null;
 }
 
 function getFinalTicketValue(ticketCount: number | null) {
@@ -305,6 +305,40 @@ function getFinalTicketValue(ticketCount: number | null) {
   }
 
   return ticketCount - 1;
+}
+
+function getFinalTicketNumber(bin: ScratchAuditBin) {
+  const finalTicketValue = getFinalTicketValue(getPackTicketCount(bin));
+
+  return finalTicketValue === null
+    ? null
+    : String(finalTicketValue).padStart(3, "0");
+}
+
+function getSoldOutRemainingTickets(bin: ScratchAuditBin) {
+  const ticketCount = getPackTicketCount(bin);
+  const finalTicketValue = getFinalTicketValue(ticketCount);
+  const startTicketValue = Number(bin.lastTicketNumber);
+
+  if (
+    !bin.inventoryId ||
+    ticketCount === null ||
+    finalTicketValue === null ||
+    !Number.isFinite(startTicketValue) ||
+    startTicketValue >= finalTicketValue
+  ) {
+    return null;
+  }
+
+  return Math.max(0, ticketCount - startTicketValue);
+}
+
+function getSoldOutRemainingSales(bin: ScratchAuditBin) {
+  const remainingTickets = getSoldOutRemainingTickets(bin);
+
+  return remainingTickets === null
+    ? null
+    : normalizeMoney(remainingTickets * bin.ticketPrice);
 }
 
 function calculateBinSales(bin: ScratchAuditBin, endTicketInput: string) {
@@ -442,13 +476,28 @@ export function EodReconciliationWorkbench({
   } | null>(null);
   const loadedBusinessDateRef = useRef(data.businessDate);
   const scannerBinNumberRef = useRef<number | null>(null);
+  const [localSoldOutInventoryIds, setLocalSoldOutInventoryIds] = useState<
+    Set<string>
+  >(() => new Set());
   const activeBins = useMemo(
-    () => data.bins.filter((bin) => bin.inventoryId && !bin.isSoldOutForEod),
-    [data.bins],
+    () =>
+      data.bins.filter(
+        (bin) =>
+          bin.inventoryId &&
+          !bin.isSoldOutForEod &&
+          !localSoldOutInventoryIds.has(bin.inventoryId),
+      ),
+    [data.bins, localSoldOutInventoryIds],
   );
   const skippedSoldOutBins = useMemo(
-    () => data.bins.filter((bin) => bin.inventoryId && bin.isSoldOutForEod),
-    [data.bins],
+    () =>
+      data.bins.filter(
+        (bin) =>
+          bin.inventoryId &&
+          (bin.isSoldOutForEod ||
+            localSoldOutInventoryIds.has(bin.inventoryId)),
+      ),
+    [data.bins, localSoldOutInventoryIds],
   );
   const shouldLockSavedReconciliation = data.isReconciled && !canSelectDate;
   const [binInputs, setBinInputs] = useState<Record<number, string>>(() =>
@@ -495,6 +544,7 @@ export function EodReconciliationWorkbench({
   const [scannerBinNumber, setScannerBinNumber] = useState<number | null>(null);
   const [scannerMessage, setScannerMessage] = useState("Start scanner.");
   const [scannerState, setScannerState] = useState<ScannerState>("idle");
+  const [soldOutBinNumber, setSoldOutBinNumber] = useState<number | null>(null);
 
   const scannerBin = useMemo(
     () => activeBins.find((bin) => bin.binNumber === scannerBinNumber) ?? null,
@@ -1055,6 +1105,8 @@ export function EodReconciliationWorkbench({
     setCashEntryType("startingFloat");
     setCashEntryAmount("");
     setManagerNotes(data.managerNotes);
+    setLocalSoldOutInventoryIds(new Set());
+    setSoldOutBinNumber(null);
     const nextLocked = data.isReconciled && !canSelectDate;
     setReconciliationLocked(nextLocked);
     setSaveState(
@@ -1176,6 +1228,97 @@ export function EodReconciliationWorkbench({
 
       setSaveState({ status: "error", message });
       notifyError(message);
+    }
+  }
+
+  async function markBinSoldOutDuringEod(bin: ScratchAuditBin) {
+    if (data.source !== "database") {
+      notifyError("Lottery EOD data is not available.");
+      return;
+    }
+
+    if (reconciliationLocked) {
+      notifyError(SAVED_RECONCILIATION_MESSAGE);
+      return;
+    }
+
+    const inventoryId = bin.inventoryId;
+
+    if (!inventoryId) {
+      notifyError("No active pack is loaded in this bin.");
+      return;
+    }
+
+    const finalTicketNumber = getFinalTicketNumber(bin);
+    const remainingTickets = getSoldOutRemainingTickets(bin);
+    const remainingSales = getSoldOutRemainingSales(bin);
+
+    if (!finalTicketNumber || remainingTickets === null) {
+      notifyError("Current pack is missing a valid pack ticket count.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Mark bin ${bin.binNumber} pack ${
+        bin.packNumber ?? ""
+      } sold out from ticket ${bin.lastTicketNumber} to ${finalTicketNumber}? This records ${formatCurrency(
+        remainingSales ?? 0,
+      )} in scratch sales for ${data.businessDate}.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setSoldOutBinNumber(bin.binNumber);
+
+    try {
+      const response = await fetch("/api/lottery/eod-sold-out", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          binNumber: bin.binNumber,
+          date: data.businessDate,
+          startTicketNumber: bin.lastTicketNumber,
+        }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to mark pack sold out");
+      }
+
+      if (scannerBinNumberRef.current === bin.binNumber) {
+        stopScanner(`Bin ${bin.binNumber} marked sold out.`);
+      }
+
+      setLocalSoldOutInventoryIds((current) => {
+        const next = new Set(current);
+        next.add(inventoryId);
+        return next;
+      });
+      setBinInputs((current) => {
+        const next = { ...current };
+        delete next[bin.binNumber];
+        return next;
+      });
+      setSubmittedBinSignature(null);
+      setActiveTab("log");
+      setSaveState({ status: "idle" });
+      success(
+        `Marked bin ${bin.binNumber} pack ${
+          payload.packNumber ?? bin.packNumber
+        } sold out at ticket ${payload.endTicketNumber ?? finalTicketNumber}.`,
+      );
+      router.refresh();
+    } catch (error) {
+      notifyError(
+        error instanceof Error ? error.message : "Failed to mark pack sold out",
+      );
+    } finally {
+      setSoldOutBinNumber(null);
     }
   }
 
@@ -1562,6 +1705,27 @@ export function EodReconciliationWorkbench({
                             <div className="mt-0.5 text-xs text-dark-5">
                               {calculation.ticketsSold} tickets
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => void markBinSoldOutDuringEod(bin)}
+                              disabled={
+                                data.source !== "database" ||
+                                reconciliationLocked ||
+                                soldOutBinNumber === bin.binNumber ||
+                                getSoldOutRemainingTickets(bin) === null
+                              }
+                              className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-800 transition hover:border-amber-300 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                              title={`Mark sold out through ticket ${
+                                getFinalTicketNumber(bin) ?? ""
+                              }`}
+                            >
+                              {soldOutBinNumber === bin.binNumber ? (
+                                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                              )}
+                              Sold out
+                            </button>
                           </TableCell>
                         </TableRow>
                       ))}
