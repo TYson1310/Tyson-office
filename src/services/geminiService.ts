@@ -20,6 +20,78 @@ const ai = new GoogleGenAI({
   },
 });
 
+const invoiceSchema = {
+  type: Type.OBJECT,
+  properties: {
+    vendor: {
+      type: Type.OBJECT,
+      properties: {
+        name: { type: Type.STRING, nullable: true },
+        phone: { type: Type.STRING, nullable: true },
+        email: { type: Type.STRING, nullable: true },
+        address: { type: Type.STRING, nullable: true },
+      },
+      required: ["name", "phone", "email", "address"],
+    },
+    customer: {
+      type: Type.OBJECT,
+      properties: {
+        name: { type: Type.STRING, nullable: true },
+        customer_number: { type: Type.STRING, nullable: true },
+        phone: { type: Type.STRING, nullable: true },
+        address: { type: Type.STRING, nullable: true },
+      },
+      required: ["name", "customer_number", "phone", "address"],
+    },
+    invoice: {
+      type: Type.OBJECT,
+      properties: {
+        invoice_number: { type: Type.STRING, nullable: true },
+        invoice_date: { type: Type.STRING, nullable: true },
+        due_date: { type: Type.STRING, nullable: true },
+        currency: { type: Type.STRING, nullable: true },
+        subtotal: { type: Type.NUMBER, nullable: true },
+        tax_total: { type: Type.NUMBER, nullable: true },
+        discount_total: { type: Type.NUMBER, nullable: true },
+        final_total: { type: Type.NUMBER, nullable: true },
+        ar_balance: { type: Type.NUMBER, nullable: true },
+      },
+      required: [
+        "invoice_number",
+        "invoice_date",
+        "due_date",
+        "currency",
+        "subtotal",
+        "tax_total",
+        "discount_total",
+        "final_total",
+        "ar_balance",
+      ],
+    },
+    items: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          item_code: { type: Type.STRING, nullable: true },
+          description: { type: Type.STRING, nullable: true },
+          quantity: { type: Type.NUMBER, nullable: true },
+          unit_price: { type: Type.NUMBER, nullable: true },
+          line_total: { type: Type.NUMBER, nullable: true },
+        },
+        required: [
+          "item_code",
+          "description",
+          "quantity",
+          "unit_price",
+          "line_total",
+        ],
+      },
+    },
+  },
+  required: ["vendor", "customer", "invoice", "items"],
+};
+
 export class InvoiceExtractionError extends Error {
   statusCode: number;
 
@@ -61,51 +133,26 @@ export async function processInvoice(
   try {
     const response = await ai.models.generateContent({
       model: GEMINI_INVOICE_MODEL,
-      contents: {
-        parts: [
-          {
-            inlineData: {
-              mimeType,
-              data: base64Data.split(",")[1] || base64Data,
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: INVOICE_EXTRACTION_PROMPT,
             },
-          },
-          {
-            text: INVOICE_EXTRACTION_PROMPT,
-          },
-        ],
-      },
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            invoiceNumber: { type: Type.STRING },
-            issueDate: { type: Type.STRING },
-            dueDate: { type: Type.STRING },
-            vendorName: { type: Type.STRING },
-            vendorAddress: { type: Type.STRING },
-            customerName: { type: Type.STRING },
-            subtotal: { type: Type.NUMBER },
-            tax: { type: Type.NUMBER },
-            total: { type: Type.NUMBER },
-            currency: { type: Type.STRING },
-            description: { type: Type.STRING },
-            items: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  description: { type: Type.STRING },
-                  quantity: { type: Type.NUMBER },
-                  unitPrice: { type: Type.NUMBER },
-                  amount: { type: Type.NUMBER },
-                },
-                required: ["description", "amount"],
+            {
+              inlineData: {
+                mimeType,
+                data: base64Data.split(",")[1] || base64Data,
               },
             },
-          },
-          required: ["invoiceNumber", "issueDate", "total", "vendorName"],
+          ],
         },
+      ],
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: invoiceSchema,
+        temperature: 0,
       },
     });
 
@@ -138,9 +185,7 @@ export async function processInvoice(
     }
 
     throw new InvoiceExtractionError(
-      error instanceof Error
-        ? error.message
-        : "Failed to process invoice",
+      error instanceof Error ? error.message : "Failed to process invoice",
     );
   }
 }

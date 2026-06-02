@@ -669,7 +669,7 @@ export interface APAgingReport {
   total: number;
 }
 
-// Product & Margin Engine
+// Product costing
 export interface MarginCalculation {
   id: string;
   productId: string;

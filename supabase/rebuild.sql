@@ -425,6 +425,7 @@ create table if not exists public.products (
   name text not null,
   description text,
   sku text not null unique,
+  barcode text,
   category text not null,
   price numeric(12, 2) not null default 0,
   cost numeric(12, 2) not null default 0,
@@ -432,7 +433,7 @@ create table if not exists public.products (
   reorder_level integer not null default 0,
   location text,
   daily_velocity numeric(8, 2) not null default 0,
-  target_margin_percent numeric(5, 2) not null default 35,
+  target_margin_percent numeric(5, 2) not null default 40,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
@@ -1385,6 +1386,10 @@ create unique index if not exists suppliers_store_email_unique_idx
 alter table public.products drop constraint if exists products_sku_key;
 create unique index if not exists products_store_sku_unique_idx
   on public.products (store_key, sku);
+
+create index if not exists products_store_barcode_idx
+  on public.products (store_key, barcode)
+  where barcode is not null;
 
 alter table public.sales_orders drop constraint if exists sales_orders_order_number_key;
 create unique index if not exists sales_orders_store_order_number_unique_idx

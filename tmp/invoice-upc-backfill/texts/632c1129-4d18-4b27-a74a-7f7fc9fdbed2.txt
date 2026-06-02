@@ -1,0 +1,70 @@
+Restaurant Depot #832
+1135 Springfield Blvd
+Union, NJ 07083
+(908) 964-5544
+Customer #7437971
+COUNTRY FARMS DELI CONVENIENCE
+958,S Springfield Ave
+Springfield, NJ 07081-3508
+Invoice: 20647 Terminal: 16 - 2026/05/02 11:24 am
+UPC
+Description
+Unit Qty Case Qty Price
+-2
+Previous Balance
+0
+0
+$0.00
+4473807514 MILK COCONUT #10
+1
+0
+$14.21
+76069566703 RS PINK DISH 4/1GAL
+1
+0
+$6.55
+3651414475 CHZ PEPJCK SLC GL 6/1.5L 1
+0
+$4.84
+3651415264 CHZ PROV SLC GL
+1
+0
+$4.63
+3651411077 CHZ SWISS SLCD 6/1.5L
+1
+0
+$5.54
+20505310000 CHZ MOZZ W/M GALB R/W 4.96
+0
+$13.84
+20804020000 TKY GOLDN RST BS
+8.58
+0
+$56.20
+0
+Sub-Total
+0
+0
+$105.81
+0
+Tax
+0
+0
+$0.43
+0
+Total
+0
+0
+$106.24
+0
+MC/VISA 0990
+0
+0
+$106.24
+0
+Balance
+0
+0
+$0.00
+Thank you,
+Restaurant Depot

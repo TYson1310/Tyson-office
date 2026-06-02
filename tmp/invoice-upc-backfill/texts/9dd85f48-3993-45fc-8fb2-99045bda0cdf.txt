@@ -1,0 +1,17 @@
+’ Date: 3/27/2026
+MANDEL Invoice #
+BILL TO CUSTOMER # =2193 SHIP TO
+COUNTRY FARMS DELI SPRINGFIELD
+958 SOUTH SPRINGFIELD AV
+SPRINGFIELD, NJ 07081
+912-901-1647
+ITEM DESCRIPTION QTY PRICE EXT PRICE
+
+ar
+Total Item Count: 1 FPR: 0 Final Total $105.79
+Cig Total: 1 GPR: 1
+Tob Total: o LOW: o AR Balance: $4,364.51
+Non Tob Total: 0 DEAL: o Tobacco Excise Tax Included: $0.00
+Customer Signature:
+
+62 Jackson St | Freehold, NJ 07728 | Phone 732-866-1899 | Fax 732-409-2935 | Email mandeltob@kewnet.com Page 1 of 1

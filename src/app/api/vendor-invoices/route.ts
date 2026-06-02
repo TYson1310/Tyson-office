@@ -21,7 +21,9 @@ import {
   isAllowedInvoiceFile,
   MAX_INVOICE_UPLOAD_BYTES,
   normalizeInvoiceAmount,
+  normalizeInvoiceBarcode,
   normalizeInvoiceCurrency,
+  normalizeInvoiceItemCode,
   normalizeInvoiceItems,
   normalizeOptionalInvoiceText,
   normalizeInvoiceText,
@@ -39,6 +41,7 @@ const ALLOWED_VENDOR_INVOICE_STATUSES = new Set([
   "overdue",
   "cancelled",
 ]);
+const DEFAULT_PRODUCT_TARGET_MARGIN_PERCENT = 40;
 
 type SupplierRecord = {
   id: string;
@@ -93,6 +96,7 @@ type ProductRecord = {
   name: string;
   description: string | null;
   sku: string;
+  barcode: string | null;
   category: string;
   price: number | string;
   cost: number | string;
@@ -117,6 +121,7 @@ type ProductUpsertRecord = {
   name: string;
   description: string;
   sku: string;
+  barcode: string | null;
   category: string;
   price: number;
   cost: number;
@@ -175,13 +180,15 @@ function buildInvoiceProductUpserts(
 ): InvoiceProductUpsertResult {
   const productsById = new Map<string, ProductRecord>();
   const existingBySku = new Map<string, ProductRecord>();
+  const existingByBarcode = new Map<string, ProductRecord[]>();
   const existingByName = new Map<string, ProductRecord[]>();
   const existingByDescription = new Map<string, ProductRecord[]>();
 
   existingProducts.forEach((product) => {
     productsById.set(product.id, product);
 
-    const skuKey = normalizeInvoiceText(product.sku).toUpperCase();
+    const skuKey = normalizeInvoiceItemCode(product.sku);
+    const barcodeKey = normalizeInvoiceBarcode(product.barcode);
     const nameKey = buildInvoiceProductMatchKey(product.name);
     const descriptionKey = buildInvoiceProductMatchKey(
       product.description ?? "",
@@ -189,6 +196,13 @@ function buildInvoiceProductUpserts(
 
     if (skuKey) {
       existingBySku.set(skuKey, product);
+    }
+
+    if (barcodeKey) {
+      existingByBarcode.set(barcodeKey, [
+        ...(existingByBarcode.get(barcodeKey) ?? []),
+        product,
+      ]);
     }
 
     if (nameKey) {
@@ -213,6 +227,8 @@ function buildInvoiceProductUpserts(
       totalAmount: number;
       inventoryQuantity: number;
       fallbackCost: number;
+      itemCode?: string;
+      barcode?: string;
       matchedProductId?: string;
     }
   >();
@@ -224,10 +240,16 @@ function buildInvoiceProductUpserts(
       return;
     }
 
+    const itemCode = normalizeInvoiceItemCode(item.itemCode);
+    const barcode = normalizeInvoiceBarcode(item.itemCode);
     const matchedProductId = normalizeInvoiceText(item.matchedProductId);
     const key = matchedProductId
       ? `product:${matchedProductId}`
-      : `description:${buildInvoiceProductMatchKey(description)}`;
+      : barcode
+        ? `barcode:${barcode}`
+        : itemCode
+          ? `item-code:${itemCode}`
+          : `description:${buildInvoiceProductMatchKey(description)}`;
     const existingEntry = aggregatedItems.get(key);
     const totalAmount =
       (existingEntry?.totalAmount ?? 0) + normalizeInvoiceAmount(item.amount);
@@ -241,6 +263,8 @@ function buildInvoiceProductUpserts(
       totalAmount,
       inventoryQuantity,
       fallbackCost: fallbackCost || existingEntry?.fallbackCost || 0,
+      itemCode: itemCode || existingEntry?.itemCode,
+      barcode: barcode || existingEntry?.barcode,
       matchedProductId: matchedProductId || existingEntry?.matchedProductId,
     });
   });
@@ -250,10 +274,10 @@ function buildInvoiceProductUpserts(
   const invalidSelections = new Set<string>();
   const upserts = Array.from(aggregatedItems.values())
     .map((entry) => {
-      const generatedSku = buildInvoiceProductSku(
-        supplierId,
-        entry.description,
-      );
+      const generatedSku =
+        entry.barcode || !entry.itemCode
+          ? buildInvoiceProductSku(supplierId, entry.description)
+          : entry.itemCode;
       const descriptionKey = buildInvoiceProductMatchKey(entry.description);
       let matchedProduct: ProductRecord | undefined;
 
@@ -265,7 +289,20 @@ function buildInvoiceProductUpserts(
           return null;
         }
       } else {
-        matchedProduct = existingBySku.get(generatedSku);
+        if (entry.barcode) {
+          const barcodeMatches = existingByBarcode.get(entry.barcode) ?? [];
+
+          if (barcodeMatches.length > 1) {
+            ambiguousMatches.add(entry.description);
+            return null;
+          }
+
+          matchedProduct =
+            barcodeMatches[0] ??
+            (entry.itemCode ? existingBySku.get(entry.itemCode) : undefined);
+        }
+
+        matchedProduct = matchedProduct ?? existingBySku.get(generatedSku);
 
         if (!matchedProduct) {
           const candidateMap = new Map<string, ProductRecord>();
@@ -301,6 +338,10 @@ function buildInvoiceProductUpserts(
           normalizeInvoiceText(matchedProduct?.description ?? "") ||
           entry.description,
         sku: matchedProduct?.sku || generatedSku,
+        barcode:
+          normalizeInvoiceText(matchedProduct?.barcode ?? "") ||
+          entry.barcode ||
+          null,
         category:
           normalizeInvoiceText(matchedProduct?.category ?? "") ||
           defaultCategory,
@@ -321,7 +362,7 @@ function buildInvoiceProductUpserts(
           : 0,
         target_margin_percent: matchedProduct
           ? toNumber(matchedProduct.target_margin_percent)
-          : 35,
+          : DEFAULT_PRODUCT_TARGET_MARGIN_PERCENT,
       } satisfies ProductUpsertRecord;
     })
     .filter((entry): entry is ProductUpsertRecord => Boolean(entry));
@@ -1050,7 +1091,7 @@ export async function POST(request: NextRequest) {
         await access.supabase
           .from("products")
           .select(
-            "id,supplier_id,name,description,sku,category,price,cost,quantity,reorder_level,location,daily_velocity,target_margin_percent",
+            "id,supplier_id,name,description,sku,barcode,category,price,cost,quantity,reorder_level,location,daily_velocity,target_margin_percent",
           )
           .eq("store_key", access.activeStoreKey)
           .eq("supplier_id", supplierId)

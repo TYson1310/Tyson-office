@@ -19,6 +19,13 @@ type Params = Promise<{ token: string }>;
 
 export const runtime = "nodejs";
 
+type ExtractedGameCatalogPrize = {
+  prize_amount: string;
+  prize_rank: number;
+  remaining_count: number;
+  source_text: string | null;
+};
+
 type ExtractedGameCatalogGame = {
   game_id: string;
   game_name: string;
@@ -26,6 +33,7 @@ type ExtractedGameCatalogGame = {
   image_path: string;
   page_number: number;
   crop_index: number;
+  prizes: ExtractedGameCatalogPrize[];
 };
 
 type GameCatalogExtractionResult = {
@@ -49,6 +57,34 @@ type StoredGameCatalogRow = {
   source_page: number | null;
   crop_index: number | null;
   imported_at: string;
+};
+
+type StoredGameCatalogSummaryRow = {
+  game_id: string;
+  game_name: string;
+  is_active: boolean;
+  ticket_price: number | string;
+};
+
+type GameCatalogPreviewGame = {
+  cropIndex: number;
+  existingGame: {
+    gameName: string;
+    isActive: boolean;
+    ticketPrice: number;
+  } | null;
+  gameId: string;
+  gameName: string;
+  imageDataUrl: string;
+  prizeCount: number;
+  prizes: Array<{
+    prizeAmount: string;
+    prizeRank: number;
+    remainingCount: number;
+    sourceText: string | null;
+  }>;
+  sourcePage: number;
+  ticketPrice: number;
 };
 
 type GameCatalogResponseGame = {
@@ -247,6 +283,41 @@ function calculatePackValue(ticketPrice: number, ticketCount: number | null) {
   return ticketCount ? Math.round(ticketPrice * ticketCount * 100) / 100 : null;
 }
 
+function normalizeExtractedPrize(
+  value: unknown,
+  fallbackPrizeRank: number,
+): ExtractedGameCatalogPrize | null {
+  const record =
+    typeof value === "object" && value !== null
+      ? (value as Record<string, unknown>)
+      : {};
+  const prizeAmount =
+    typeof record.prize_amount === "string" ? record.prize_amount.trim() : "";
+  const remainingCount = Number(record.remaining_count);
+  const prizeRank = Number(record.prize_rank ?? fallbackPrizeRank);
+  const sourceText =
+    typeof record.source_text === "string" && record.source_text.trim()
+      ? record.source_text.trim()
+      : null;
+
+  if (
+    !prizeAmount ||
+    !Number.isInteger(remainingCount) ||
+    remainingCount < 0 ||
+    !Number.isInteger(prizeRank) ||
+    prizeRank < 1
+  ) {
+    return null;
+  }
+
+  return {
+    prize_amount: prizeAmount,
+    prize_rank: prizeRank,
+    remaining_count: remainingCount,
+    source_text: sourceText,
+  };
+}
+
 function normalizeExtractedGame(value: unknown) {
   const record =
     typeof value === "object" && value !== null
@@ -264,6 +335,11 @@ function normalizeExtractedGame(value: unknown) {
       ? record.ticket_price
       : 0,
   );
+  const prizes = Array.isArray(record.prizes)
+    ? record.prizes
+        .map((prize, index) => normalizeExtractedPrize(prize, index + 1))
+        .filter((prize): prize is ExtractedGameCatalogPrize => prize !== null)
+    : [];
   const pageNumber = Number(record.page_number);
   const cropIndex = Number(record.crop_index);
 
@@ -285,6 +361,7 @@ function normalizeExtractedGame(value: unknown) {
     image_path: imagePath,
     page_number: pageNumber,
     crop_index: cropIndex,
+    prizes,
   } satisfies ExtractedGameCatalogGame;
 }
 
@@ -315,12 +392,7 @@ function getUploadMimeType(file: File) {
 }
 
 function isAllowedGameCatalogMimeType(mimeType: string) {
-  return new Set([
-    "application/pdf",
-    "image/png",
-    "image/jpeg",
-    "image/webp",
-  ]).has(mimeType);
+  return mimeType === "application/pdf";
 }
 
 function sanitizeFileNameSegment(value: string) {
@@ -611,6 +683,113 @@ async function applyTicketCountDefaultsToImportedGames({
   }
 }
 
+async function replaceImportedPrizeRows(
+  adminClient: ReturnType<typeof createAdminClient>,
+  games: ExtractedGameCatalogGame[],
+) {
+  const gameIds = Array.from(new Set(games.map((game) => game.game_id)));
+
+  if (gameIds.length === 0) {
+    return 0;
+  }
+
+  const { error: deleteError } = await adminClient
+    .from("game_catalog_prizes")
+    .delete()
+    .in("game_id", gameIds);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  const prizeRows = games.flatMap((game) =>
+    game.prizes.map((prize) => ({
+      game_id: game.game_id,
+      prize_amount: prize.prize_amount,
+      prize_rank: prize.prize_rank,
+      remaining_count: prize.remaining_count,
+      source_page: game.page_number,
+      source_text: prize.source_text,
+    })),
+  );
+
+  if (prizeRows.length === 0) {
+    return 0;
+  }
+
+  const { error } = await adminClient
+    .from("game_catalog_prizes")
+    .insert(prizeRows);
+
+  if (error) {
+    throw error;
+  }
+
+  return prizeRows.length;
+}
+
+async function loadExistingGameSummaries(
+  adminClient: ReturnType<typeof createAdminClient>,
+  gameIds: string[],
+) {
+  if (gameIds.length === 0) {
+    return new Map<string, StoredGameCatalogSummaryRow>();
+  }
+
+  const { data, error } = await adminClient
+    .from("game_catalog")
+    .select("game_id,game_name,ticket_price,is_active")
+    .in("game_id", gameIds)
+    .returns<StoredGameCatalogSummaryRow[]>();
+
+  if (error) {
+    throw error;
+  }
+
+  return new Map((data ?? []).map((row) => [row.game_id, row]));
+}
+
+async function buildPreviewGames(
+  adminClient: ReturnType<typeof createAdminClient>,
+  games: ExtractedGameCatalogGame[],
+) {
+  const existingGames = await loadExistingGameSummaries(
+    adminClient,
+    Array.from(new Set(games.map((game) => game.game_id))),
+  );
+  const previewGames: GameCatalogPreviewGame[] = [];
+
+  for (const game of games) {
+    const imageBuffer = await readFile(game.image_path);
+    const existingGame = existingGames.get(game.game_id);
+
+    previewGames.push({
+      cropIndex: game.crop_index,
+      existingGame: existingGame
+        ? {
+            gameName: existingGame.game_name,
+            isActive: existingGame.is_active,
+            ticketPrice: normalizeMoney(existingGame.ticket_price),
+          }
+        : null,
+      gameId: game.game_id,
+      gameName: game.game_name,
+      imageDataUrl: `data:image/png;base64,${imageBuffer.toString("base64")}`,
+      prizeCount: game.prizes.length,
+      prizes: game.prizes.map((prize) => ({
+        prizeAmount: prize.prize_amount,
+        prizeRank: prize.prize_rank,
+        remainingCount: prize.remaining_count,
+        sourceText: prize.source_text,
+      })),
+      sourcePage: game.page_number,
+      ticketPrice: game.ticket_price,
+    });
+  }
+
+  return previewGames;
+}
+
 async function loadStoredGames(
   adminClient: ReturnType<typeof createAdminClient>,
 ) {
@@ -772,6 +951,8 @@ export async function POST(
 
   const formData = await request.formData();
   const file = formData.get("file");
+  const rawIntent = formData.get("intent");
+  const intent = typeof rawIntent === "string" ? rawIntent : "commit";
 
   if (!(file instanceof File)) {
     return NextResponse.json(
@@ -798,7 +979,7 @@ export async function POST(
 
   if (!isAllowedGameCatalogMimeType(mimeType)) {
     return NextResponse.json(
-      { error: "Upload a PDF, PNG, JPG, or WEBP game catalog" },
+      { error: "Upload a PDF game catalog" },
       { status: 400 },
     );
   }
@@ -820,6 +1001,31 @@ export async function POST(
     const importWarnings = [...extractionResult.warnings];
     const extractedGames = dedupeExtractedGames(extractionResult.games);
     const adminClient = createAdminClient();
+
+    if (intent === "preview") {
+      const previewGames = await buildPreviewGames(adminClient, extractedGames);
+      const existingCount = previewGames.filter(
+        (game) => game.existingGame,
+      ).length;
+
+      return NextResponse.json({
+        extraction: {
+          imageCount: extractionResult.imageCount,
+          matchedCount: extractionResult.matchedCount,
+          recordCount: extractionResult.recordCount,
+        },
+        existingCount,
+        games: previewGames,
+        newCount: previewGames.length - existingCount,
+        prizeCount: previewGames.reduce(
+          (total, game) => total + game.prizeCount,
+          0,
+        ),
+        preview: true,
+        warnings: importWarnings,
+      });
+    }
+
     const ticketCountByPrice =
       await loadTicketCountDefaultsByPrice(adminClient);
     const upsertRows = await uploadGameImages(
@@ -841,6 +1047,11 @@ export async function POST(
     if (error) {
       throw error;
     }
+
+    const prizeCount = await replaceImportedPrizeRows(
+      adminClient,
+      extractedGames,
+    );
 
     await applyTicketCountDefaultsToImportedGames({
       activeGameIds,
@@ -878,6 +1089,7 @@ export async function POST(
         extractionWarnings: importWarnings,
         fileName: file.name,
         importedCount: data?.length ?? activeGameIds.length,
+        importedPrizeCount: prizeCount,
         inactiveCleanupSkipped: !shouldDeactivateOldGames,
         inactiveCount,
         matchedCount: extractionResult.matchedCount,
@@ -896,6 +1108,7 @@ export async function POST(
         recordCount: extractionResult.recordCount,
       },
       inactiveCount,
+      prizeCount,
       games: (await loadStoredGames(adminClient)).map(mapStoredGame),
       priceSettings: await loadPriceSettings(adminClient),
       warnings: importWarnings,

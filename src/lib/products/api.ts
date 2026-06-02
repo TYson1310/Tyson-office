@@ -15,6 +15,10 @@ export function canManageProductRecords(role: UserRole | null | undefined) {
   );
 }
 
+export function canDeleteProductRecords(role: UserRole | null | undefined) {
+  return collapseUserRole(role) === "admin";
+}
+
 export async function requireProductManagerAccess() {
   if (!isSupabaseConfigured()) {
     return {
@@ -54,13 +58,7 @@ export async function requireProductManagerAccess() {
     };
   }
 
-  if (
-    !canAccessPath(
-      "/products/margin-engine",
-      profile?.role,
-      profile?.permissions,
-    )
-  ) {
+  if (!canAccessPath("/inventory", profile?.role, profile?.permissions)) {
     return {
       error: NextResponse.json(
         {

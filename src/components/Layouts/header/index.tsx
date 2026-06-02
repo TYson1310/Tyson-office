@@ -109,10 +109,6 @@ const headerCopy: Record<string, { title: string; subtitle: string }> = {
     title: "Vendor Directory",
     subtitle: "Maintain records for all suppliers and partners.",
   },
-  "/products/margin-engine": {
-    title: "Margin Engine",
-    subtitle: "Calculate costs, profits, and target selling prices.",
-  },
   "/employee/profile": {
     title: "Employee Dashboard",
     subtitle: "View your personal performance and basic shift info.",

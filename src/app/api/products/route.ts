@@ -5,7 +5,10 @@ import {
   loadFinancialAccountabilityStatus,
 } from "@/lib/accountability/financial-controls";
 import { appendAuditEvent } from "@/lib/audit/events";
-import { requireProductManagerAccess } from "@/lib/products/api";
+import {
+  canDeleteProductRecords,
+  requireProductManagerAccess,
+} from "@/lib/products/api";
 
 export const runtime = "nodejs";
 
@@ -18,6 +21,7 @@ type ProductMutationBody = {
   id?: unknown;
   name?: unknown;
   sku?: unknown;
+  barcode?: unknown;
   category?: unknown;
   supplierId?: unknown;
   location?: unknown;
@@ -36,6 +40,7 @@ type ProductRecord = {
   id: string;
   name: string;
   sku: string;
+  barcode: string | null;
   category: string;
   supplier_id: string | null;
   location: string | null;
@@ -217,6 +222,10 @@ export async function PATCH(request: NextRequest) {
       updates.sku = sku;
     }
 
+    if (body.barcode !== undefined) {
+      updates.barcode = normalizeOptionalString(body.barcode);
+    }
+
     if (body.category !== undefined) {
       const category = normalizeRequiredString(body.category);
 
@@ -352,7 +361,7 @@ export async function PATCH(request: NextRequest) {
       await access.supabase
         .from("products")
         .select(
-          "id,name,sku,category,supplier_id,location,quantity,items_per_pack,reorder_level,daily_velocity,cost,price,target_margin_percent",
+          "id,name,sku,barcode,category,supplier_id,location,quantity,items_per_pack,reorder_level,daily_velocity,cost,price,target_margin_percent",
         )
         .eq("id", id)
         .eq("store_key", access.activeStoreKey)
@@ -407,7 +416,7 @@ export async function PATCH(request: NextRequest) {
       .eq("id", id)
       .eq("store_key", access.activeStoreKey)
       .select(
-        "id,name,sku,category,supplier_id,location,quantity,items_per_pack,reorder_level,daily_velocity,cost,price,target_margin_percent",
+        "id,name,sku,barcode,category,supplier_id,location,quantity,items_per_pack,reorder_level,daily_velocity,cost,price,target_margin_percent",
       )
       .maybeSingle<ProductRecord>();
 
@@ -519,6 +528,7 @@ export async function PATCH(request: NextRequest) {
           ? quantityAdjustmentReference
           : null,
         sku: data.sku,
+        barcode: data.barcode,
       },
     });
 
@@ -526,6 +536,7 @@ export async function PATCH(request: NextRequest) {
       id: data.id,
       name: data.name,
       sku: data.sku,
+      barcode: data.barcode,
       category: data.category,
       supplierId: data.supplier_id,
       location: data.location,
@@ -544,6 +555,115 @@ export async function PATCH(request: NextRequest) {
       {
         error:
           error instanceof Error ? error.message : "Failed to update product",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const access = await requireProductManagerAccess();
+
+    if ("error" in access) {
+      return access.error;
+    }
+
+    if (!canDeleteProductRecords(access.currentUserRole)) {
+      return NextResponse.json(
+        { error: "Forbidden: deleting SKUs requires admin access" },
+        { status: 403 },
+      );
+    }
+
+    const id = normalizeProductId(request.nextUrl.searchParams.get("id"));
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Product id is required" },
+        { status: 400 },
+      );
+    }
+
+    const { data: currentProduct, error: currentProductError } =
+      await access.supabase
+        .from("products")
+        .select(
+          "id,name,sku,barcode,category,supplier_id,location,quantity,items_per_pack,reorder_level,daily_velocity,cost,price,target_margin_percent",
+        )
+        .eq("id", id)
+        .eq("store_key", access.activeStoreKey)
+        .maybeSingle<ProductRecord>();
+
+    if (currentProductError) {
+      return NextResponse.json(
+        {
+          error:
+            currentProductError.message ?? "Failed to load current product",
+        },
+        { status: 500 },
+      );
+    }
+
+    if (!currentProduct) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    const { error: deleteError } = await access.supabase
+      .from("products")
+      .delete()
+      .eq("id", id)
+      .eq("store_key", access.activeStoreKey);
+
+    if (deleteError) {
+      const isForeignKeyViolation = deleteError.code === "23503";
+
+      return NextResponse.json(
+        {
+          error: isForeignKeyViolation
+            ? "This SKU is still linked to records that block deletion"
+            : (deleteError.message ?? "Failed to delete SKU"),
+        },
+        { status: isForeignKeyViolation ? 409 : 500 },
+      );
+    }
+
+    await appendAuditEvent({
+      supabase: access.supabase,
+      storeKey: access.activeStoreKey,
+      entityType: "product",
+      entityId: currentProduct.id,
+      action: "product.deleted",
+      summary: `SKU deleted: ${currentProduct.sku}`,
+      actorId: access.currentUser.id,
+      actorName:
+        access.currentUser.user_metadata?.full_name ??
+        access.currentUser.email ??
+        "User",
+      actorRole: access.currentUserRole,
+      metadata: {
+        category: currentProduct.category,
+        cost: Number(currentProduct.cost),
+        name: currentProduct.name,
+        price: Number(currentProduct.price),
+        quantity: currentProduct.quantity,
+        sku: currentProduct.sku,
+        barcode: currentProduct.barcode,
+        supplierId: currentProduct.supplier_id,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      id: currentProduct.id,
+      sku: currentProduct.sku,
+    });
+  } catch (error) {
+    console.error("Products DELETE error:", error);
+
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Failed to delete SKU",
       },
       { status: 500 },
     );

@@ -4,6 +4,7 @@
  */
 
 export interface InvoiceItem {
+  itemCode?: string;
   description: string;
   quantity: number;
   unitPrice: number;
@@ -18,11 +19,18 @@ export interface ProcessedInvoiceData {
   dueDate: string;
   vendorName: string;
   vendorAddress?: string;
+  vendorPhone?: string;
+  vendorEmail?: string;
   customerName?: string;
+  customerNumber?: string;
+  customerPhone?: string;
+  customerAddress?: string;
   items: InvoiceItem[];
   subtotal: number;
   tax: number;
+  discountTotal?: number;
   total: number;
+  arBalance?: number;
   currency: string;
   description?: string;
 }
@@ -43,20 +51,14 @@ export interface InvoiceExtractionResponse {
 }
 
 export const INVOICE_EXTRACTION_PROMPT = `
-Extract the following information from this entire document, scanning all pages if multiple pages are present, and return it as a JSON object.
-Fields to extract:
-- invoiceNumber (string)
-- issueDate (string, ISO format preferred or as it appears on the invoice)
-- dueDate (string, ISO format preferred when present)
-- vendorName (string)
-- vendorAddress (string, optional)
-- customerName (string, optional)
-- items (array of objects with description, quantity, unitPrice, amount)
-- subtotal (number)
-- tax (number)
-- total (number)
-- currency (string, e.g., USD, EUR)
-- description (string, short summary of the invoice contents, optional)
+Extract invoice data from this invoice.
 
-Return only valid JSON.
+Rules:
+- Return only JSON matching the schema.
+- Do not guess missing values.
+- If a value is missing, return null.
+- Dates should be returned in YYYY-MM-DD format when possible.
+- Amounts should be numbers only, without currency symbols.
+- Extract all line items from the invoice table.
+- Extract each line item's UPC, barcode, vendor item number, product code, or SKU into item_code when visible.
 `;

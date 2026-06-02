@@ -58,11 +58,6 @@ const ROUTE_ACCESS_RULES: RouteAccessRule[] = [
     permissions: ["view:reports"],
   },
   {
-    prefix: "/products/margin-engine",
-    roles: ["admin", "manager"],
-    permissions: ["view:products"],
-  },
-  {
     prefix: "/inventory",
     roles: ["admin", "manager"],
     permissions: ["view:inventory"],

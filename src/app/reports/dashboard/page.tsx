@@ -18,6 +18,17 @@ import {
   buildTopProductRows,
 } from "@/lib/erp/reporting";
 import { requireActiveStoreContext } from "@/lib/stores/server";
+import { INVOICE_COST_INCREASE_WARNING_PERCENT } from "@/lib/vendors/invoice-processing";
+import { buildProductCostReviewSummary } from "@/lib/vendors/product-cost-review";
+
+function formatDate(value: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(value);
+}
 
 export default async function ReportsDashboard() {
   const { activeStore } = await requireActiveStoreContext();
@@ -32,6 +43,18 @@ export default async function ReportsDashboard() {
   const paymentBreakdown = buildPaymentBreakdown(dataset);
   const topProducts = buildTopProductRows(dataset);
   const alerts = buildExecutiveAlerts(dataset);
+  const productCostReview = buildProductCostReviewSummary(dataset, {
+    limit: 5,
+  });
+  const largestCostIncrease = productCostReview.rows.reduce<
+    (typeof productCostReview.rows)[number] | null
+  >(
+    (largest, review) =>
+      !largest || review.increasePercent > largest.increasePercent
+        ? review
+        : largest,
+    null,
+  );
   const totalTransactions = dataset.salesSummaries.reduce(
     (sum, summary) => sum + summary.lineCount,
     0,
@@ -99,6 +122,76 @@ export default async function ReportsDashboard() {
             <StatCard key={metric.label} {...metric} />
           ))}
         </div>
+
+        <SectionCard
+          title="Product Cost Review"
+          description={`Saved vendor invoice receipts compared against prior receipts; flags ${INVOICE_COST_INCREASE_WARNING_PERCENT}%+ cost increases.`}
+        >
+          <div className="grid gap-4 border-b border-stroke pb-4 dark:border-dark-3 md:grid-cols-3">
+            <div>
+              <div className="text-xs uppercase text-dark-5 dark:text-dark-6">
+                Products compared
+              </div>
+              <div className="mt-1 text-xl font-semibold text-dark dark:text-white">
+                {productCostReview.comparedProductCount}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs uppercase text-dark-5 dark:text-dark-6">
+                Cost increases
+              </div>
+              <div className="text-amber mt-1 text-xl font-semibold">
+                {productCostReview.increaseCount}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs uppercase text-dark-5 dark:text-dark-6">
+                Largest increase
+              </div>
+              <div className="mt-1 text-xl font-semibold text-dark dark:text-white">
+                {largestCostIncrease
+                  ? `${largestCostIncrease.increasePercent.toFixed(1)}%`
+                  : "None"}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {productCostReview.rows.length > 0 ? (
+              productCostReview.rows.map((review) => (
+                <div
+                  key={review.productKey}
+                  className="grid gap-3 border-b border-stroke pb-3 last:border-b-0 last:pb-0 dark:border-dark-3 md:grid-cols-[1fr_auto_auto]"
+                >
+                  <div>
+                    <div className="font-semibold text-dark dark:text-white">
+                      {review.productName}
+                    </div>
+                    <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                      {review.supplierName ?? "Vendor"} / {review.productSku} /{" "}
+                      {formatDate(review.latestReceiptDate)}
+                    </div>
+                  </div>
+                  <div className="text-sm text-dark-5 dark:text-dark-6 md:text-right">
+                    {formatCurrency(review.previousCost)} to{" "}
+                    <span className="font-semibold text-dark dark:text-white">
+                      {formatCurrency(review.latestCost)}
+                    </span>
+                  </div>
+                  <div className="text-amber text-sm font-semibold md:text-right">
+                    +{review.increasePercent.toFixed(1)}%
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-dark-5 dark:text-dark-6">
+                No product cost increases found from saved receipt history.
+                Products need at least two saved vendor invoice receipts before
+                they can be compared.
+              </p>
+            )}
+          </div>
+        </SectionCard>
 
         <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
           <SectionCard

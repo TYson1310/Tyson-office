@@ -10,6 +10,7 @@ export type EditableInventoryRecord = {
   id: string;
   name: string;
   sku: string;
+  barcode: string;
   category: string;
   supplierId: string;
   location: string;
@@ -30,6 +31,7 @@ type InventorySupplierOption = {
 type InventoryFormState = {
   name: string;
   sku: string;
+  barcode: string;
   category: string;
   supplierId: string;
   location: string;
@@ -58,6 +60,7 @@ function getInitialFormState(
   return {
     name: product.name,
     sku: product.sku,
+    barcode: product.barcode,
     category: product.category,
     supplierId: product.supplierId,
     location: product.location,
@@ -125,6 +128,7 @@ export function EditInventoryItemButton({
             id: product.id,
             name: formState.name,
             sku: formState.sku,
+            barcode: formState.barcode,
             category: formState.category,
             supplierId: formState.supplierId,
             location: formState.location,
@@ -243,6 +247,23 @@ export function EditInventoryItemButton({
                       }
                       className={INPUT_CLASSNAME}
                       placeholder="SKU-1001"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      UPC / Barcode
+                    </label>
+                    <input
+                      value={formState.barcode}
+                      onChange={(event) =>
+                        setFormState((current) => ({
+                          ...current,
+                          barcode: event.target.value,
+                        }))
+                      }
+                      className={INPUT_CLASSNAME}
+                      placeholder="012345678905"
                     />
                   </div>
 

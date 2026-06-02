@@ -19,7 +19,7 @@
     "seed:lottery-sample": "node scripts/seed-lottery-sample.mjs",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "node --test --experimental-strip-types src/lib/vendors/accounting.test.ts src/lib/vendors/adjustments.test.ts src/lib/vendors/payments.test.ts src/lib/accounting/period-locks.test.ts src/lib/auth/login-activity.test.ts src/lib/auth/route-access.test.ts src/lib/date-time.test.ts src/lib/expenses/expense-records.test.ts src/lib/lottery/cash.test.ts src/lib/lottery/eft-paid-amount.test.ts src/lib/lottery/eft.test.ts",
+    "test": "node --test --experimental-strip-types src/lib/vendors/accounting.test.ts src/lib/vendors/adjustments.test.ts src/lib/vendors/invoice-processing.test.ts src/lib/vendors/payments.test.ts src/lib/accounting/period-locks.test.ts src/lib/auth/login-activity.test.ts src/lib/auth/route-access.test.ts src/lib/date-time.test.ts src/lib/expenses/expense-records.test.ts src/lib/lottery/cash.test.ts src/lib/lottery/eft-paid-amount.test.ts src/lib/lottery/eft.test.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

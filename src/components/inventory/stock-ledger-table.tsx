@@ -1,9 +1,11 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import Link from "next/link";
+import { FileText, Search } from "lucide-react";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { inventoryStatusTone } from "@/components/erp/tone-maps";
+import { DeleteInventoryItemButton } from "@/components/inventory/delete-inventory-item-button";
 import {
   EditInventoryItemButton,
   type EditableInventoryRecord,
@@ -25,6 +27,9 @@ type InventorySupplierOption = {
 };
 
 type InventoryLedgerRow = EditableInventoryRecord & {
+  latestInvoiceHref?: string;
+  latestInvoiceNumber?: string;
+  latestInvoiceReceiptDateLabel?: string;
   supplierName: string;
   status: InventoryStatus;
 };
@@ -32,6 +37,7 @@ type InventoryLedgerRow = EditableInventoryRecord & {
 type InventoryStockLedgerTableProps = {
   products: InventoryLedgerRow[];
   quantityAdjustmentsAvailable: boolean;
+  showDeleteActions: boolean;
   suppliers: InventorySupplierOption[];
   showInventoryActions: boolean;
 };
@@ -48,6 +54,7 @@ function formatCurrency(value: number) {
 export function InventoryStockLedgerTable({
   products,
   quantityAdjustmentsAvailable,
+  showDeleteActions,
   suppliers,
   showInventoryActions,
 }: InventoryStockLedgerTableProps) {
@@ -76,9 +83,13 @@ export function InventoryStockLedgerTable({
           deferredSearch.length === 0 ||
           product.name.toLowerCase().includes(deferredSearch) ||
           product.sku.toLowerCase().includes(deferredSearch) ||
+          product.barcode.toLowerCase().includes(deferredSearch) ||
           product.category.toLowerCase().includes(deferredSearch) ||
           product.supplierName.toLowerCase().includes(deferredSearch) ||
-          product.location.toLowerCase().includes(deferredSearch);
+          product.location.toLowerCase().includes(deferredSearch) ||
+          (product.latestInvoiceNumber ?? "")
+            .toLowerCase()
+            .includes(deferredSearch);
 
         return matchesCategory && matchesStatus && matchesSearch;
       }),
@@ -94,7 +105,7 @@ export function InventoryStockLedgerTable({
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             className={`${INPUT_CLASSNAME} pl-10`}
-            placeholder="Search SKU, product, supplier, or location"
+            placeholder="Search UPC, product, supplier, invoice, or SKU"
           />
         </label>
 
@@ -133,15 +144,14 @@ export function InventoryStockLedgerTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>SKU</TableHead>
+            <TableHead>UPC</TableHead>
             <TableHead>Product</TableHead>
-            <TableHead>Category</TableHead>
             <TableHead>Supplier</TableHead>
-            <TableHead>Stock</TableHead>
+            <TableHead className="text-right">Cost</TableHead>
+            <TableHead className="text-right">Sell Price</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-right">Sell price</TableHead>
             {showInventoryActions ? (
-              <TableHead className="text-right">Edit</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             ) : null}
           </TableRow>
         </TableHeader>
@@ -149,7 +159,7 @@ export function InventoryStockLedgerTable({
           {filteredProducts.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={showInventoryActions ? 8 : 7}
+                colSpan={showInventoryActions ? 7 : 6}
                 className="py-10 text-center text-sm text-dark-5 dark:text-dark-6"
               >
                 {products.length === 0
@@ -160,8 +170,16 @@ export function InventoryStockLedgerTable({
           ) : (
             filteredProducts.map((product) => (
               <TableRow key={product.id}>
-                <TableCell className="font-semibold text-dark dark:text-white">
-                  {product.sku}
+                <TableCell>
+                  {product.barcode ? (
+                    <span className="font-mono text-sm text-dark dark:text-white">
+                      {product.barcode}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-dark-5 dark:text-dark-6">
+                      No UPC
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="font-medium text-dark dark:text-white">
@@ -170,18 +188,32 @@ export function InventoryStockLedgerTable({
                   <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
                     {product.location || "Floor not assigned"}
                   </div>
+                  {product.latestInvoiceHref && product.latestInvoiceNumber ? (
+                    <Link
+                      href={product.latestInvoiceHref}
+                      className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition hover:text-primary/80"
+                      title={`Open invoice ${product.latestInvoiceNumber}`}
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      Invoice {product.latestInvoiceNumber}
+                      {product.latestInvoiceReceiptDateLabel
+                        ? ` · ${product.latestInvoiceReceiptDateLabel}`
+                        : ""}
+                    </Link>
+                  ) : null}
                 </TableCell>
-                <TableCell>{product.category}</TableCell>
                 <TableCell>{product.supplierName}</TableCell>
-                <TableCell>
-                  <div className="font-medium text-dark dark:text-white">
-                    {product.quantity} units
+                <TableCell className="text-right">
+                  <div className="font-semibold text-dark dark:text-white">
+                    {formatCurrency(product.cost)} / item
                   </div>
                   <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
-                    {product.itemsPerPack} / pack • Reorder at{" "}
-                    {product.reorderLevel} • {product.dailyVelocity.toFixed(1)}
-                    /day
+                    {product.quantity} qty ·{" "}
+                    {formatCurrency(product.cost * product.quantity)} total
                   </div>
+                </TableCell>
+                <TableCell className="text-right font-semibold text-dark dark:text-white">
+                  {formatCurrency(product.price)}
                 </TableCell>
                 <TableCell>
                   <StatusBadge
@@ -190,18 +222,24 @@ export function InventoryStockLedgerTable({
                     {product.status}
                   </StatusBadge>
                 </TableCell>
-                <TableCell className="text-right font-semibold text-dark dark:text-white">
-                  {formatCurrency(product.price)}
-                </TableCell>
                 {showInventoryActions ? (
                   <TableCell className="text-right">
-                    <EditInventoryItemButton
-                      product={product}
-                      quantityAdjustmentsAvailable={
-                        quantityAdjustmentsAvailable
-                      }
-                      suppliers={suppliers}
-                    />
+                    <div className="flex justify-end gap-2">
+                      <EditInventoryItemButton
+                        product={product}
+                        quantityAdjustmentsAvailable={
+                          quantityAdjustmentsAvailable
+                        }
+                        suppliers={suppliers}
+                      />
+                      {showDeleteActions ? (
+                        <DeleteInventoryItemButton
+                          productId={product.id}
+                          productName={product.name}
+                          productSku={product.sku}
+                        />
+                      ) : null}
+                    </div>
                   </TableCell>
                 ) : null}
               </TableRow>

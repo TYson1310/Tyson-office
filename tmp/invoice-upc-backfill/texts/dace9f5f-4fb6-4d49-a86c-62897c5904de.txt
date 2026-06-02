@@ -1,0 +1,51 @@
+Restaurant Depot #832
+1135 Springfield Blvd
+Union, NJ 07083
+(908) 964-5544
+Customer #7437971
+COUNTRY FARMS DELI CONVENIENCE
+958,S Springfield Ave
+Springfield, NJ 07081-3508
+Invoice: 6083 Terminal: 15 - 2026/04/23 10:57 am
+UPC
+Description
+Unit Qty Case Qty Price
+-2
+Previous Balance
+0
+0
+$0.00
+4801126012 QC GRIDDLE LIQUID 701 1
+0
+$15.96
+9041505238 GRILL BRICK GB12
+1
+0
+$2.66
+0
+Sub-Total
+0
+0
+$18.62
+0
+Tax
+0
+0
+$1.23
+0
+Total
+0
+0
+$19.85
+0
+CASH
+0
+0
+$19.85
+0
+Balance
+0
+0
+$0.00
+Thank you,
+Restaurant Depot

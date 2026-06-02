@@ -1,0 +1,64 @@
+Restaurant Depot #832
+1135 Springfield Blvd
+Union, NJ 07083
+(908) 964-5544
+Customer #7437971
+COUNTRY FARMS DELI CONVENIENCE
+958,S Springfield Ave
+Springfield, NJ 07081-3508
+Invoice: 18637 Terminal: 16 - 2026/04/17 1:05 pm
+UPC
+Description
+Unit Qty Case Qty Price
+-2
+Previous Balance
+0
+0
+$0.00
+76069501110 NAP CCKTL SUN WHT 1PLY
+1
+0
+$12.99
+78787900009 WAX DRY MASTER HVY 12X10 1
+0
+$15.49
+20505590000 CHZ MOZZ P/S GALB R/W
+5.07
+0
+$13.69
+20804020000 TKY GOLDN RST BS
+9.11
+0
+$64.23
+0
+Sub-Total
+0
+0
+$106.40
+0
+Tax
+0
+0
+$0.86
+0
+Total
+0
+0
+$107.26
+0
+CASH
+0
+0
+$107.25
+0
+CASH XXXXX ADJ
+0
+0
+$0.01
+0
+Balance
+0
+0
+$0.00
+Thank you,
+Restaurant Depot

@@ -212,13 +212,6 @@ export const NAV_DATA: NavSection[] = [
         items: [],
         roles: ["admin", "manager"],
       },
-      {
-        title: "Products & Margins",
-        url: "/products/margin-engine",
-        icon: Icons.PieChart,
-        items: [],
-        roles: ["admin", "manager"],
-      },
     ],
   },
   {

@@ -37,6 +37,8 @@ import { selectPayStatementsWithFallback } from "@/lib/payroll/pay-statements";
 import { requireActiveStoreContext } from "@/lib/stores/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { INVOICE_COST_INCREASE_WARNING_PERCENT } from "@/lib/vendors/invoice-processing";
+import { buildProductCostReviewSummary } from "@/lib/vendors/product-cost-review";
 import { SalesChartCard } from "./sales-chart-card";
 
 type RecentPayrollRow = {
@@ -205,7 +207,7 @@ export async function AdminOpsDashboard() {
           ? `${lowMarginProducts[0].marginPercent.toFixed(1)}% actual vs ${lowMarginProducts[0].targetMarginPercent.toFixed(1)}% target`
           : "No active margin exceptions",
       tone: lowMarginProducts.length > 0 ? "red" : "green",
-      href: "/products/margin-engine",
+      href: "/inventory",
     },
     {
       title: "Stock pressure",
@@ -275,6 +277,18 @@ export async function AdminOpsDashboard() {
   );
   const notifications = buildActionNotifications(dataset);
   const approvalQueue = buildApprovalQueueRows(dataset).slice(0, 6);
+  const productCostReview = buildProductCostReviewSummary(dataset, {
+    limit: 8,
+  });
+  const largestCostIncrease = productCostReview.rows.reduce<
+    (typeof productCostReview.rows)[number] | null
+  >(
+    (largest, review) =>
+      !largest || review.increasePercent > largest.increasePercent
+        ? review
+        : largest,
+    null,
+  );
 
   return (
     <div className="space-y-6">
@@ -356,6 +370,105 @@ export async function AdminOpsDashboard() {
               </div>
             </Link>
           ))}
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Product Cost Review"
+        description={`Saved vendor invoice receipts compared against prior receipts; flags ${INVOICE_COST_INCREASE_WARNING_PERCENT}%+ cost increases.`}
+        action={
+          <Link
+            href="/vendors/invoices"
+            className="rounded-full border border-stroke px-4 py-2 text-sm font-semibold text-dark transition hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
+          >
+            Review invoices
+          </Link>
+        }
+      >
+        <div className="grid gap-4 border-b border-stroke pb-4 dark:border-dark-3 md:grid-cols-3">
+          <div>
+            <div className="text-xs uppercase text-dark-5 dark:text-dark-6">
+              Products compared
+            </div>
+            <div className="mt-1 text-xl font-semibold text-dark dark:text-white">
+              {productCostReview.comparedProductCount}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs uppercase text-dark-5 dark:text-dark-6">
+              Cost increases
+            </div>
+            <div className="text-amber mt-1 text-xl font-semibold">
+              {productCostReview.increaseCount}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs uppercase text-dark-5 dark:text-dark-6">
+              Largest increase
+            </div>
+            <div className="mt-1 text-xl font-semibold text-dark dark:text-white">
+              {largestCostIncrease
+                ? `${largestCostIncrease.increasePercent.toFixed(1)}%`
+                : "None"}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          {productCostReview.rows.length > 0 ? (
+            <Table totalRows={productCostReview.rows.length}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Vendor</TableHead>
+                  <TableHead>Latest receipt</TableHead>
+                  <TableHead className="text-right">Previous</TableHead>
+                  <TableHead className="text-right">New</TableHead>
+                  <TableHead className="text-right">Increase</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {productCostReview.rows.map((review) => (
+                  <TableRow key={review.productKey}>
+                    <TableCell>
+                      <div className="font-semibold text-dark dark:text-white">
+                        {review.productName}
+                      </div>
+                      <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                        {review.productSku}
+                      </div>
+                    </TableCell>
+                    <TableCell>{review.supplierName ?? "Vendor"}</TableCell>
+                    <TableCell>
+                      <div className="font-medium text-dark dark:text-white">
+                        {review.latestReceiptReference ?? "Saved receipt"}
+                      </div>
+                      <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                        {formatDate(review.latestReceiptDate)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(review.previousCost)}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold text-dark dark:text-white">
+                      {formatCurrency(review.latestCost)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <StatusBadge tone="amber">
+                        +{review.increasePercent.toFixed(1)}%
+                      </StatusBadge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="rounded-[20px] border border-dashed border-stroke px-5 py-8 text-center text-sm text-dark-5 dark:border-dark-3 dark:text-dark-6">
+              No product cost increases found from saved receipt history.
+              Products need at least two saved vendor invoice receipts before
+              they can be compared.
+            </div>
+          )}
         </div>
       </SectionCard>
 

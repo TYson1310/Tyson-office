@@ -1,0 +1,150 @@
+Sales Order: DS@0112376
+Date: 03/12/26 3:12 PM
+Route #:
+Salesman: Luis
+DELFINO & SON
+DISTRIBUTORS LLC
+95 - 6th ST
+Passaic, NJ
+Phone: 9737663745
+extra
+Peoeer ; Qty PRICE TOTAL
+i ; SALES SECTION
+? Days Strawberry & Vanilla Cro 6 each $1.55 $9.30
+uu
+8 16374"82028 1
+? Days Vanilla Croissant 6 each $1.55 $9.30
+(pu)
+ON 4g7a4"iaia2 Mle
+Daisy’s Apple Danish 3 each $1.55 $4.65
+{pau
+@"8 83142"e0707 "Ne
+Daisy's Banana Nut Muffin 3 each $1.55 $4.65
+quae
+6 94411"90134 Ms
+Daisy's Banane Nut Pound Cake 3 each $1.55 $4.65
+quan
+6™ 94411"ea116 My
+Deisy’s Blueberry Muffin 3 each $1.55 $4.65
+gga
+6 ™ 94411"90135 We
+Daisy’s Brownies 3 each $1.55 $4.65
+4.14
+6 ™ 94411"@0127 I>
+Daisy's Carrot Pound Cake 3 each $1.55 $4.65
+qu quunny
+6™ s44ii"eaiii "Ne
+Daisy's Cheese Danish 3 each $1.55 $4.65
+(muy
+8"" 83142!ea7a9 Mg
+Daisy's Cheese Pound Cake 3 each $1.55 $4.65
+
+Qu qn 9
+6 94411"80123 Bg
+Daisy’s Cherry Cheese Danish 3 each $1.55 $4.65
+mug
+8 83142%e0705 Milo
+Daisy's Cho. Chip Pound Cake 3 each $1.55 $4.65
+eu,
+Daisy’s Chocolate Chip Muffin 3 each $1.55 $4.65
+uuu
+6 94411 "ae137 Mle
+Daisy's Coffee Cake 3 each $1.55 $4.65
+qu Qu
+6 94411 "90132 HM;
+Deisy’s Corn Bread 3 each $1.55 $4.65
+queuqucany
+6 94411"@g129 1
+Daisy's Corn Muffin 3 each $1.55 $4.65
+quan
+6 9441 1"99138 | Ms
+Dsiey’s Croissent Plein 12 each $1.55 $18.60
+quay
+6 94411"90143 HII>
+Dsisy’s Double Cho. Pound Cake 3 each $1.55 $4.65
+gunn
+6 94411"90159 Ig
+Daisy’s Golden Cream Cheese 3 each $1.55 $4.65
+queuguonyy
+6 94411"98145 HM,
+Dsisy’s Guava Jelly Rolls 3.Soz 3 each $1.55 $4.65
+mT
+Dsisy’s Iced Lemon Pound Cake 3 each $1.55 $4.65
+quent
+6 94411"98126 Ela
+Daisy's Lemon Pound Cake 3 each $1.55 $4.65
+quan
+6 94411"80115 lg
+Deisy’s Lintzer Terts 3 each $1.55 $4.65
+quinn
+6 94411"80106 Mla
+
+Deisy’s Marble Pound Cake 3 each $1.55 $4.65
+POM
+6 94411"90i17 "8
+Daisy’s Pineapple Cream Cheese 3 each $1.55 $4.65
+yuu
+6 9441 1"e0146 "8
+Daisy's Plain Pound Cake 3 each $1.55 $4.65
+qu
+6 94411"9a120 "6
+Deisy’s Resp. Jelly Rolls 3.50z 3 each $1.55 $4.65
+qui
+6 9441 1"9ase4 |"s
+Daisy's Raspberry Cream Cheese 3 each $1.55 $4.65
+QU
+6 M'sa4i1"aaid? Ms:
+Deisy’s Strawberry Chees Danish 3 each $1.55 $4.65
+| 4)
+oll g3142tae7ee 17
+Doritos Nacho Chesse 2.50z 3 each $1.63 $4.89
+RIN.
+ol 2e4aa"ss7a1 M2
+Freshley’s Cookies N’ Crem 8ct 8 each $1.59 $12.72
+au
+8 F2250"91641 HIN?
+Fritos Chili Cheese 3.1/4 oz 3 each $1.63 $4.89
+INL
+8 28490"76635 |'"7
+Hostess Cho. Ding Dongs &ct 6 each $1.59 $9.54
+i 4
+8 g8109"e10e2 1'"7
+Hostess Coffee Cake 8c 8 each $1.59 $12.72
+iu 4
+8 93109"81004 TM
+Hostess Glazed Honey Buns 6ct 6 each $1.59 $9.54
+i
+8 88109"25309 1197
+Hostess Iced Honey Buns 6ct 6 each $1.59 $9.54
+rn
+eM ssiast2ssis M4
+Hostess Orange CupCakes 6ct 6 each $1.59 $9.54
+0
+
+Hostess Powdered Donuts 1@ct 1@ each $1.59 $15.90
+«HEL
+Hostess Snoballs 6ct 6 each $1.59 $9.54
+mu,
+Hostess Twinkies 6ct 6 each $1.59 $9.54
+OA
+Ne-Mo’s Iced Banana Cake 6ct 6 each $1.71 $10.26
+IO A
+Ne-Mo’s Iced Carrot Cake 6ct 6 each $1.71 $10.26
+{nua
+8 76864"90204 'Es
+Pop Corners White Chedd 1.3/4oz 3 each $1.63 $4.89
+oH),
+Ruffes Cheddar & Sour Cream 2.5 3 each $1.63 $4.89
+(nme.
+8 28400"35584 1
+Sun Chips Whole Grain Selsa 3 each $1.63 $4.89
+ug,
+Units: 191
+SALES: $301.65
+NET AMOUNT: $301.65
+SALES TAX: $0.00
+TOTAL DUE: $301.65
+TOTAL PAYMENT: $0.00
+INVOICE BALANCE: $301.65
+Signature SSS
+a

@@ -21,11 +21,13 @@ import { VendorFormMessage } from "@/components/vendors/vendor-form-message";
 import { VendorModal } from "@/components/vendors/vendor-modal";
 import {
   buildInvoiceDescription,
+  buildInvoiceItemCostReview,
   calculateInvoiceItemCostPerPiece,
   calculateInvoiceItemUnitCount,
   calculateDueDateFromPaymentTerms,
   findSuggestedProductId,
   findSuggestedSupplierId,
+  INVOICE_COST_INCREASE_WARNING_PERCENT,
   INVOICE_UPLOAD_ACCEPT,
   isAllowedInvoiceFile,
   MAX_INVOICE_UPLOAD_BYTES,
@@ -41,6 +43,7 @@ import type {
   InvoiceVerificationPayload,
 } from "@/types/types";
 import type {
+  InvoiceItemCostReview,
   VendorInvoiceProductOption,
   VendorInvoiceSupplierOption,
 } from "@/lib/vendors/invoice-processing";
@@ -216,7 +219,12 @@ export function UploadInvoiceButton({
           ),
         vendorName: normalizeInvoiceText(extractedInvoice.vendorName),
         vendorAddress: normalizeInvoiceText(extractedInvoice.vendorAddress),
+        vendorPhone: normalizeInvoiceText(extractedInvoice.vendorPhone),
+        vendorEmail: normalizeInvoiceText(extractedInvoice.vendorEmail),
         customerName: normalizeInvoiceText(extractedInvoice.customerName),
+        customerNumber: normalizeInvoiceText(extractedInvoice.customerNumber),
+        customerPhone: normalizeInvoiceText(extractedInvoice.customerPhone),
+        customerAddress: normalizeInvoiceText(extractedInvoice.customerAddress),
         items: items.map((item) => ({
           ...item,
           matchedProductId:
@@ -224,11 +232,14 @@ export function UploadInvoiceButton({
               item.description,
               suggestedSupplierId,
               products,
+              item.itemCode,
             ) || undefined,
         })),
         subtotal: normalizeInvoiceAmount(extractedInvoice.subtotal),
         tax: normalizeInvoiceAmount(extractedInvoice.tax),
+        discountTotal: normalizeInvoiceAmount(extractedInvoice.discountTotal),
         total: normalizeInvoiceAmount(extractedInvoice.total),
+        arBalance: normalizeInvoiceAmount(extractedInvoice.arBalance),
         currency: normalizeInvoiceCurrency(extractedInvoice.currency),
         description:
           normalizeInvoiceText(extractedInvoice.description) ||
@@ -264,8 +275,12 @@ export function UploadInvoiceButton({
       items: current.items.map((item) => ({
         ...item,
         matchedProductId:
-          findSuggestedProductId(item.description, supplierId, products) ||
-          undefined,
+          findSuggestedProductId(
+            item.description,
+            supplierId,
+            products,
+            item.itemCode,
+          ) || undefined,
       })),
     }));
   };
@@ -361,6 +376,27 @@ export function UploadInvoiceButton({
       ? "If this is a multi-page PDF, later-page line items or totals may have been missed. Review every page before saving."
       : null,
   ].filter((warning): warning is string => Boolean(warning));
+  const itemCostReviews = formState.items
+    .map((item) => {
+      const matchedProduct = item.matchedProductId
+        ? products.find((product) => product.id === item.matchedProductId)
+        : null;
+
+      return buildInvoiceItemCostReview(item, matchedProduct);
+    })
+    .filter((review): review is InvoiceItemCostReview => Boolean(review));
+  const costIncreaseReviews = itemCostReviews.filter(
+    (review) => review.hasIncrease,
+  );
+  const largestCostIncrease = costIncreaseReviews.reduce<
+    (typeof costIncreaseReviews)[number] | null
+  >(
+    (largest, review) =>
+      !largest || review.increasePercent > largest.increasePercent
+        ? review
+        : largest,
+    null,
+  );
 
   const updateLineItemCount = (
     index: number,
@@ -380,6 +416,29 @@ export function UploadInvoiceButton({
     }));
   };
 
+  const updateLineItemCode = (index: number, value: string) => {
+    setFormState((current) => ({
+      ...current,
+      items: current.items.map((item, itemIndex) =>
+        itemIndex === index
+          ? {
+              ...item,
+              itemCode: normalizeInvoiceText(value) || undefined,
+              matchedProductId:
+                findSuggestedProductId(
+                  item.description,
+                  current.supplierId,
+                  products,
+                  value,
+                ) ||
+                item.matchedProductId ||
+                undefined,
+            }
+          : item,
+      ),
+    }));
+  };
+
   const updateLineItemMatch = (index: number, productId: string) => {
     setFormState((current) => ({
       ...current,
@@ -392,24 +451,6 @@ export function UploadInvoiceButton({
           : item,
       ),
     }));
-  };
-
-  const buildMarginEngineHref = (index: number) => {
-    const item = formState.items[index];
-
-    if (!item) {
-      return "";
-    }
-
-    const costPerItem = calculateInvoiceItemCostPerPiece(item);
-    const packQuantity = normalizeInvoicePieceCount(item.quantity);
-    const itemsPerPack = normalizeInvoicePieceCount(item.itemsPerPack);
-
-    if (costPerItem <= 0 || packQuantity <= 0 || itemsPerPack <= 0) {
-      return "";
-    }
-
-    return `/products/margin-engine?landingCost=${costPerItem.toFixed(2)}&source=${encodeURIComponent(formState.invoiceNumber || "invoice")}&line=${encodeURIComponent(item.description)}&lineAmount=${encodeURIComponent(item.amount.toFixed(2))}&packs=${encodeURIComponent(String(packQuantity))}&itemsPerPack=${encodeURIComponent(String(itemsPerPack))}`;
   };
 
   return (
@@ -602,6 +643,37 @@ export function UploadInvoiceButton({
                             <li key={warning}>{warning}</li>
                           ))}
                         </ul>
+                      </VendorFormMessage>
+                    ) : null}
+
+                    {costIncreaseReviews.length > 0 ? (
+                      <VendorFormMessage
+                        tone="warning"
+                        title="Review product cost increases"
+                        className="mb-4"
+                      >
+                        <div>
+                          {costIncreaseReviews.length} matched product
+                          {costIncreaseReviews.length === 1 ? "" : "s"} have
+                          invoice cost increases of at least{" "}
+                          {INVOICE_COST_INCREASE_WARNING_PERCENT}% against saved
+                          product cost history.
+                        </div>
+                        {largestCostIncrease ? (
+                          <div className="mt-2 text-sm">
+                            Largest increase:{" "}
+                            <span className="font-semibold">
+                              {largestCostIncrease.productName}
+                            </span>{" "}
+                            from{" "}
+                            {formatInvoiceAmount(
+                              largestCostIncrease.previousCost,
+                            )}{" "}
+                            to{" "}
+                            {formatInvoiceAmount(largestCostIncrease.newCost)} (
+                            {largestCostIncrease.increasePercent.toFixed(1)}%).
+                          </div>
+                        ) : null}
                       </VendorFormMessage>
                     ) : null}
 
@@ -938,6 +1010,7 @@ export function UploadInvoiceButton({
                             <TableHeader>
                               <TableRow>
                                 <TableHead>Description</TableHead>
+                                <TableHead>Item code / UPC</TableHead>
                                 <TableHead>Product match</TableHead>
                                 <TableHead className="text-right">
                                   Qty
@@ -951,22 +1024,28 @@ export function UploadInvoiceButton({
                                 <TableHead className="text-right">
                                   Per item
                                 </TableHead>
-                                <TableHead className="text-right">
-                                  Action
-                                </TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {formState.items.map((item, index) => {
-                                const marginHref = buildMarginEngineHref(index);
                                 const perItemCost =
                                   calculateInvoiceItemCostPerPiece(item);
                                 const totalUnits =
                                   calculateInvoiceItemUnitCount(item);
+                                const matchedProduct = item.matchedProductId
+                                  ? products.find(
+                                      (product) =>
+                                        product.id === item.matchedProductId,
+                                    )
+                                  : null;
+                                const costReview = buildInvoiceItemCostReview(
+                                  item,
+                                  matchedProduct,
+                                );
 
                                 return (
                                   <TableRow
-                                    key={`${item.description}-${index}`}
+                                    key={`${item.itemCode ?? item.description}-${index}`}
                                   >
                                     <TableCell className="text-dark dark:text-white">
                                       <div className="font-medium">
@@ -977,6 +1056,23 @@ export function UploadInvoiceButton({
                                           {totalUnits} total items
                                         </div>
                                       ) : null}
+                                    </TableCell>
+                                    <TableCell>
+                                      <input
+                                        value={item.itemCode ?? ""}
+                                        onChange={(event) =>
+                                          updateLineItemCode(
+                                            index,
+                                            event.target.value,
+                                          )
+                                        }
+                                        className="min-w-[160px] rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-primary"
+                                        placeholder="UPC or item #"
+                                      />
+                                      <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                                        UPC-like codes save as barcode; other
+                                        codes can match product SKU.
+                                      </div>
                                     </TableCell>
                                     <TableCell>
                                       <select
@@ -998,7 +1094,10 @@ export function UploadInvoiceButton({
                                             key={product.id}
                                             value={product.id}
                                           >
-                                            {product.name} · {product.sku}
+                                            {product.name} · SKU {product.sku}
+                                            {product.barcode
+                                              ? ` · UPC ${product.barcode}`
+                                              : ""}
                                           </option>
                                         ))}
                                       </select>
@@ -1056,22 +1155,23 @@ export function UploadInvoiceButton({
                                           Add items / pack
                                         </div>
                                       )}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                      {marginHref ? (
-                                        <a
-                                          href={marginHref}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="inline-flex items-center rounded-full bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                                      {costReview ? (
+                                        <div
+                                          className={
+                                            costReview.hasIncrease
+                                              ? "mt-1 text-xs font-medium text-amber-700 dark:text-amber-300"
+                                              : "mt-1 text-xs text-dark-5 dark:text-dark-6"
+                                          }
                                         >
-                                          Check margin
-                                        </a>
-                                      ) : (
-                                        <span className="text-xs text-dark-5 dark:text-dark-6">
-                                          Set items / pack
-                                        </span>
-                                      )}
+                                          {costReview.hasIncrease
+                                            ? `Up ${formatInvoiceAmount(costReview.increaseAmount)} (${costReview.increasePercent.toFixed(1)}%) vs ${costReview.baselineLabel}`
+                                            : `Was ${formatInvoiceAmount(costReview.previousCost)} from ${costReview.baselineLabel}`}
+                                        </div>
+                                      ) : item.matchedProductId ? (
+                                        <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                                          No previous cost
+                                        </div>
+                                      ) : null}
                                     </TableCell>
                                   </TableRow>
                                 );

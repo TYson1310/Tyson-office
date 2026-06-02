@@ -7,6 +7,7 @@ import type {
 
 export const MAX_INVOICE_UPLOAD_BYTES = 10 * 1024 * 1024;
 export const INVOICE_UPLOAD_ACCEPT = ".pdf,image/png,image/jpeg,image/webp";
+export const INVOICE_COST_INCREASE_WARNING_PERCENT = 5;
 
 const ALLOWED_INVOICE_FILE_EXTENSIONS = new Set([
   "pdf",
@@ -35,6 +36,11 @@ export type VendorInvoiceProductOption = {
   name: string;
   description?: string | null;
   sku: string;
+  barcode?: string | null;
+  cost?: number;
+  lastReceiptCost?: number | null;
+  lastReceiptDate?: string | null;
+  lastReceiptInvoiceNumber?: string | null;
 };
 
 export type InvoiceTotalsReconciliation = {
@@ -46,6 +52,20 @@ export type InvoiceTotalsReconciliation = {
   hasLineItemsSubtotalMismatch: boolean;
   hasSubtotalTaxTotalMismatch: boolean;
   hasMismatch: boolean;
+};
+
+export type InvoiceItemCostReview = {
+  productId: string;
+  productName: string;
+  productSku: string;
+  baselineLabel: "last invoice" | "current product cost";
+  previousCost: number;
+  newCost: number;
+  increaseAmount: number;
+  increasePercent: number;
+  hasIncrease: boolean;
+  lastReceiptDate?: string | null;
+  lastReceiptInvoiceNumber?: string | null;
 };
 
 const INVOICE_TOTAL_RECONCILIATION_TOLERANCE = 0.05;
@@ -106,6 +126,26 @@ export function normalizeInvoiceText(value: unknown) {
 export function normalizeOptionalInvoiceText(value: unknown) {
   const normalized = normalizeInvoiceText(value);
   return normalized.length > 0 ? normalized : null;
+}
+
+export function normalizeInvoiceItemCode(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return normalizeInvoiceText(value).toUpperCase().replace(/\s+/g, "");
+}
+
+export function normalizeInvoiceBarcode(value: unknown) {
+  const normalized = normalizeInvoiceText(value);
+
+  if (!normalized) {
+    return "";
+  }
+
+  const digits = normalized.replace(/\D/g, "");
+
+  return digits.length >= 8 && digits.length <= 14 ? digits : "";
 }
 
 export function normalizeInvoiceAmount(value: unknown) {
@@ -175,18 +215,26 @@ export function normalizeInvoiceItems(value: unknown): InvoiceItem[] {
         ? (item as Record<string, unknown>)
         : {};
     const description = normalizeInvoiceText(record.description);
+    const itemCode = normalizeInvoiceItemCode(
+      record.itemCode ?? record.item_code ?? record.upc ?? record.barcode,
+    );
 
     if (!description) {
       return;
     }
 
     items.push({
+      itemCode: itemCode || undefined,
       description,
       quantity: normalizeInvoiceAmount(record.quantity),
-      unitPrice: normalizeInvoiceAmount(record.unitPrice),
-      amount: normalizeInvoiceAmount(record.amount),
+      unitPrice: normalizeInvoiceAmount(record.unitPrice ?? record.unit_price),
+      amount: normalizeInvoiceAmount(
+        record.amount ?? record.lineTotal ?? record.line_total,
+      ),
       itemsPerPack:
-        normalizeInvoicePieceCount(record.itemsPerPack) || undefined,
+        normalizeInvoicePieceCount(
+          record.itemsPerPack ?? record.items_per_pack,
+        ) || undefined,
       matchedProductId:
         normalizeInvoiceText(record.matchedProductId) || undefined,
     });
@@ -219,7 +267,10 @@ export function buildInvoiceDescription(
 }
 
 export function reconcileInvoiceTotals(
-  payload: Pick<Partial<InvoiceVerificationPayload>, "items" | "subtotal" | "tax" | "total">,
+  payload: Pick<
+    Partial<InvoiceVerificationPayload>,
+    "items" | "subtotal" | "tax" | "total"
+  >,
 ): InvoiceTotalsReconciliation {
   const items = normalizeInvoiceItems(payload.items);
   const lineItemsTotal = roundCurrency(
@@ -248,8 +299,7 @@ export function reconcileInvoiceTotals(
     expectedTotalFromSubtotal,
     hasLineItemsSubtotalMismatch,
     hasSubtotalTaxTotalMismatch,
-    hasMismatch:
-      hasLineItemsSubtotalMismatch || hasSubtotalTaxTotalMismatch,
+    hasMismatch: hasLineItemsSubtotalMismatch || hasSubtotalTaxTotalMismatch,
   };
 }
 
@@ -275,11 +325,61 @@ export function calculateInvoiceItemCostPerPiece(item: Partial<InvoiceItem>) {
   return roundCurrency(amount / unitCount);
 }
 
+export function buildInvoiceItemCostReview(
+  item: Partial<InvoiceItem>,
+  product?: VendorInvoiceProductOption | null,
+  options?: { increasePercentThreshold?: number },
+): InvoiceItemCostReview | null {
+  if (!product) {
+    return null;
+  }
+
+  const newCost = calculateInvoiceItemCostPerPiece(item);
+
+  if (newCost <= 0) {
+    return null;
+  }
+
+  const lastReceiptCost = normalizeInvoiceAmount(product.lastReceiptCost);
+  const currentProductCost = normalizeInvoiceAmount(product.cost);
+  const previousCost =
+    lastReceiptCost > 0 ? lastReceiptCost : currentProductCost;
+  const baselineLabel =
+    lastReceiptCost > 0
+      ? ("last invoice" as const)
+      : ("current product cost" as const);
+
+  if (previousCost <= 0) {
+    return null;
+  }
+
+  const increaseAmount = roundCurrency(newCost - previousCost);
+  const increasePercent = roundCurrency((increaseAmount / previousCost) * 100);
+  const threshold =
+    options?.increasePercentThreshold ?? INVOICE_COST_INCREASE_WARNING_PERCENT;
+
+  return {
+    productId: product.id,
+    productName: product.name,
+    productSku: product.sku,
+    baselineLabel,
+    previousCost,
+    newCost,
+    increaseAmount,
+    increasePercent,
+    hasIncrease: increaseAmount > 0 && increasePercent >= threshold,
+    lastReceiptDate: product.lastReceiptDate,
+    lastReceiptInvoiceNumber: product.lastReceiptInvoiceNumber,
+  };
+}
+
 export function buildInvoiceProductMatchKey(value: unknown) {
   return normalizeNameKey(normalizeInvoiceText(value));
 }
 
-export function calculateInvoiceItemInventoryQuantity(item: Partial<InvoiceItem>) {
+export function calculateInvoiceItemInventoryQuantity(
+  item: Partial<InvoiceItem>,
+) {
   const unitCount = calculateInvoiceItemUnitCount(item);
 
   if (unitCount > 0) {
@@ -316,10 +416,7 @@ export function buildInvoiceProductSku(
   supplierId: string,
   itemDescription: string,
 ) {
-  const supplierSegment = normalizeSkuSegment(
-    supplierId.replace(/-/g, ""),
-    6,
-  );
+  const supplierSegment = normalizeSkuSegment(supplierId.replace(/-/g, ""), 6);
   const descriptionText = normalizeInvoiceText(itemDescription);
   const descriptionSegment = normalizeSkuSegment(descriptionText, 18);
   const key = buildInvoiceProductMatchKey(descriptionText) || "item";
@@ -335,22 +432,62 @@ export function sanitizeProcessedInvoice(
     typeof value === "object" && value !== null
       ? (value as Record<string, unknown>)
       : {};
+  const vendor =
+    typeof record.vendor === "object" && record.vendor !== null
+      ? (record.vendor as Record<string, unknown>)
+      : {};
+  const customer =
+    typeof record.customer === "object" && record.customer !== null
+      ? (record.customer as Record<string, unknown>)
+      : {};
+  const invoice =
+    typeof record.invoice === "object" && record.invoice !== null
+      ? (record.invoice as Record<string, unknown>)
+      : {};
   const items = normalizeInvoiceItems(record.items);
 
   return {
-    invoiceNumber: normalizeInvoiceText(record.invoiceNumber),
-    issueDate: toIsoInvoiceDate(record.issueDate ?? record.date) ?? "",
-    dueDate: toIsoInvoiceDate(record.dueDate) ?? "",
-    vendorName: normalizeInvoiceText(record.vendorName),
+    invoiceNumber: normalizeInvoiceText(
+      record.invoiceNumber ?? invoice.invoice_number,
+    ),
+    issueDate:
+      toIsoInvoiceDate(
+        record.issueDate ?? record.date ?? invoice.invoice_date,
+      ) ?? "",
+    dueDate: toIsoInvoiceDate(record.dueDate ?? invoice.due_date) ?? "",
+    vendorName: normalizeInvoiceText(record.vendorName ?? vendor.name),
     vendorAddress:
-      normalizeOptionalInvoiceText(record.vendorAddress) ?? undefined,
+      normalizeOptionalInvoiceText(record.vendorAddress ?? vendor.address) ??
+      undefined,
+    vendorPhone:
+      normalizeOptionalInvoiceText(record.vendorPhone ?? vendor.phone) ??
+      undefined,
+    vendorEmail:
+      normalizeOptionalInvoiceText(record.vendorEmail ?? vendor.email) ??
+      undefined,
     customerName:
-      normalizeOptionalInvoiceText(record.customerName) ?? undefined,
+      normalizeOptionalInvoiceText(record.customerName ?? customer.name) ??
+      undefined,
+    customerNumber:
+      normalizeOptionalInvoiceText(
+        record.customerNumber ?? customer.customer_number,
+      ) ?? undefined,
+    customerPhone:
+      normalizeOptionalInvoiceText(record.customerPhone ?? customer.phone) ??
+      undefined,
+    customerAddress:
+      normalizeOptionalInvoiceText(
+        record.customerAddress ?? customer.address,
+      ) ?? undefined,
     items,
-    subtotal: normalizeInvoiceAmount(record.subtotal),
-    tax: normalizeInvoiceAmount(record.tax),
-    total: normalizeInvoiceAmount(record.total),
-    currency: normalizeInvoiceCurrency(record.currency),
+    subtotal: normalizeInvoiceAmount(record.subtotal ?? invoice.subtotal),
+    tax: normalizeInvoiceAmount(record.tax ?? invoice.tax_total),
+    discountTotal: normalizeInvoiceAmount(
+      record.discountTotal ?? invoice.discount_total,
+    ),
+    total: normalizeInvoiceAmount(record.total ?? invoice.final_total),
+    arBalance: normalizeInvoiceAmount(record.arBalance ?? invoice.ar_balance),
+    currency: normalizeInvoiceCurrency(record.currency ?? invoice.currency),
     description:
       buildInvoiceDescription(items, record.description) ?? undefined,
   };
@@ -369,17 +506,36 @@ export function buildInvoiceNotes(
     normalizeOptionalInvoiceText(payload.vendorAddress)
       ? `Vendor address: ${normalizeInvoiceText(payload.vendorAddress)}`
       : null,
+    normalizeOptionalInvoiceText(payload.vendorPhone)
+      ? `Vendor phone: ${normalizeInvoiceText(payload.vendorPhone)}`
+      : null,
+    normalizeOptionalInvoiceText(payload.vendorEmail)
+      ? `Vendor email: ${normalizeInvoiceText(payload.vendorEmail)}`
+      : null,
     normalizeOptionalInvoiceText(payload.customerName)
       ? `Customer: ${normalizeInvoiceText(payload.customerName)}`
       : null,
+    normalizeOptionalInvoiceText(payload.customerNumber)
+      ? `Customer number: ${normalizeInvoiceText(payload.customerNumber)}`
+      : null,
+    normalizeOptionalInvoiceText(payload.customerPhone)
+      ? `Customer phone: ${normalizeInvoiceText(payload.customerPhone)}`
+      : null,
+    normalizeOptionalInvoiceText(payload.customerAddress)
+      ? `Customer address: ${normalizeInvoiceText(payload.customerAddress)}`
+      : null,
     formatAmountLine("Subtotal", payload.subtotal, payload.currency),
     formatAmountLine("Tax", payload.tax, payload.currency),
+    formatAmountLine("Discount", payload.discountTotal, payload.currency),
+    formatAmountLine("AR balance", payload.arBalance, payload.currency),
     items.length > 0
       ? `Items: ${items
           .map((item) => {
+            const itemCode = normalizeInvoiceItemCode(item.itemCode);
             const quantity = normalizeInvoicePieceCount(item.quantity);
             const itemsPerPack = normalizeInvoicePieceCount(item.itemsPerPack);
             const costPerPiece = calculateInvoiceItemCostPerPiece(item);
+            const itemCodeText = itemCode ? `code ${itemCode}` : null;
             const amountText =
               normalizeInvoiceAmount(item.amount) > 0
                 ? `amount ${normalizeInvoiceAmount(item.amount).toFixed(2)}`
@@ -389,6 +545,7 @@ export function buildInvoiceNotes(
             const perPieceText =
               costPerPiece > 0 ? `per item ${costPerPiece.toFixed(2)}` : null;
             const qualifiers = [
+              itemCodeText,
               amountText,
               quantityText,
               packText,
@@ -477,10 +634,41 @@ export function findSuggestedProductId(
   itemDescription: string,
   supplierId: string,
   products: VendorInvoiceProductOption[],
+  itemCode?: string,
 ) {
+  const normalizedItemCode = normalizeInvoiceItemCode(itemCode);
+  const normalizedBarcode = normalizeInvoiceBarcode(itemCode);
   const normalizedDescription = buildInvoiceProductMatchKey(itemDescription);
 
-  if (!supplierId || !normalizedDescription) {
+  if (!supplierId) {
+    return "";
+  }
+
+  if (normalizedBarcode) {
+    const barcodeMatch = products.find(
+      (product) =>
+        product.supplierId === supplierId &&
+        normalizeInvoiceBarcode(product.barcode) === normalizedBarcode,
+    );
+
+    if (barcodeMatch) {
+      return barcodeMatch.id;
+    }
+  }
+
+  if (normalizedItemCode) {
+    const skuMatch = products.find(
+      (product) =>
+        product.supplierId === supplierId &&
+        normalizeInvoiceItemCode(product.sku) === normalizedItemCode,
+    );
+
+    if (skuMatch) {
+      return skuMatch.id;
+    }
+  }
+
+  if (!normalizedDescription) {
     return "";
   }
 

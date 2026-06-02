@@ -22,10 +22,14 @@ import {
 import { InvoiceFilters } from "@/components/vendors/invoice-filters";
 import type { VendorInvoiceActionRecord } from "@/components/vendors/vendor-invoice-action-types";
 import { getTodayIsoDateInTimeZone } from "@/lib/date-time";
-import type {
-  VendorInvoiceProductOption,
-  VendorInvoiceSupplierOption,
+import {
+  type VendorInvoiceProductOption,
+  type VendorInvoiceSupplierOption,
 } from "@/lib/vendors/invoice-processing";
+import {
+  buildLatestReceiptCostLookup,
+  getProductReceiptLookupKeys,
+} from "@/lib/vendors/product-cost-review";
 import {
   formatCurrency,
   getOperationsDataset,
@@ -229,13 +233,26 @@ export default async function VendorInvoicesPage({ searchParams }: PageProps) {
     paymentTerms:
       supplier.paymentTerms as VendorInvoiceSupplierOption["paymentTerms"],
   }));
-  const productOptions = dataset.products.map((product) => ({
-    id: product.id,
-    supplierId: product.supplierId ?? "",
-    name: product.name,
-    description: product.description,
-    sku: product.sku,
-  })) satisfies VendorInvoiceProductOption[];
+  const latestReceiptCostLookup = buildLatestReceiptCostLookup(dataset);
+  const productOptions = dataset.products.map((product) => {
+    const latestReceipt = getProductReceiptLookupKeys(product)
+      .map((key) => latestReceiptCostLookup.get(key))
+      .find((receipt) => Boolean(receipt));
+
+    return {
+      id: product.id,
+      supplierId: product.supplierId ?? "",
+      name: product.name,
+      description: product.description,
+      sku: product.sku,
+      barcode: product.barcode,
+      cost: product.cost,
+      lastReceiptCost: latestReceipt?.unitCost ?? null,
+      lastReceiptDate:
+        latestReceipt?.receiptDate.toISOString().slice(0, 10) ?? null,
+      lastReceiptInvoiceNumber: latestReceipt?.receiptReference ?? null,
+    } satisfies VendorInvoiceProductOption;
+  });
   const adjustmentProductOptions = dataset.products.map((product) => ({
     id: product.id,
     supplierId: product.supplierId ?? "",

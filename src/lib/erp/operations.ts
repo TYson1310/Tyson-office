@@ -54,6 +54,11 @@ type CompatibilityQueryCollectionResult<T> = QueryCollectionResult<T> & {
 
 export type DataSource = "database" | "unconfigured" | "error";
 
+const INVENTORY_MOVEMENT_HISTORY_LIMIT = 5000;
+const INVENTORY_MOVEMENT_PAGE_SIZE = 1000;
+const PRODUCT_CATALOG_LIMIT = 10000;
+const PRODUCT_CATALOG_PAGE_SIZE = 1000;
+
 export type OperationsEmployee = {
   id: string;
   email: string;
@@ -238,6 +243,7 @@ type ProductRow = {
   name: string;
   description: string | null;
   sku: string;
+  barcode?: string | null;
   category: string;
   price: number | string;
   cost: number | string;
@@ -251,6 +257,79 @@ type ProductRow = {
   updated_at: string;
   suppliers?: RelatedRecord<{ id: string; name: string }>;
 };
+
+async function fetchProductsResult(
+  supabase: SupabaseServerClient,
+  storeKey: string,
+): Promise<CompatibilityQueryCollectionResult<ProductRow>> {
+  const selectWithBarcode =
+    "id,supplier_id,name,description,sku,barcode,category,price,cost,quantity,items_per_pack,reorder_level,location,daily_velocity,target_margin_percent,created_at,updated_at,suppliers(id,name)";
+  const selectLegacy =
+    "id,supplier_id,name,description,sku,category,price,cost,quantity,items_per_pack,reorder_level,location,daily_velocity,target_margin_percent,created_at,updated_at,suppliers(id,name)";
+
+  const fetchPagedProducts = async (selectClause: string) => {
+    const rows: ProductRow[] = [];
+
+    for (
+      let from = 0;
+      from < PRODUCT_CATALOG_LIMIT;
+      from += PRODUCT_CATALOG_PAGE_SIZE
+    ) {
+      const to = Math.min(
+        from + PRODUCT_CATALOG_PAGE_SIZE - 1,
+        PRODUCT_CATALOG_LIMIT - 1,
+      );
+      const page = await supabase
+        .from("products")
+        .select(selectClause)
+        .eq("store_key", storeKey)
+        .order("name", { ascending: true })
+        .range(from, to);
+
+      if (page.error) {
+        return {
+          data: rows,
+          error: page.error,
+        } satisfies QueryCollectionResult<ProductRow>;
+      }
+
+      rows.push(...((page.data ?? []) as unknown as ProductRow[]));
+
+      if ((page.data ?? []).length < PRODUCT_CATALOG_PAGE_SIZE) {
+        break;
+      }
+    }
+
+    return {
+      data: rows,
+      error: null,
+    } satisfies QueryCollectionResult<ProductRow>;
+  };
+
+  const result = await fetchPagedProducts(selectWithBarcode);
+
+  if (
+    result.error &&
+    isMissingSchemaField(result.error, "products", ["barcode"])
+  ) {
+    const legacy = await fetchPagedProducts(selectLegacy);
+
+    if (!legacy.error) {
+      return {
+        data: (legacy.data ?? []).map((row) => ({
+          ...row,
+          barcode: null,
+        })),
+        error: null,
+        compatibilityWarnings: [
+          "Product UPC/barcode fields are unavailable until the product barcode migration is applied.",
+        ],
+      };
+    }
+  }
+
+  return result as CompatibilityQueryCollectionResult<ProductRow>;
+}
 
 type SupplierRow = {
   id: string;
@@ -1077,14 +1156,48 @@ async function fetchInventoryMovementsResult(
   supabase: SupabaseServerClient,
   storeKey: string,
 ): Promise<CompatibilityQueryCollectionResult<InventoryMovementRow>> {
-  const result = await supabase
-    .from("inventory_movements")
-    .select(
-      "id,product_id,vendor_adjustment_id,vendor_invoice_id,movement_type,quantity_delta,quantity_before,quantity_after,unit_cost,total_amount,product_name,product_sku,notes,created_by,created_at,vendor_adjustments(id,adjustment_number),vendor_invoices(id,invoice_number)",
-    )
-    .eq("store_key", storeKey)
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const fetchPagedInventoryMovements = async (selectClause: string) => {
+    const rows: InventoryMovementRow[] = [];
+
+    for (
+      let from = 0;
+      from < INVENTORY_MOVEMENT_HISTORY_LIMIT;
+      from += INVENTORY_MOVEMENT_PAGE_SIZE
+    ) {
+      const to = Math.min(
+        from + INVENTORY_MOVEMENT_PAGE_SIZE - 1,
+        INVENTORY_MOVEMENT_HISTORY_LIMIT - 1,
+      );
+      const page = await supabase
+        .from("inventory_movements")
+        .select(selectClause)
+        .eq("store_key", storeKey)
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      if (page.error) {
+        return {
+          data: rows,
+          error: page.error,
+        } satisfies QueryCollectionResult<InventoryMovementRow>;
+      }
+
+      rows.push(...((page.data ?? []) as unknown as InventoryMovementRow[]));
+
+      if ((page.data ?? []).length < INVENTORY_MOVEMENT_PAGE_SIZE) {
+        break;
+      }
+    }
+
+    return {
+      data: rows,
+      error: null,
+    } satisfies QueryCollectionResult<InventoryMovementRow>;
+  };
+
+  const result = await fetchPagedInventoryMovements(
+    "id,product_id,vendor_adjustment_id,vendor_invoice_id,movement_type,quantity_delta,quantity_before,quantity_after,unit_cost,total_amount,product_name,product_sku,notes,created_by,created_at,vendor_adjustments(id,adjustment_number),vendor_invoices(id,invoice_number)",
+  );
 
   if (result.error && isMissingRelation(result.error, "inventory_movements")) {
     return {
@@ -1102,14 +1215,9 @@ async function fetchInventoryMovementsResult(
       "vendor_invoice_id",
     ])
   ) {
-    const legacy = await supabase
-      .from("inventory_movements")
-      .select(
-        "id,product_id,vendor_adjustment_id,movement_type,quantity_delta,quantity_before,quantity_after,unit_cost,total_amount,product_name,product_sku,notes,created_by,created_at,vendor_adjustments(id,adjustment_number)",
-      )
-      .eq("store_key", storeKey)
-      .order("created_at", { ascending: false })
-      .limit(100);
+    const legacy = await fetchPagedInventoryMovements(
+      "id,product_id,vendor_adjustment_id,movement_type,quantity_delta,quantity_before,quantity_after,unit_cost,total_amount,product_name,product_sku,notes,created_by,created_at,vendor_adjustments(id,adjustment_number)",
+    );
 
     if (!legacy.error) {
       return {
@@ -1451,13 +1559,7 @@ export async function getOperationsDataset(): Promise<OperationsDataset> {
         )
         .eq("store_key", storeKey)
         .order("full_name", { ascending: true }),
-      supabase
-        .from("products")
-        .select(
-          "id,supplier_id,name,description,sku,category,price,cost,quantity,items_per_pack,reorder_level,location,daily_velocity,target_margin_percent,created_at,updated_at,suppliers(id,name)",
-        )
-        .eq("store_key", storeKey)
-        .order("name", { ascending: true }),
+      fetchProductsResult(supabase, storeKey),
       supabase
         .from("suppliers")
         .select(
@@ -1544,6 +1646,7 @@ export async function getOperationsDataset(): Promise<OperationsDataset> {
 
     const compatibilityWarnings = Array.from(
       new Set([
+        ...(productsResult.compatibilityWarnings ?? []),
         ...(paymentsResult.compatibilityWarnings ?? []),
         ...(adjustmentsResult.compatibilityWarnings ?? []),
         ...(inventoryMovementsResult.compatibilityWarnings ?? []),
@@ -1579,6 +1682,7 @@ export async function getOperationsDataset(): Promise<OperationsDataset> {
           name: row.name,
           description: row.description ?? "",
           sku: row.sku,
+          barcode: row.barcode ?? undefined,
           category: row.category,
           price: toNumber(row.price),
           cost: toNumber(row.cost),

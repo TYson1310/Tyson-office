@@ -15,7 +15,10 @@ import {
 } from "@/lib/erp/operations";
 import { loadFinancialAccountabilityStatus } from "@/lib/accountability/financial-controls";
 import { formatDateTime } from "@/lib/date-time";
-import { canManageProductRecords } from "@/lib/products/api";
+import {
+  canDeleteProductRecords,
+  canManageProductRecords,
+} from "@/lib/products/api";
 import { requireActiveStoreContext } from "@/lib/stores/server";
 import { getUserSafely } from "@/lib/supabase/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
@@ -64,10 +67,22 @@ function formatMovementTimestamp(value: Date, timeZone: string) {
   });
 }
 
+function formatReceiptDate(value: Date, timeZone: string) {
+  return formatDateTime(value, {
+    dateStyle: "medium",
+    timeZone,
+  });
+}
+
+function normalizeReceiptSku(value: string) {
+  return value.trim().toLowerCase();
+}
+
 export default async function InventoryPage() {
   const { activeStore, activeStoreKey } = await requireActiveStoreContext();
   const dataset = await getOperationsDataset();
   let canEditInventory = false;
+  let canDeleteInventory = false;
   let accountabilityStatus = {
     available: dataset.source === "database",
     warnings: [] as string[],
@@ -87,6 +102,7 @@ export default async function InventoryPage() {
         .maybeSingle<{ role: UserRole | null }>();
 
       canEditInventory = canManageProductRecords(profile?.role);
+      canDeleteInventory = canDeleteProductRecords(profile?.role);
     }
 
     accountabilityStatus = await loadFinancialAccountabilityStatus(
@@ -157,23 +173,117 @@ export default async function InventoryPage() {
     }));
   const showInventoryActions =
     dataset.source === "database" && canEditInventory;
-  const stockLedgerProducts = dataset.products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    sku: product.sku,
-    category: product.category,
-    supplierId: product.supplierId ?? "",
-    supplierName: product.supplierName ?? "Unassigned",
-    location: product.location ?? "",
-    quantity: product.quantity,
-    itemsPerPack: product.itemsPerPack,
-    reorderLevel: product.reorderLevel,
-    dailyVelocity: product.dailyVelocity,
-    cost: product.cost,
-    price: product.price,
-    targetMarginPercent: product.targetMarginPercent,
-    status: getInventoryStatus(product) as InventoryStatus,
-  }));
+  const showInventoryDeleteActions =
+    dataset.source === "database" && canDeleteInventory;
+  const latestInvoiceReceiptByProductId = new Map<
+    string,
+    {
+      href: string;
+      invoiceNumber: string;
+      receiptDateLabel: string;
+      receivedAt: Date;
+    }
+  >();
+  const latestInvoiceReceiptBySku = new Map<
+    string,
+    {
+      href: string;
+      invoiceNumber: string;
+      receiptDateLabel: string;
+      receivedAt: Date;
+    }
+  >();
+
+  const storeLatestInvoiceReceipt = (
+    map: Map<
+      string,
+      {
+        href: string;
+        invoiceNumber: string;
+        receiptDateLabel: string;
+        receivedAt: Date;
+      }
+    >,
+    key: string | undefined,
+    receipt: {
+      href: string;
+      invoiceNumber: string;
+      receiptDateLabel: string;
+      receivedAt: Date;
+    },
+  ) => {
+    if (!key) {
+      return;
+    }
+
+    const current = map.get(key);
+
+    if (
+      !current ||
+      receipt.receivedAt.getTime() > current.receivedAt.getTime()
+    ) {
+      map.set(key, receipt);
+    }
+  };
+
+  dataset.inventoryMovements.forEach((movement) => {
+    if (
+      movement.movementType !== "vendor_invoice_receipt" ||
+      !movement.vendorInvoiceId ||
+      !movement.adjustmentNumber
+    ) {
+      return;
+    }
+
+    const receipt = {
+      href: `/vendors/invoices?q=${encodeURIComponent(movement.adjustmentNumber)}`,
+      invoiceNumber: movement.adjustmentNumber,
+      receiptDateLabel: formatReceiptDate(
+        movement.createdAt,
+        activeStore.timeZone,
+      ),
+      receivedAt: movement.createdAt,
+    };
+
+    storeLatestInvoiceReceipt(
+      latestInvoiceReceiptByProductId,
+      movement.productId,
+      receipt,
+    );
+    storeLatestInvoiceReceipt(
+      latestInvoiceReceiptBySku,
+      normalizeReceiptSku(movement.productSku),
+      receipt,
+    );
+  });
+
+  const stockLedgerProducts = dataset.products.map((product) => {
+    const latestReceipt =
+      latestInvoiceReceiptByProductId.get(product.id) ??
+      latestInvoiceReceiptBySku.get(normalizeReceiptSku(product.sku));
+
+    return {
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      barcode: product.barcode ?? "",
+      category: product.category,
+      supplierId: product.supplierId ?? "",
+      supplierName: product.supplierName ?? "Unassigned",
+      location: product.location ?? "",
+      quantity: product.quantity,
+      itemsPerPack: product.itemsPerPack,
+      reorderLevel: product.reorderLevel,
+      dailyVelocity: product.dailyVelocity,
+      cost: product.cost,
+      price: product.price,
+      targetMarginPercent: product.targetMarginPercent,
+      status: getInventoryStatus(product) as InventoryStatus,
+      latestInvoiceHref: latestReceipt?.href,
+      latestInvoiceNumber: latestReceipt?.invoiceNumber,
+      latestInvoiceReceiptDateLabel: latestReceipt?.receiptDateLabel,
+    };
+  });
 
   return (
     <>
@@ -208,6 +318,7 @@ export default async function InventoryPage() {
           <InventoryStockLedgerTable
             quantityAdjustmentsAvailable={accountabilityStatus.available}
             products={stockLedgerProducts}
+            showDeleteActions={showInventoryDeleteActions}
             suppliers={supplierOptions}
             showInventoryActions={showInventoryActions}
           />

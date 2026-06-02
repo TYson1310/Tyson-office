@@ -1,0 +1,55 @@
+Restaurant Depot #832
+1135 Springfield Blvd
+Union, NJ 07083
+(908) 964-5544
+Customer #7437971
+COUNTRY FARMS DELI CONVENIENCE
+958,S Springfield Ave
+Springfield, NJ 07081-3508
+Invoice: 8786 Terminal: 14 - 2026/04/30 10:01 am
+UPC
+Description
+Unit Qty Case Qty Price
+-2
+Previous Balance
+0
+0
+$0.00
+76069501720 CHZ AMER Y120 JF 5LB
+1
+0
+$11.70
+7028766301 BRD WHT CLUB SAND 18SLC 1
+0
+$2.63
+7028763401 BRD WHEAT CLUB 18SLC
+1
+0
+$2.69
+0
+Sub-Total
+0
+0
+$17.02
+0
+Tax
+0
+0
+$0.00
+0
+Total
+0
+0
+$17.02
+0
+MC/VISA 0990
+0
+0
+$17.02
+0
+Balance
+0
+0
+$0.00
+Thank you,
+Restaurant Depot

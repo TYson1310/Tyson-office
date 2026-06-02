@@ -18,7 +18,6 @@ const ROLE_HOME_CANDIDATES: Record<
     "/admin/expenses",
     "/admin/bank-deposits",
     "/admin/approvals",
-    "/products/margin-engine",
     "/sales/daily-entry",
     "/lottery",
     "/scratch-cards/delivery-scan",
