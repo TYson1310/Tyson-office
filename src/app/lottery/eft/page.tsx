@@ -12,6 +12,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
+import { EftPackInclusionButton } from "@/components/lottery/eft-pack-inclusion-button";
 import { EftPaidStatusControl } from "@/components/lottery/eft-paid-status-control";
 import {
   Table,
@@ -25,6 +26,7 @@ import {
   loadLotteryEftData,
   type LotteryEftDailyRow,
   type LotteryEftPaymentStatus,
+  type LotteryEftSoldOutPackStatus,
   type LotteryEftSweepReason,
 } from "@/lib/lottery/eft";
 import { formatDateOnly } from "@/lib/date-time";
@@ -144,6 +146,30 @@ function getSweepReasonTone(reason: LotteryEftSweepReason) {
   return "red" as const;
 }
 
+function getSoldOutPackStatusTone(status: LotteryEftSoldOutPackStatus) {
+  if (status === "pending") {
+    return "amber" as const;
+  }
+
+  if (status === "included-selected") {
+    return "green" as const;
+  }
+
+  return "slate" as const;
+}
+
+function getSoldOutPackStatusLabel(status: LotteryEftSoldOutPackStatus) {
+  if (status === "pending") {
+    return "Sold out";
+  }
+
+  if (status === "included-selected") {
+    return "Settled";
+  }
+
+  return "Settled elsewhere";
+}
+
 export default async function LotteryEftPage({ searchParams }: PageProps) {
   const { sweep, weeks } = await searchParams;
   const selectedWeeks = parseWeeks(weeks);
@@ -156,9 +182,16 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
     getCurrentUser(),
   ]);
   const canManageEftStatus = auth?.profile?.role === "admin";
+  const canManageEftPacks = ["admin", "manager", "accountant"].includes(
+    auth?.profile?.role ?? "",
+  );
   const selectedLedgerWeek =
     eft.weeklyLedger.find((week) => week.sweepDate === eft.selectedSweepDate) ??
     null;
+  const selectedWeekPaid = selectedLedgerWeek?.paymentStatus === "paid";
+  const pendingSoldOutPacks = eft.soldOutPacks.filter(
+    (pack) => pack.status === "pending",
+  ).length;
   const metrics = [
     {
       detail: `${formatDate(eft.weekStartDate)} to ${formatDate(eft.weekEndDate)}`,
@@ -383,6 +416,135 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                             status={week.paymentStatus}
                             sweepDate={week.sweepDate}
                           />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Sold-out pack EFT ledger"
+          description="Sold-out packs stay out of EFT until an authorized user settles them to the selected sweep."
+          action={
+            <StatusBadge tone={pendingSoldOutPacks > 0 ? "amber" : "green"}>
+              {pendingSoldOutPacks} pending settlement
+            </StatusBadge>
+          }
+          className="rounded-lg sm:rounded-lg"
+          headerClassName="px-4 py-3 sm:px-4"
+          contentClassName="p-0"
+        >
+          <div className="overflow-x-auto">
+            <Table totalRows={eft.soldOutPacks.length}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Sold Out</TableHead>
+                  <TableHead>Game / Pack</TableHead>
+                  <TableHead>Bin</TableHead>
+                  <TableHead className="text-right">Pack Value</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Settled</TableHead>
+                  <TableHead className="w-[9.5rem] text-right">
+                    Action
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {eft.soldOutPacks.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="py-10 text-center text-slate-500"
+                    >
+                      No sold-out packs are waiting for EFT settlement.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  eft.soldOutPacks.map((pack) => {
+                    const disabledReason = selectedWeekPaid
+                      ? "Mark the selected EFT week unpaid before settling packs"
+                      : !pack.hasSoldOutAudit
+                        ? "Sold-out audit is missing"
+                        : pack.soldOutDate > eft.weekEndDate
+                          ? "Pack sold out after the selected EFT week"
+                          : pack.packValue === null
+                            ? "Pack value is missing"
+                            : undefined;
+
+                    return (
+                      <TableRow key={pack.inventoryId}>
+                        <TableCell>
+                          <div className="font-semibold text-slate-950">
+                            {formatDate(pack.soldOutDate)}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            {pack.soldOutAuditType ?? "missing audit"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-semibold text-slate-950">
+                            {pack.gameId} - {pack.gameName}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            Pack {pack.packNumber}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-semibold text-slate-950">
+                          {pack.binNumber ? `Bin ${pack.binNumber}` : "-"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="font-semibold text-slate-950">
+                            {pack.packValue === null
+                              ? "-"
+                              : formatCurrency(pack.packValue)}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            {formatCurrency(pack.ticketPrice)} x{" "}
+                            {pack.ticketCount ?? "-"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge
+                            tone={getSoldOutPackStatusTone(pack.status)}
+                          >
+                            {getSoldOutPackStatusLabel(pack.status)}
+                          </StatusBadge>
+                        </TableCell>
+                        <TableCell>
+                          {pack.includedDate ? (
+                            <div>
+                              <div className="font-semibold text-slate-950">
+                                {formatDate(pack.includedDate)}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {pack.includedInSelectedEft
+                                  ? "selected EFT"
+                                  : "other EFT"}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="w-[9.5rem] text-right">
+                          {pack.status === "pending" ? (
+                            <EftPackInclusionButton
+                              canManage={canManageEftPacks}
+                              disabledReason={disabledReason}
+                              inventoryId={pack.inventoryId}
+                              packLabel={`Pack ${pack.packNumber}`}
+                              packValue={pack.packValue}
+                              sweepDate={eft.selectedSweepDate}
+                            />
+                          ) : (
+                            <span className="text-xs font-semibold text-slate-400">
+                              Settled
+                            </span>
+                          )}
                         </TableCell>
                       </TableRow>
                     );

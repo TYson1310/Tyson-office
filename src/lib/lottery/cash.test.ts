@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  applyLotteryCashAdvanceImpact,
   calculateLotteryCashInHandFromReconciliation,
   calculateLotteryExpectedCashInHandFromReconciliation,
 } from "./cash.ts";
@@ -23,6 +24,19 @@ test("lottery expected cash in hand excludes the starting float", () => {
       totalExpectedCash: 851,
     }),
     651,
+  );
+});
+
+test("lottery cash in hand applies cash advance impact after reconciliation", () => {
+  assert.equal(
+    applyLotteryCashAdvanceImpact({
+      cashAdvanceImpact: -22.75,
+      cashInHand: calculateLotteryCashInHandFromReconciliation({
+        openingCashFloat: 443.07,
+        posRegisterTotal: 632.82,
+      }),
+    }),
+    167,
   );
 });
 

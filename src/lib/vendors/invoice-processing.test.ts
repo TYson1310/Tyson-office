@@ -38,6 +38,7 @@ test("sanitizeProcessedInvoice maps nested Gemini invoice extraction", () => {
         item_code: "000123456789",
         description: "Candy box",
         quantity: 2,
+        items_per_pack: 10,
         unit_price: 25,
         line_total: 50,
       },
@@ -57,7 +58,7 @@ test("sanitizeProcessedInvoice maps nested Gemini invoice extraction", () => {
     quantity: 2,
     unitPrice: 25,
     amount: 50,
-    itemsPerPack: undefined,
+    itemsPerPack: 10,
     matchedProductId: undefined,
   });
 });

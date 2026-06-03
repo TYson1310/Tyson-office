@@ -55,6 +55,7 @@ export type LotteryReportDailyRow = {
   drawPayouts: number;
   drawSales: number;
   expectedCash: number;
+  grossSales: number;
   notes: string;
   payouts: number;
   posRegisterTotal: number;
@@ -211,6 +212,7 @@ function buildDailyRows({
         0,
       );
       const drawSales = normalizeMoney(terminal?.draw_sales);
+      const grossSales = normalizeMoney(scratchSales + drawSales);
       const drawPayouts = normalizeMoney(terminal?.draw_payouts);
       const scratchPayouts = normalizeMoney(terminal?.scratch_payouts);
       const scratchReturns = normalizeMoney(terminal?.scratch_returns);
@@ -237,6 +239,7 @@ function buildDailyRows({
         drawPayouts,
         drawSales,
         expectedCash,
+        grossSales,
         notes: reconciliation?.manager_notes ?? "",
         payouts,
         posRegisterTotal,
@@ -327,10 +330,7 @@ function buildGameRows({
 
 function buildSummary(dailyRows: LotteryReportDailyRow[]) {
   const grossSales = normalizeMoney(
-    dailyRows.reduce(
-      (total, row) => total + row.scratchSales + row.drawSales,
-      0,
-    ),
+    dailyRows.reduce((total, row) => total + row.grossSales, 0),
   );
   const summary: LotteryReportSummary = {
     averageDailyGrossSales:
@@ -567,7 +567,7 @@ export async function buildLotteryReportExportRows(
     },
     {
       section: "summary",
-      metric: "Draw Sales",
+      metric: "Online Sales",
       value: report.summary.drawSales,
     },
     {
@@ -611,7 +611,7 @@ export async function buildLotteryReportExportRows(
       scratchReturns: row.scratchReturns,
       promo: row.cashingBonus,
       ticketCancels: row.ticketCancels,
-      expectedCash: row.expectedCash,
+      onlineAndScratchSales: row.grossSales,
       posRegisterTotal: row.posRegisterTotal,
       shortOver: row.shortOver,
       ticketsSold: row.ticketsSold,

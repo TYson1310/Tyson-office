@@ -102,23 +102,26 @@ test("calculateLotteryEftFormula adds bonding and administrative fees", () => {
   assert.equal(result.netEftDue, 88.65);
 });
 
-test("buildScratchPackSettlementSales counts a pack when it first reaches final ticket", () => {
+test("buildScratchPackSettlementSales counts a pack when it has a settlement marker", () => {
   const settlements = buildScratchPackSettlementSales({
     auditRows: [
       {
         audit_date: "2026-05-25",
+        audit_type: "eod",
         created_at: "2026-05-25T23:00:00.000Z",
         end_ticket_no: "016",
         inventory_id: "pack-1",
       },
       {
         audit_date: "2026-05-26",
+        audit_type: "bin_load_retirement",
         created_at: "2026-05-26T15:00:00.000Z",
         end_ticket_no: "019",
         inventory_id: "pack-1",
       },
       {
         audit_date: "2026-05-26",
+        audit_type: "bin_load_retirement",
         created_at: "2026-05-26T16:00:00.000Z",
         end_ticket_no: "019",
         inventory_id: "pack-1",
@@ -151,17 +154,51 @@ test("buildScratchPackSettlementSales counts a pack when it first reaches final 
   ]);
 });
 
+test("buildScratchPackSettlementSales does not count final-ticket shift audits", () => {
+  const settlements = buildScratchPackSettlementSales({
+    auditRows: [
+      {
+        audit_date: "2026-05-26",
+        audit_type: "shift",
+        created_at: "2026-05-26T15:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+    ],
+    endDate: "2026-05-26",
+    gameRows: [
+      {
+        game_id: "01974",
+        ticket_count: 20,
+        ticket_price: 20,
+      },
+    ],
+    inventoryRows: [
+      {
+        game_id: "01974",
+        id: "pack-1",
+        pack_ticket_count: null,
+      },
+    ],
+    startDate: "2026-05-26",
+  });
+
+  assert.deepEqual(settlements, []);
+});
+
 test("buildScratchPackSettlementSales skips packs that reached final ticket before the range", () => {
   const settlements = buildScratchPackSettlementSales({
     auditRows: [
       {
         audit_date: "2026-05-24",
+        audit_type: "bin_load_retirement",
         created_at: "2026-05-24T22:00:00.000Z",
         end_ticket_no: "019",
         inventory_id: "pack-1",
       },
       {
         audit_date: "2026-05-26",
+        audit_type: "bin_load_retirement",
         created_at: "2026-05-26T15:00:00.000Z",
         end_ticket_no: "019",
         inventory_id: "pack-1",
@@ -186,6 +223,83 @@ test("buildScratchPackSettlementSales skips packs that reached final ticket befo
   });
 
   assert.deepEqual(settlements, []);
+});
+
+test("buildScratchPackSettlementSales excludes EOD-only final-ticket rows from EFT settlement", () => {
+  const settlements = buildScratchPackSettlementSales({
+    auditRows: [
+      {
+        audit_date: "2026-05-26",
+        audit_type: "eod",
+        created_at: "2026-05-26T15:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+    ],
+    endDate: "2026-05-26",
+    gameRows: [
+      {
+        game_id: "01974",
+        ticket_count: 20,
+        ticket_price: 20,
+      },
+    ],
+    inventoryRows: [
+      {
+        game_id: "01974",
+        id: "pack-1",
+        pack_ticket_count: null,
+      },
+    ],
+    startDate: "2026-05-26",
+  });
+
+  assert.deepEqual(settlements, []);
+});
+
+test("buildScratchPackSettlementSales includes a manual EFT marker after EOD sold-out", () => {
+  const settlements = buildScratchPackSettlementSales({
+    auditRows: [
+      {
+        audit_date: "2026-05-25",
+        audit_type: "eod",
+        created_at: "2026-05-25T23:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+      {
+        audit_date: "2026-05-26",
+        audit_type: "bin_load_retirement",
+        created_at: "2026-05-26T15:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+    ],
+    endDate: "2026-05-26",
+    gameRows: [
+      {
+        game_id: "01974",
+        ticket_count: 20,
+        ticket_price: 20,
+      },
+    ],
+    inventoryRows: [
+      {
+        game_id: "01974",
+        id: "pack-1",
+        pack_ticket_count: null,
+      },
+    ],
+    startDate: "2026-05-26",
+  });
+
+  assert.deepEqual(settlements, [
+    {
+      inventoryId: "pack-1",
+      packValue: 400,
+      reportDate: "2026-05-26",
+    },
+  ]);
 });
 
 export {};

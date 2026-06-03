@@ -330,6 +330,10 @@ function buildInvoiceProductUpserts(
           ? normalizeInvoiceAmount(entry.totalAmount / entry.inventoryQuantity)
           : entry.fallbackCost;
 
+      if (entry.inventoryQuantity <= 0 || unitCost <= 0) {
+        return null;
+      }
+
       return {
         store_key: storeKey,
         supplier_id: supplierId,

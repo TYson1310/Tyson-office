@@ -16,6 +16,15 @@ export function calculateLotteryCashInHandFromReconciliation(input: {
   );
 }
 
+export function applyLotteryCashAdvanceImpact(input: {
+  cashInHand?: number | string | null;
+  cashAdvanceImpact?: number | string | null;
+}) {
+  return normalizeMoney(
+    normalizeMoney(input.cashInHand) + normalizeMoney(input.cashAdvanceImpact),
+  );
+}
+
 export function calculateLotteryExpectedCashInHandFromReconciliation(input: {
   openingCashFloat?: number | string | null;
   totalExpectedCash?: number | string | null;

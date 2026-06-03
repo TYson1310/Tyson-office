@@ -845,9 +845,6 @@ export function ScratchCardBinManager({
       return;
     }
 
-    const activeBin = Boolean(selectedBin.inventoryId);
-    const finalTicketNumber = getFinalTicketNumber(selectedBin);
-
     if (duplicateActiveGameBinNumber !== null) {
       notifyError(
         `Game ${packBarcode.gameId} is already active in bin ${duplicateActiveGameBinNumber}.`,
@@ -855,13 +852,10 @@ export function ScratchCardBinManager({
       return;
     }
 
-    if (activeBin && !isSoldOut(selectedBin)) {
-      notifyError("Current pack is not marked sold out yet.");
-      return;
-    }
-
-    if (activeBin && !finalTicketNumber) {
-      notifyError("Current pack is missing a valid pack ticket count.");
+    if (selectedBin.inventoryId) {
+      notifyError(
+        "Mark the current pack sold out before loading a replacement.",
+      );
       return;
     }
 
@@ -877,7 +871,6 @@ export function ScratchCardBinManager({
           binNumber: selectedBin.binNumber,
           packNumber: packBarcode.packNumber,
           scannedBarcode: scannedPackBarcode,
-          retiredEndTicketNumber: activeBin ? finalTicketNumber : undefined,
         }),
       });
       const payload = await response.json();
@@ -923,9 +916,6 @@ export function ScratchCardBinManager({
       return;
     }
 
-    const activeBin = Boolean(selectedBin.inventoryId);
-    const finalTicketNumber = getFinalTicketNumber(selectedBin);
-
     if (manualDuplicateActiveGameBinNumber !== null) {
       notifyError(
         `Game ${manualBackstockPack.gameId} is already active in bin ${manualDuplicateActiveGameBinNumber}.`,
@@ -933,13 +923,10 @@ export function ScratchCardBinManager({
       return;
     }
 
-    if (activeBin && !isSoldOut(selectedBin)) {
-      notifyError("Current pack is not marked sold out yet.");
-      return;
-    }
-
-    if (activeBin && !finalTicketNumber) {
-      notifyError("Current pack is missing a valid pack ticket count.");
+    if (selectedBin.inventoryId) {
+      notifyError(
+        "Mark the current pack sold out before loading a replacement.",
+      );
       return;
     }
 
@@ -954,7 +941,6 @@ export function ScratchCardBinManager({
         body: JSON.stringify({
           binNumber: selectedBin.binNumber,
           packId: manualBackstockPack.id,
-          retiredEndTicketNumber: activeBin ? finalTicketNumber : undefined,
         }),
       });
       const payload = await response.json();
@@ -1042,11 +1028,6 @@ export function ScratchCardBinManager({
       return;
     }
 
-    if (isSoldOut(selectedBin)) {
-      notifyError("Current pack is already marked sold out.");
-      return;
-    }
-
     const finalTicketNumber = getFinalTicketNumber(selectedBin);
 
     if (!finalTicketNumber) {
@@ -1060,9 +1041,11 @@ export function ScratchCardBinManager({
     }
 
     if (
-      Number(normalizedSoldOutStartTicketNumber) >= Number(finalTicketNumber)
+      Number(normalizedSoldOutStartTicketNumber) > Number(finalTicketNumber)
     ) {
-      notifyError("Start ticket number must be lower than the final ticket.");
+      notifyError(
+        "Start ticket number cannot be higher than the final ticket.",
+      );
       return;
     }
 
@@ -1418,7 +1401,7 @@ export function ScratchCardBinManager({
                       </div>
                     )}
 
-                    {selectedBin.inventoryId && !isSoldOut(selectedBin) ? (
+                    {selectedBin.inventoryId ? (
                       <section className="rounded-lg border border-amber-200 bg-white p-4">
                         <div className="flex items-center gap-2">
                           <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-100">
@@ -1435,6 +1418,7 @@ export function ScratchCardBinManager({
                             </span>
                             <input
                               value={soldOutStartTicketNumber}
+                              disabled={isSoldOut(selectedBin)}
                               onBlur={() =>
                                 setSoldOutStartTicketNumber(
                                   normalizedSoldOutStartTicketNumber ?? "",
@@ -1447,7 +1431,7 @@ export function ScratchCardBinManager({
                               }
                               inputMode="numeric"
                               maxLength={3}
-                              className="mt-1 w-full bg-transparent font-mono text-sm font-semibold text-slate-950 outline-none"
+                              className="mt-1 w-full bg-transparent font-mono text-sm font-semibold text-slate-950 outline-none disabled:text-slate-500"
                             />
                           </label>
                           <DetailItem
@@ -1460,6 +1444,13 @@ export function ScratchCardBinManager({
                             value={formatCurrency(soldOutRemainingValue ?? 0)}
                           />
                         </div>
+                        {isSoldOut(selectedBin) ? (
+                          <div className="mt-3 rounded-2xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">
+                            Final ticket is already recorded. This will move the
+                            pack to the sold-out ledger without adding duplicate
+                            scratch sales.
+                          </div>
+                        ) : null}
                         <button
                           type="button"
                           disabled={
@@ -1467,7 +1458,7 @@ export function ScratchCardBinManager({
                             actionState.type === "soldOut" ||
                             !getFinalTicketNumber(selectedBin) ||
                             !normalizedSoldOutStartTicketNumber ||
-                            Number(normalizedSoldOutStartTicketNumber) >=
+                            Number(normalizedSoldOutStartTicketNumber) >
                               Number(getFinalTicketNumber(selectedBin))
                           }
                           onClick={() => void markCurrentPackSoldOut()}
@@ -1729,9 +1720,7 @@ export function ScratchCardBinManager({
                               !manualBackstockPack ||
                               manualDuplicateActiveGameBinNumber !== null ||
                               actionState.type === "load" ||
-                              (Boolean(selectedBin.inventoryId) &&
-                                (!isSoldOut(selectedBin) ||
-                                  !getFinalTicketNumber(selectedBin)))
+                              Boolean(selectedBin.inventoryId)
                             }
                             onClick={() => void loadManualPackToBin()}
                             className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-900 transition hover:border-teal-300 hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-60"
@@ -1746,22 +1735,17 @@ export function ScratchCardBinManager({
                           </button>
                         </div>
 
-                        {selectedBin.inventoryId && !isSoldOut(selectedBin) ? (
+                        {selectedBin.inventoryId ? (
                           <div className="rounded-2xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">
-                            Current pack is not marked sold out yet. Move it to
-                            another bin instead of loading over it.
+                            Mark the current pack sold out before loading a
+                            replacement. Sold-out packs are settled from EFT.
                           </div>
                         ) : duplicateActiveGameBinNumber !== null &&
                           scannedPack ? (
                           <div className="rounded-2xl border border-red-200/80 bg-red-50 px-3 py-2 text-xs font-semibold text-red-900">
                             Game {scannedPack.gameId} is already active in bin{" "}
-                            {duplicateActiveGameBinNumber}. Return or settle
-                            that bin before loading the same game.
-                          </div>
-                        ) : selectedBin.inventoryId ? (
-                          <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-900">
-                            Current pack will be settled at ticket{" "}
-                            {getFinalTicketNumber(selectedBin) ?? "unknown"}.
+                            {duplicateActiveGameBinNumber}. Return or mark that
+                            bin sold out before loading the same game.
                           </div>
                         ) : null}
 
@@ -1772,9 +1756,7 @@ export function ScratchCardBinManager({
                             !scannedPack ||
                             duplicateActiveGameBinNumber !== null ||
                             actionState.type === "load" ||
-                            (Boolean(selectedBin.inventoryId) &&
-                              (!isSoldOut(selectedBin) ||
-                                !getFinalTicketNumber(selectedBin)))
+                            Boolean(selectedBin.inventoryId)
                           }
                           onClick={() => void loadScannedPackToBin()}
                           className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"

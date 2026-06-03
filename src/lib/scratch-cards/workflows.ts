@@ -15,7 +15,7 @@ type ReceivePackRow = {
   store_key: string;
   pack_number: string;
   game_id: string;
-  status: "backstock" | "active" | "settled" | "returned";
+  status: "backstock" | "active" | "sold_out" | "settled" | "returned";
   bin_number: number | null;
   ticket_number: string;
   pack_control_code: string | null;
@@ -77,12 +77,18 @@ type ActiveScratchPackRow = {
   pack_ticket_count: number | string | null;
 };
 
+type ActiveBinOccupancyRow = {
+  id: string;
+  pack_number: string;
+};
+
 type ScratchPackGameRow = {
   ticket_count: number | string | null;
   ticket_price: number | string;
 };
 
 type LatestScratchAuditRow = {
+  audit_id: string;
   end_ticket_no: string | null;
 };
 
@@ -698,6 +704,28 @@ export async function loadScratchPackBin(
     packNumber: resolvedPackId ? null : normalizedPackNumber,
   });
 
+  const { data: activeBinRows, error: activeBinError } = await access.supabase
+    .from("inventory")
+    .select("id,pack_number")
+    .eq("store_key", access.activeStoreKey)
+    .eq("status", "active")
+    .eq("bin_number", normalizedBinNumber)
+    .limit(1)
+    .returns<ActiveBinOccupancyRow[]>();
+
+  if (activeBinError) {
+    throw mapRpcError(activeBinError, "Active scratch bin could not be loaded");
+  }
+
+  const activeBinPack = activeBinRows?.[0] ?? null;
+
+  if (activeBinPack) {
+    throw new ScratchCardWorkflowError(
+      `Mark pack ${activeBinPack.pack_number} sold out before loading a replacement into bin ${normalizedBinNumber}`,
+      409,
+    );
+  }
+
   const rpcArgs: Record<string, unknown> = {
     loaded_by: access.currentUser.id,
     target_bin_number: normalizedBinNumber,
@@ -885,10 +913,33 @@ export async function markScratchPackSoldOut(
   );
   const finalTicketValue = ticketLimit - 1;
   const finalTicketNumber = String(finalTicketValue).padStart(3, "0");
+  const ticketPrice = normalizeMoney(gameRow?.ticket_price);
+  async function markInventorySoldOut() {
+    const { data: statusRow, error: statusError } = await access.supabase
+      .from("inventory")
+      .update({ status: "sold_out" })
+      .eq("store_key", access.activeStoreKey)
+      .eq("id", activePack.id)
+      .eq("status", "active")
+      .select("id")
+      .maybeSingle<{ id: string }>();
+
+    if (statusError) {
+      throw mapRpcError(statusError, "Failed to mark scratch pack sold out");
+    }
+
+    if (!statusRow) {
+      throw new ScratchCardWorkflowError(
+        "Scratch pack was already updated by another user",
+        409,
+      );
+    }
+  }
+
   const { data: latestAuditRows, error: latestAuditError } =
     await access.supabase
       .from("daily_audits")
-      .select("end_ticket_no")
+      .select("audit_id,end_ticket_no")
       .eq("store_key", access.activeStoreKey)
       .eq("inventory_id", activePack.id)
       .lte("audit_date", reportDate)
@@ -904,11 +955,9 @@ export async function markScratchPackSoldOut(
     );
   }
 
-  const latestAuditStartTicketNumber = latestAuditRows?.[0]?.end_ticket_no
-    ? normalizeTicketNumber(
-        latestAuditRows[0].end_ticket_no,
-        "Latest ticket number",
-      )
+  const latestAudit = latestAuditRows?.[0] ?? null;
+  const latestAuditStartTicketNumber = latestAudit?.end_ticket_no
+    ? normalizeTicketNumber(latestAudit.end_ticket_no, "Latest ticket number")
     : null;
   const startTicketNumber =
     submittedStartTicketNumber ?? latestAuditStartTicketNumber ?? "000";
@@ -916,6 +965,9 @@ export async function markScratchPackSoldOut(
   const latestAuditStartTicketValue = latestAuditStartTicketNumber
     ? Number(latestAuditStartTicketNumber)
     : null;
+  const hasExistingFinalAudit =
+    latestAuditStartTicketValue !== null &&
+    latestAuditStartTicketValue >= finalTicketValue;
 
   if (
     latestAuditStartTicketValue !== null &&
@@ -927,16 +979,44 @@ export async function markScratchPackSoldOut(
     );
   }
 
+  if (hasExistingFinalAudit) {
+    if (!latestAudit) {
+      throw new ScratchCardWorkflowError(
+        "Sold-out audit history could not be loaded",
+        500,
+      );
+    }
+
+    await markInventorySoldOut();
+
+    return {
+      auditId: latestAudit.audit_id,
+      binNumber: normalizedBinNumber,
+      discrepancyStatus: "balanced" as const,
+      endTicketNumber: finalTicketNumber,
+      expectedSales: 0,
+      gameId: activePack.game_id,
+      inventoryId: activePack.id,
+      packNumber: activePack.pack_number,
+      posSalesAmount: 0,
+      remainingTickets: 0,
+      shortOver: 0,
+      status: "sold_out" as const,
+      startTicketNumber: latestAuditStartTicketNumber ?? finalTicketNumber,
+      ticketPrice,
+      ticketsSold: 0,
+    };
+  }
+
   const remainingTickets = ticketLimit - Number(startTicketNumber);
 
-  if (startTicketValue >= finalTicketValue || remainingTickets <= 0) {
+  if (startTicketValue > finalTicketValue || remainingTickets <= 0) {
     throw new ScratchCardWorkflowError(
       `Pack ${activePack.pack_number} is already sold out`,
       409,
     );
   }
 
-  const ticketPrice = normalizeMoney(gameRow?.ticket_price);
   const expectedSales = normalizeMoney(remainingTickets * ticketPrice);
   const { data: auditRow, error: auditError } = await access.supabase
     .from("daily_audits")
@@ -958,6 +1038,8 @@ export async function markScratchPackSoldOut(
   if (auditError) {
     throw mapRpcError(auditError, "Failed to record sold out scratch pack");
   }
+
+  await markInventorySoldOut();
 
   const { error: reconciliationError } = await access.supabase.rpc(
     "reconciliation_engine",

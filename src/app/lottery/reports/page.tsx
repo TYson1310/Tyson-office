@@ -106,7 +106,7 @@ export default async function LotteryReportsPage({ searchParams }: PageProps) {
       change: formatCurrency(report.summary.scratchSales),
       detail: "scratch sales",
       icon: <TrendingUp className="h-5 w-5" />,
-      label: "Draw Sales",
+      label: "Online Sales",
       tone: "blue" as const,
       value: formatCurrency(report.summary.drawSales),
     },
@@ -185,11 +185,11 @@ export default async function LotteryReportsPage({ searchParams }: PageProps) {
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Scratch</TableHead>
-                  <TableHead className="text-right">Draw</TableHead>
+                  <TableHead className="text-right">Online</TableHead>
                   <TableHead className="text-right">Payouts</TableHead>
                   <TableHead className="text-right">Cancels</TableHead>
                   <TableHead className="text-right">Returns</TableHead>
-                  <TableHead className="text-right">Expected</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
                   <TableHead className="text-right">Till</TableHead>
                   <TableHead className="text-right">Short/Over</TableHead>
                 </TableRow>
@@ -231,7 +231,7 @@ export default async function LotteryReportsPage({ searchParams }: PageProps) {
                         {formatCurrency(row.scratchReturns)}
                       </TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency(row.expectedCash)}
+                        {formatCurrency(row.grossSales)}
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(row.posRegisterTotal)}

@@ -8,6 +8,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveStoreContext } from "@/lib/stores/server";
 import {
+  applyLotteryCashAdvanceImpact,
   calculateLotteryCashInHandFromReconciliation,
   calculateLotteryExpectedCashInHandFromReconciliation,
 } from "./cash";
@@ -55,7 +56,7 @@ type InventoryRow = {
   pack_id: string | null;
   pack_number: string;
   game_id: string;
-  status?: "active" | "backstock" | "returned" | "settled";
+  status?: "active" | "backstock" | "returned" | "sold_out" | "settled";
   bin_number?: number | null;
   received_ticket_number: string | null;
   pack_control_code: string | null;
@@ -157,7 +158,7 @@ export type LotteryScratchLedgerItem = {
   gameId: string;
   gameName: string;
   ticketPrice: number;
-  status: "active" | "backstock" | "returned" | "settled";
+  status: "active" | "backstock" | "returned" | "sold_out" | "settled";
   binNumber: number | null;
   receivedTicketNumber: string | null;
   packControlCode: string | null;
@@ -177,6 +178,8 @@ export type LotteryInventorySummary = {
   backstockValue: number;
   returnedPacks: number;
   returnedValue: number;
+  soldOutPacks: number;
+  soldOutValue: number;
   settledPacks: number;
   settledValue: number;
   totalPacks: number;
@@ -268,6 +271,8 @@ function buildEmptyInventorySummary(): LotteryInventorySummary {
     backstockValue: 0,
     returnedPacks: 0,
     returnedValue: 0,
+    soldOutPacks: 0,
+    soldOutValue: 0,
     settledPacks: 0,
     settledValue: 0,
     totalPacks: 0,
@@ -848,6 +853,9 @@ function buildInventorySummary({
     } else if (status === "returned") {
       summary.returnedPacks += 1;
       summary.returnedValue = normalizeMoney(summary.returnedValue + value);
+    } else if (status === "sold_out") {
+      summary.soldOutPacks += 1;
+      summary.soldOutValue = normalizeMoney(summary.soldOutValue + value);
     } else {
       summary.settledPacks += 1;
       summary.settledValue = normalizeMoney(summary.settledValue + value);
@@ -1161,16 +1169,17 @@ function buildCashInHandSummary({
   const cashAvailableBeforePaidEft = normalizeMoney(
     reportDates.reduce((total, reportDate) => {
       const reconciliation = reconciliationsByDate.get(reportDate);
-      const cashAdvanceImpact = reconciliation
-        ? 0
-        : (cashAdvanceImpactByDate.get(reportDate) ?? 0);
+      const cashAdvanceImpact = cashAdvanceImpactByDate.get(reportDate) ?? 0;
 
       if (reconciliation) {
         return (
           total +
-          calculateLotteryCashInHandFromReconciliation({
-            openingCashFloat: reconciliation.opening_cash_float,
-            posRegisterTotal: reconciliation.pos_register_total,
+          applyLotteryCashAdvanceImpact({
+            cashAdvanceImpact,
+            cashInHand: calculateLotteryCashInHandFromReconciliation({
+              openingCashFloat: reconciliation.opening_cash_float,
+              posRegisterTotal: reconciliation.pos_register_total,
+            }),
           })
         );
       }
@@ -1303,7 +1312,7 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
         "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_returned,returned_ticket_count,returned_value,created_at,updated_at",
       )
       .eq("store_key", activeStoreKey)
-      .in("status", ["backstock", "active", "settled", "returned"])
+      .in("status", ["backstock", "active", "sold_out", "settled", "returned"])
       .order("date_received", { ascending: false })
       .returns<InventoryRow[]>(),
     supabase
@@ -1320,7 +1329,7 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     ),
     supabase
       .from("daily_audits")
-      .select("inventory_id,audit_date,end_ticket_no,created_at")
+      .select("inventory_id,audit_date,audit_type,end_ticket_no,created_at")
       .eq("store_key", activeStoreKey)
       .not("inventory_id", "is", null)
       .not("end_ticket_no", "is", null)

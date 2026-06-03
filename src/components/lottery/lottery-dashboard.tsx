@@ -118,12 +118,20 @@ function getScratchStatusTone(status: LotteryScratchLedgerItem["status"]) {
     return "red" as const;
   }
 
+  if (status === "sold_out") {
+    return "amber" as const;
+  }
+
   return "slate" as const;
 }
 
 function formatScratchStatus(status: LotteryScratchLedgerItem["status"]) {
   if (status === "backstock") {
     return "Backstock";
+  }
+
+  if (status === "sold_out") {
+    return "Sold out";
   }
 
   return status.charAt(0).toUpperCase() + status.slice(1);
@@ -312,6 +320,7 @@ export function LotteryDashboard({
     active: inventorySummary.activePacks,
     backstock: inventorySummary.backstockPacks,
     returned: inventorySummary.returnedPacks,
+    soldOut: inventorySummary.soldOutPacks,
     settled: inventorySummary.settledPacks,
     total: inventorySummary.totalPacks,
   };
@@ -555,7 +564,7 @@ export function LotteryDashboard({
         </SectionCard>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <StatCard
           change={`${inventorySummary.totalPacks} total`}
           detail={formatCurrency(inventorySummary.activeValue)}
@@ -570,6 +579,13 @@ export function LotteryDashboard({
           label="Backstock"
           tone="blue"
           value={inventorySummary.backstockPacks}
+        />
+        <StatCard
+          detail={formatCurrency(inventorySummary.soldOutValue)}
+          icon={<CircleDollarSign className="h-5 w-5" />}
+          label="Sold out"
+          tone="amber"
+          value={inventorySummary.soldOutPacks}
         />
         <StatCard
           detail={formatCurrency(inventorySummary.settledValue)}
@@ -589,7 +605,7 @@ export function LotteryDashboard({
 
       <SectionCard
         title="Scratch card ledger"
-        description="All scratch card packs across backstock, active bins, settled packs, and returns."
+        description="All scratch card packs across backstock, active bins, sold-out packs, settled packs, and returns."
         action={
           <div className="flex flex-wrap justify-end gap-2">
             <StatusBadge tone="slate">{ledgerCounts.total} total</StatusBadge>
@@ -597,6 +613,9 @@ export function LotteryDashboard({
               {ledgerCounts.backstock} backstock
             </StatusBadge>
             <StatusBadge tone="green">{ledgerCounts.active} active</StatusBadge>
+            <StatusBadge tone="amber">
+              {ledgerCounts.soldOut} sold out
+            </StatusBadge>
             <StatusBadge tone="slate">
               {ledgerCounts.settled} settled
             </StatusBadge>

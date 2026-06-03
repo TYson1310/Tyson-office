@@ -61,4 +61,6 @@ Rules:
 - Amounts should be numbers only, without currency symbols.
 - Extract all line items from the invoice table.
 - Extract each line item's UPC, barcode, vendor item number, product code, or SKU into item_code when visible.
+- Extract items_per_pack only when a visible pack, case, carton, or unit count states how many sellable pieces are in the invoiced quantity.
+- Do not infer items_per_pack from the product description unless the invoice explicitly shows it as the pack/case quantity.
 `;

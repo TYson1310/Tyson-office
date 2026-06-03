@@ -1,5 +1,7 @@
 export type ScratchSettlementAuditRow = {
   audit_date: string;
+  audit_type: string | null;
+  bin_number?: number | null;
   created_at: string;
   end_ticket_no: string | null;
   inventory_id: string | null;
@@ -48,6 +50,10 @@ function normalizeTicketCount(value: number | string | null | undefined) {
   return Math.trunc(normalized);
 }
 
+function isUserIncludedSettlementAudit(auditType: string | null | undefined) {
+  return auditType === "bin_load_retirement";
+}
+
 export function buildScratchPackSettlementSales({
   auditRows,
   endDate,
@@ -73,7 +79,11 @@ export function buildScratchPackSettlementSales({
   const settlementByInventory = new Map<string, ScratchPackSettlementSale>();
 
   for (const audit of sortedAudits) {
-    if (!audit.inventory_id || settlementByInventory.has(audit.inventory_id)) {
+    if (
+      !audit.inventory_id ||
+      settlementByInventory.has(audit.inventory_id) ||
+      !isUserIncludedSettlementAudit(audit.audit_type)
+    ) {
       continue;
     }
 

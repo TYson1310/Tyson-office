@@ -148,11 +148,7 @@ function normalizeTicketNumber(value: string | null | undefined) {
 function normalizeTicketCount(value: number | string | null | undefined) {
   const normalized = typeof value === "number" ? value : Number(value);
 
-  if (
-    !Number.isInteger(normalized) ||
-    normalized <= 0 ||
-    normalized > 1000
-  ) {
+  if (!Number.isInteger(normalized) || normalized <= 0 || normalized > 1000) {
     return null;
   }
 
@@ -423,7 +419,7 @@ export async function loadScratchDeliveryLedgerData(): Promise<ScratchDeliveryLe
       "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,created_at",
     )
     .eq("store_key", activeStoreKey)
-    .in("status", ["backstock", "active", "settled", "returned"])
+    .in("status", ["backstock", "active", "sold_out", "settled", "returned"])
     .order("date_received", { ascending: false })
     .limit(100)
     .returns<InventoryRow[]>();
