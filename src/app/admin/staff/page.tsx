@@ -225,6 +225,7 @@ const ROLE_PERMISSIONS: Record<
       "view:shifts",
       "view:vendors",
       "view:inventory",
+      "view:managed_payroll",
       "view:payroll",
       "view:reports",
       "view:profile",

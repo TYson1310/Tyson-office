@@ -1,4 +1,5 @@
 export type ScratchSettlementAuditRow = {
+  audit_id?: string;
   audit_date: string;
   audit_type: string | null;
   bin_number?: number | null;
@@ -25,6 +26,10 @@ export type ScratchPackSettlementSale = {
   reportDate: string;
 };
 
+export const SCRATCH_EFT_SETTLEMENT_AUDIT_TYPE = "bin_load_retirement";
+export const SCRATCH_EFT_SETTLEMENT_REVERSAL_AUDIT_TYPE =
+  "eft_settlement_reversal";
+
 function normalizeMoney(value: number | string | null | undefined) {
   const normalized = typeof value === "number" ? value : Number(value);
   return Number.isFinite(normalized) ? Math.round(normalized * 100) / 100 : 0;
@@ -50,8 +55,16 @@ function normalizeTicketCount(value: number | string | null | undefined) {
   return Math.trunc(normalized);
 }
 
-function isUserIncludedSettlementAudit(auditType: string | null | undefined) {
-  return auditType === "bin_load_retirement";
+export function isScratchEftSettlementAudit(
+  auditType: string | null | undefined,
+) {
+  return auditType === SCRATCH_EFT_SETTLEMENT_AUDIT_TYPE;
+}
+
+export function isScratchEftSettlementReversalAudit(
+  auditType: string | null | undefined,
+) {
+  return auditType === SCRATCH_EFT_SETTLEMENT_REVERSAL_AUDIT_TYPE;
 }
 
 export function buildScratchPackSettlementSales({
@@ -79,10 +92,18 @@ export function buildScratchPackSettlementSales({
   const settlementByInventory = new Map<string, ScratchPackSettlementSale>();
 
   for (const audit of sortedAudits) {
+    if (!audit.inventory_id) {
+      continue;
+    }
+
+    if (isScratchEftSettlementReversalAudit(audit.audit_type)) {
+      settlementByInventory.delete(audit.inventory_id);
+      continue;
+    }
+
     if (
-      !audit.inventory_id ||
       settlementByInventory.has(audit.inventory_id) ||
-      !isUserIncludedSettlementAudit(audit.audit_type)
+      !isScratchEftSettlementAudit(audit.audit_type)
     ) {
       continue;
     }

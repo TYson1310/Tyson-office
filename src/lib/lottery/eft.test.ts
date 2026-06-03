@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { calculateLotteryEftFormula } from "./eft-calculation.ts";
 import {
+  getLotteryEftSweepDateForReportDate,
   getLatestLotteryEftSweepDate,
   getLotteryEftSweepPeriod,
   getLotteryEftSweepPeriods,
@@ -46,6 +47,13 @@ test("getLotteryEftSweepPeriods lists closed EFT weeks newest first", () => {
       },
     ],
   );
+});
+
+test("getLotteryEftSweepDateForReportDate maps business dates to the payable Thursday", () => {
+  assert.equal(getLotteryEftSweepDateForReportDate("2026-05-07"), "2026-05-14");
+  assert.equal(getLotteryEftSweepDateForReportDate("2026-05-13"), "2026-05-14");
+  assert.equal(getLotteryEftSweepDateForReportDate("2026-05-14"), "2026-05-21");
+  assert.equal(getLotteryEftSweepDateForReportDate("not-a-date"), null);
 });
 
 test("calculateLotteryEftFormula follows the Thursday sweep net due formula", () => {
@@ -298,6 +306,97 @@ test("buildScratchPackSettlementSales includes a manual EFT marker after EOD sol
       inventoryId: "pack-1",
       packValue: 400,
       reportDate: "2026-05-26",
+    },
+  ]);
+});
+
+test("buildScratchPackSettlementSales removes a reversed EFT marker", () => {
+  const settlements = buildScratchPackSettlementSales({
+    auditRows: [
+      {
+        audit_date: "2026-05-26",
+        audit_type: "bin_load_retirement",
+        created_at: "2026-05-26T15:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+      {
+        audit_date: "2026-05-26",
+        audit_type: "eft_settlement_reversal",
+        created_at: "2026-05-26T16:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+    ],
+    endDate: "2026-05-26",
+    gameRows: [
+      {
+        game_id: "01974",
+        ticket_count: 20,
+        ticket_price: 20,
+      },
+    ],
+    inventoryRows: [
+      {
+        game_id: "01974",
+        id: "pack-1",
+        pack_ticket_count: null,
+      },
+    ],
+    startDate: "2026-05-26",
+  });
+
+  assert.deepEqual(settlements, []);
+});
+
+test("buildScratchPackSettlementSales allows a pack to be settled again after reversal", () => {
+  const settlements = buildScratchPackSettlementSales({
+    auditRows: [
+      {
+        audit_date: "2026-05-26",
+        audit_type: "bin_load_retirement",
+        created_at: "2026-05-26T15:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+      {
+        audit_date: "2026-05-26",
+        audit_type: "eft_settlement_reversal",
+        created_at: "2026-05-26T16:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+      {
+        audit_date: "2026-05-27",
+        audit_type: "bin_load_retirement",
+        created_at: "2026-05-27T15:00:00.000Z",
+        end_ticket_no: "019",
+        inventory_id: "pack-1",
+      },
+    ],
+    endDate: "2026-05-27",
+    gameRows: [
+      {
+        game_id: "01974",
+        ticket_count: 20,
+        ticket_price: 20,
+      },
+    ],
+    inventoryRows: [
+      {
+        game_id: "01974",
+        id: "pack-1",
+        pack_ticket_count: null,
+      },
+    ],
+    startDate: "2026-05-26",
+  });
+
+  assert.deepEqual(settlements, [
+    {
+      inventoryId: "pack-1",
+      packValue: 400,
+      reportDate: "2026-05-27",
     },
   ]);
 });

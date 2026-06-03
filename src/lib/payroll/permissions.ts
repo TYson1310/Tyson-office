@@ -18,8 +18,7 @@ export function canManagePayrollAdjustments(
     return true;
   }
 
-  const effectivePermissions =
-    permissions ?? getDefaultPermissions(supportedRole);
+  const effectivePermissions = permissions ?? getDefaultPermissions(role);
 
   return (
     effectivePermissions.includes("*") ||

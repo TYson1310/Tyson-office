@@ -82,6 +82,34 @@ psql \
 
 After restoring the database, upload the backed-up storage files from `backups/supabase/<timestamp>/storage` to matching buckets in the new Supabase project. For large buckets, use Supabase Storage S3 access with `rclone`, AWS CLI, or another S3-compatible client.
 
+## Restore Drill Checklist
+
+Run a restore drill at least monthly, and any time the backup script or Supabase schema changes.
+
+1. Create a throwaway Supabase project for the drill.
+2. Restore `roles.sql`, `schema.sql`, and `data.sql` into the drill database with `psql`.
+3. Upload the backed-up storage files into matching drill project buckets.
+4. Point a temporary env file at the drill project. Do not overwrite production `.env` values.
+5. Run `npm run typecheck` and `npm run build`.
+6. Log in and smoke-test the default store: dashboard counts, daily sales, vendor invoices, inventory, lottery closeout, and lottery EFT.
+7. Record the drill result, backup folder, restored project, missing data, and any manual fix needed.
+8. Delete the throwaway Supabase project after the drill is documented.
+
+Drill log template:
+
+```text
+Date:
+Backup folder:
+Restored project:
+Database restore result:
+Storage restore result:
+App build result:
+Default store smoke test:
+Issues found:
+Fix owner:
+Next drill due:
+```
+
 ## Security Notes
 
 - Never commit `.env`, `.env.local`, or `backups/`.

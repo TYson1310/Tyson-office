@@ -233,6 +233,13 @@ export const NAV_DATA: NavSection[] = [
         roles: ["admin"],
       },
       {
+        title: "Store Health",
+        url: "/admin/store-health",
+        icon: Icons.HistoryIcon,
+        items: [],
+        roles: ["admin"],
+      },
+      {
         title: "Loss Prevention",
         url: "/admin/loss-prevention",
         icon: Icons.HistoryIcon,

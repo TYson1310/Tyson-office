@@ -3,6 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { OperationsCompatibilityNotice } from "@/components/erp/operations-compatibility-notice";
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
+import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
 import { AddExpenseButton } from "@/components/expenses/add-expense-button";
 import { ExpenseBudgetVsActualCard } from "@/components/expenses/expense-budget-vs-actual-card";
 import { ExpenseLedgerTable } from "@/components/expenses/expense-ledger-table";
@@ -108,6 +109,11 @@ export default async function GeneralExpensesPage() {
   return (
     <>
       <Breadcrumb pageName="General Expenses" />
+      <StoreScopeBanner
+        storeKey={storeContext.activeStoreKey}
+        storeName={storeContext.activeStore.name}
+        timeZone={storeContext.activeStore.timeZone}
+      />
 
       {dataset.source !== "database" ? (
         <div className="mb-6 rounded-[24px] border border-dashed border-primary/30 bg-primary/5 px-5 py-4 text-sm text-dark-5 dark:text-dark-6">

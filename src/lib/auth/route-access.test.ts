@@ -51,3 +51,9 @@ test("configured routes still honor admin wildcard permissions", () => {
   assert.equal(canAccessPath("/admin/dashboard", "admin", ["*"]), true);
   assert.equal(canAccessPath("/admin/settings", "manager", ["*"]), false);
 });
+
+test("accountant keeps financial access without becoming a manager everywhere", () => {
+  assert.equal(canAccessPath("/lottery/eft", "accountant"), true);
+  assert.equal(canAccessPath("/payroll", "accountant"), true);
+  assert.equal(canAccessPath("/admin/staff", "accountant"), false);
+});

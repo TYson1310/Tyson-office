@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, LoaderCircle } from "lucide-react";
+import { CheckCircle2, LoaderCircle, X } from "lucide-react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { useAppNotifications } from "@/contexts/NotificationContext";
 
 type EftPackInclusionButtonProps = {
@@ -34,20 +35,11 @@ export function EftPackInclusionButton({
   const router = useRouter();
   const { error: notifyError, success } = useAppNotifications();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const isDisabled = !canManage || Boolean(disabledReason) || isSubmitting;
 
   async function settlePack() {
     if (isDisabled) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Settle ${packLabel} (${formatCurrency(
-        packValue,
-      )}) to EFT sweep ${sweepDate}?`,
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -71,6 +63,7 @@ export function EftPackInclusionButton({
       }
 
       success("Sold-out pack settled to EFT.");
+      setIsOpen(false);
       router.refresh();
     } catch (error) {
       notifyError(
@@ -84,24 +77,103 @@ export function EftPackInclusionButton({
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => void settlePack()}
-      disabled={isDisabled}
-      title={
-        disabledReason ??
-        (canManage
-          ? "Settle this sold-out pack value to the selected EFT"
-          : "Only admins, managers, and accountants can settle packs to EFT")
-      }
-      className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-55"
-    >
-      {isSubmitting ? (
-        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-      ) : (
-        <CheckCircle2 className="h-3.5 w-3.5" />
-      )}
-      Settle
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        disabled={isDisabled}
+        title={
+          disabledReason ??
+          (canManage
+            ? "Settle this sold-out pack value to the selected EFT"
+            : "Only admins, managers, and accountants can settle packs to EFT")
+        }
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-55"
+      >
+        {isSubmitting ? (
+          <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <CheckCircle2 className="h-3.5 w-3.5" />
+        )}
+        Settle
+      </button>
+
+      {isOpen ? (
+        <ModalPortal>
+          <div className="modal-shell z-99999 bg-slate-950/50 backdrop-blur-sm">
+            <div className="modal-card max-w-md rounded-[24px] bg-white shadow-1 dark:bg-gray-dark">
+              <div className="flex items-start justify-between gap-4 border-b border-stroke px-6 py-5 dark:border-dark-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-dark dark:text-white">
+                    Settle pack to EFT
+                  </h2>
+                  <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
+                    This adds the scratch pack value to the selected EFT week.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => !isSubmitting && setIsOpen(false)}
+                  className="app-icon-button"
+                  aria-label="Close settle pack dialog"
+                  disabled={isSubmitting}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="space-y-4 px-6 py-6">
+                <dl className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-slate-500">Pack</dt>
+                    <dd className="font-semibold text-slate-950">
+                      {packLabel}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-slate-500">Pack value</dt>
+                    <dd className="font-semibold text-slate-950">
+                      {formatCurrency(packValue)}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-slate-500">EFT sweep</dt>
+                    <dd className="font-semibold text-slate-950">
+                      {sweepDate}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    disabled={isSubmitting}
+                    className="app-secondary-button-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void settlePack()}
+                    disabled={isSubmitting}
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-55"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                        Settling
+                      </>
+                    ) : (
+                      "Confirm settle"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      ) : null}
+    </>
   );
 }

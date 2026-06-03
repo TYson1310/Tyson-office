@@ -79,12 +79,6 @@ Notes:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported as a fallback, but `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is preferred.
 - If `PRIVATE_ADMIN_LINK_TOKEN` and `PRIVATE_ADMIN_MASTER_PASSWORD` are missing, the private admin portal will stay disabled.
 
-Optional browser smoke-test env:
-
-- `PLAYWRIGHT_BASE_URL`
-- `E2E_ADMIN_EMAIL`
-- `E2E_ADMIN_PASSWORD`
-
 ## Database Setup
 
 Apply the SQL files in `supabase/migrations` in order.
@@ -161,14 +155,7 @@ Useful validation commands:
 npm run lint
 npm run typecheck
 npm run test
-npm run test:e2e
 npm run build
-```
-
-Install the Playwright browser once before running the browser smoke suite:
-
-```bash
-npx playwright install chromium
 ```
 
 ## Publish Guide
@@ -216,7 +203,7 @@ Run it behind a reverse proxy such as Nginx or Caddy and serve it over HTTPS.
 - At least one admin user can sign in
 - Private admin token and password are configured if you need the private admin portal
 - Invoice extraction works with a real Gemini key
-- `npm run lint`, `npm run typecheck`, `npm run test`, `npm run test:e2e`, and `npm run build` pass before release
+- `npm run lint`, `npm run typecheck`, `npm run test`, and `npm run build` pass before release
 - Domain, HTTPS, and cookies are working in production
 
 ### Search Engine Note
@@ -431,8 +418,7 @@ Use it for high-trust administration tasks. Access requires:
 6. Apply new Supabase migrations.
 7. Verify environment variables in the deployment platform.
 8. Deploy.
-9. Run `npm run test:e2e` with real admin credentials when available.
-10. Smoke test login, store selection, staff creation, shifts, payroll, invoices, expenses, approvals, and reports.
+9. Smoke test login, store selection, staff creation, shifts, payroll, invoices, expenses, approvals, and reports.
 
 ## Troubleshooting
 
@@ -475,9 +461,6 @@ The current codebase passes:
 - `npm run lint`
 - `npm run typecheck`
 - `npm run test`
-- `npm run test:e2e`
 - `npm run build`
 
-The repo now includes unit coverage for vendor accounting helpers and Playwright smoke coverage for deployment validation.
-
-app has timing issue. data timing in database and display  is different make that fix and if you can do timezone setup while adding store.
+The repo now includes unit coverage for vendor accounting helpers and related business logic.

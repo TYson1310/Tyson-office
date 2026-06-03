@@ -646,6 +646,8 @@ export interface InventoryMovement {
   productId?: string;
   vendorAdjustmentId?: string;
   vendorInvoiceId?: string;
+  vendorId?: string;
+  vendorName?: string;
   movementType: InventoryMovementType;
   quantityDelta: number;
   quantityBefore: number;

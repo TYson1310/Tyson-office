@@ -6,6 +6,7 @@ import { AddVendorPaymentButton } from "@/components/vendors/add-vendor-payment-
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
+import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
 import { AddVendorAdjustmentButton } from "@/components/vendors/add-vendor-adjustment-button";
 import { DeleteVendorAdjustmentButton } from "@/components/vendors/delete-vendor-adjustment-button";
 import { VendorAdjustmentStatusButton } from "@/components/vendors/vendor-adjustment-status-button";
@@ -137,7 +138,7 @@ interface PageProps {
 
 export default async function VendorInvoicesPage({ searchParams }: PageProps) {
   const { q, status, vendorId } = await searchParams;
-  const { activeStore } = await requireActiveStoreContext();
+  const { activeStore, activeStoreKey } = await requireActiveStoreContext();
   const todayDateKey = getTodayIsoDateInTimeZone(activeStore.timeZone);
   const dataset = await getOperationsDataset();
   const canManageInvoices = dataset.source === "database";
@@ -378,6 +379,11 @@ export default async function VendorInvoicesPage({ searchParams }: PageProps) {
   return (
     <>
       <Breadcrumb pageName="Vendor Invoices" />
+      <StoreScopeBanner
+        storeKey={activeStoreKey}
+        storeName={activeStore.name}
+        timeZone={activeStore.timeZone}
+      />
 
       <OperationsCompatibilityNotice
         warnings={dataset.compatibilityWarnings}

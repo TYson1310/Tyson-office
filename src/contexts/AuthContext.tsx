@@ -233,7 +233,12 @@ export const AuthProvider = ({
 
       if (authSession.user.role === "admin") {
         try {
-          await fetch("/api/store-context", { method: "DELETE" });
+          await fetch("/api/store-context", {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${data.session.access_token}`,
+            },
+          });
         } catch (storeError) {
           console.error(
             "Failed to clear admin store context on login:",
@@ -244,7 +249,7 @@ export const AuthProvider = ({
 
       setUser(authSession.user);
       setSession(authSession);
-      void recordLoginActivity(data.session.access_token);
+      await recordLoginActivity(data.session.access_token);
 
       return authSession;
     } catch (error) {

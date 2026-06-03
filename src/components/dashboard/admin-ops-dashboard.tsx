@@ -33,6 +33,8 @@ import {
   buildApprovalQueueRows,
   calculateCashOnHand,
 } from "@/lib/erp/reporting";
+import { loadLotteryEftData } from "@/lib/lottery/eft";
+import { loadLotteryEodReconciliationData } from "@/lib/lottery/eod-reconciliation";
 import { selectPayStatementsWithFallback } from "@/lib/payroll/pay-statements";
 import { requireActiveStoreContext } from "@/lib/stores/server";
 import { createClient } from "@/lib/supabase/server";
@@ -120,6 +122,14 @@ export async function AdminOpsDashboard() {
   }
 
   const todayDateKey = getTodayIsoDateInTimeZone(activeStore.timeZone);
+  const [lotteryEft, lotteryEod] = await Promise.all([
+    loadLotteryEftData({
+      weeks: 8,
+    }),
+    loadLotteryEodReconciliationData({
+      date: todayDateKey,
+    }),
+  ]);
   const todaySummary =
     dataset.salesSummaries.find(
       (summary) => toIsoDateKey(summary.date) === todayDateKey,
@@ -277,6 +287,84 @@ export async function AdminOpsDashboard() {
   );
   const notifications = buildActionNotifications(dataset);
   const approvalQueue = buildApprovalQueueRows(dataset).slice(0, 6);
+  const todayDepositPosted = dataset.bankDeposits.some(
+    (deposit) =>
+      deposit.status !== "void" && toIsoDateKey(deposit.date) === todayDateKey,
+  );
+  const pendingEftSoldOutPacks = lotteryEft.soldOutPacks.filter(
+    (pack) => pack.status === "pending",
+  ).length;
+  const scratchAuditRecorded =
+    lotteryEod.source === "database" &&
+    (lotteryEod.scratchSalesToDate > 0 || lotteryEod.isReconciled);
+  const dailyCloseChecklist = [
+    {
+      label: "Sales entry",
+      detail: todaySummary
+        ? `${formatCurrency(todaySales)} gross sales logged`
+        : "No daily sales entry for today",
+      href: "/sales/daily-entry",
+      status: todaySummary ? "Done" : "Needed",
+      tone: todaySummary ? ("green" as const) : ("amber" as const),
+    },
+    {
+      label: "Scratch audit",
+      detail:
+        lotteryEod.source === "database"
+          ? `${formatCurrency(lotteryEod.scratchSalesToDate)} scratch sales captured`
+          : lotteryEod.errorMessage ?? "Scratch audit data unavailable",
+      href: "/scratch-cards/audit",
+      status: scratchAuditRecorded ? "Done" : "Review",
+      tone: scratchAuditRecorded ? ("green" as const) : ("amber" as const),
+    },
+    {
+      label: "Lottery closeout",
+      detail:
+        lotteryEod.source === "database"
+          ? `${formatCurrency(lotteryEod.terminalSales)} terminal sales entered`
+          : "Lottery EOD data unavailable",
+      href: "/lottery/reconciliation",
+      status: lotteryEod.isReconciled ? "Done" : "Needed",
+      tone: lotteryEod.isReconciled ? ("green" as const) : ("red" as const),
+    },
+    {
+      label: "Cash deposit",
+      detail: todayDepositPosted
+        ? "Posted for today's business date"
+        : "No posted cash deposit for today",
+      href: "/admin/bank-deposits",
+      status: todayDepositPosted ? "Done" : "Needed",
+      tone: todayDepositPosted ? ("green" as const) : ("amber" as const),
+    },
+    {
+      label: "EFT status",
+      detail:
+        lotteryEft.source === "database"
+          ? `${lotteryEft.weeklySummary.unpaidWeeks} unpaid weeks, ${pendingEftSoldOutPacks} pending packs`
+          : "EFT data unavailable",
+      href: "/lottery/eft",
+      status:
+        lotteryEft.weeklySummary.unpaidWeeks === 0 &&
+        pendingEftSoldOutPacks === 0
+          ? "Clear"
+          : "Review",
+      tone:
+        lotteryEft.weeklySummary.unpaidWeeks === 0 &&
+        pendingEftSoldOutPacks === 0
+          ? ("green" as const)
+          : ("amber" as const),
+    },
+    {
+      label: "Vendor / expense drafts",
+      detail:
+        approvalQueue.length === 0
+          ? "No approval drafts waiting"
+          : `${approvalQueue.length} approval drafts waiting`,
+      href: "/admin/approvals",
+      status: approvalQueue.length === 0 ? "Clear" : "Review",
+      tone: approvalQueue.length === 0 ? ("green" as const) : ("amber" as const),
+    },
+  ];
   const productCostReview = buildProductCostReviewSummary(dataset, {
     limit: 8,
   });
@@ -329,6 +417,39 @@ export async function AdminOpsDashboard() {
       {/*</SectionCard>*/}
 
       <SectionCard
+        title="Daily close checklist"
+        description={`Closeout controls for ${formatDate(dateKeyToUtcNoonDate(todayDateKey))}.`}
+        action={
+          <Link
+            href="/admin/store-health"
+            className="rounded-full border border-stroke px-4 py-2 text-sm font-semibold text-dark transition hover:border-primary hover:text-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-primary dark:hover:text-white"
+          >
+            Store health
+          </Link>
+        }
+      >
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {dailyCloseChecklist.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="rounded-[20px] border border-slate-200/80 bg-slate-50/70 p-4 transition hover:border-primary hover:bg-white"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="font-semibold text-dark dark:text-white">
+                  {item.label}
+                </div>
+                <StatusBadge tone={item.tone}>{item.status}</StatusBadge>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-dark-5 dark:text-dark-6">
+                {item.detail}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </SectionCard>
+
+      <SectionCard
         title="Sales chart"
         description="Interactive daily, monthly, and yearly sales monitoring."
       >
@@ -375,7 +496,7 @@ export async function AdminOpsDashboard() {
 
       <SectionCard
         title="Product Cost Review"
-        description={`Saved vendor invoice receipts compared against prior receipts; flags ${INVOICE_COST_INCREASE_WARNING_PERCENT}%+ cost increases.`}
+        description={`Flags ${INVOICE_COST_INCREASE_WARNING_PERCENT}%+ same-vendor cost increases and cross-vendor cost gaps from saved invoice receipts.`}
         action={
           <Link
             href="/vendors/invoices"
@@ -396,7 +517,7 @@ export async function AdminOpsDashboard() {
           </div>
           <div>
             <div className="text-xs uppercase text-dark-5 dark:text-dark-6">
-              Cost increases
+              Cost alerts
             </div>
             <div className="text-amber mt-1 text-xl font-semibold">
               {productCostReview.increaseCount}
@@ -420,7 +541,7 @@ export async function AdminOpsDashboard() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Product</TableHead>
-                  <TableHead>Vendor</TableHead>
+                  <TableHead>Comparison</TableHead>
                   <TableHead>Latest receipt</TableHead>
                   <TableHead className="text-right">Previous</TableHead>
                   <TableHead className="text-right">New</TableHead>
@@ -429,7 +550,7 @@ export async function AdminOpsDashboard() {
               </TableHeader>
               <TableBody>
                 {productCostReview.rows.map((review) => (
-                  <TableRow key={review.productKey}>
+                  <TableRow key={review.reviewKey}>
                     <TableCell>
                       <div className="font-semibold text-dark dark:text-white">
                         {review.productName}
@@ -438,7 +559,26 @@ export async function AdminOpsDashboard() {
                         {review.productSku}
                       </div>
                     </TableCell>
-                    <TableCell>{review.supplierName ?? "Vendor"}</TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        tone={
+                          review.comparisonType === "same-vendor"
+                            ? "amber"
+                            : "blue"
+                        }
+                      >
+                        {review.comparisonType === "same-vendor"
+                          ? "Same vendor"
+                          : "Vendor gap"}
+                      </StatusBadge>
+                      <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                        {review.comparisonType === "same-vendor"
+                          ? (review.latestSupplierName ?? "Vendor")
+                          : `${review.previousSupplierName ?? "Lower vendor"} vs ${
+                              review.latestSupplierName ?? "Higher vendor"
+                            }`}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="font-medium text-dark dark:text-white">
                         {review.latestReceiptReference ?? "Saved receipt"}
@@ -464,9 +604,9 @@ export async function AdminOpsDashboard() {
             </Table>
           ) : (
             <div className="rounded-[20px] border border-dashed border-stroke px-5 py-8 text-center text-sm text-dark-5 dark:border-dark-3 dark:text-dark-6">
-              No product cost increases found from saved receipt history.
-              Products need at least two saved vendor invoice receipts before
-              they can be compared.
+              No product cost alerts found from saved receipt history.
+              Products need saved vendor invoice receipts from the same vendor
+              or multiple vendors before they can be compared.
             </div>
           )}
         </div>

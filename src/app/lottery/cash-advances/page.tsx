@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
 import { LotteryCashAdvancesPanel } from "@/components/lottery/lottery-cash-advances-panel";
 import { getTodayIsoDateInTimeZone } from "@/lib/date-time";
 import { loadLotteryCashAdvanceSummary } from "@/lib/lottery/cash-advances";
@@ -34,6 +35,11 @@ export default async function LotteryCashAdvancesPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <Breadcrumb pageName="Lottery Cash Advances" />
+      <StoreScopeBanner
+        storeKey={activeStoreKey}
+        storeName={activeStore.name}
+        timeZone={activeStore.timeZone}
+      />
       <LotteryCashAdvancesPanel
         available={summary.available}
         businessDate={businessDate}

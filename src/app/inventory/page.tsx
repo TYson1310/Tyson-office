@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { OperationsCompatibilityNotice } from "@/components/erp/operations-compatibility-notice";
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
+import { inventoryStatusTone } from "@/components/erp/tone-maps";
 import {
   InventoryStockLedgerTable,
   type InventoryStatus,
 } from "@/components/inventory/stock-ledger-table";
 import {
+  calculateProductMarginPercent,
   formatCurrency,
   getInventoryStatus,
   getOperationsDataset,
@@ -23,6 +26,10 @@ import { requireActiveStoreContext } from "@/lib/stores/server";
 import { getUserSafely } from "@/lib/supabase/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
+import {
+  buildProductCostReviewSummary,
+  getProductReceiptLookupKeys,
+} from "@/lib/vendors/product-cost-review";
 import {
   Table,
   TableBody,
@@ -284,6 +291,100 @@ export default async function InventoryPage() {
       latestInvoiceReceiptDateLabel: latestReceipt?.receiptDateLabel,
     };
   });
+  const costReview = buildProductCostReviewSummary(dataset, {
+    limit: dataset.products.length,
+  });
+  const sameVendorCostIncreaseByProductKey = new Map<
+    string,
+    (typeof costReview.sameVendorRows)[number]
+  >();
+  const crossVendorCostDifferenceByProductKey = new Map<
+    string,
+    (typeof costReview.crossVendorRows)[number]
+  >();
+  const storeBestCostReviewRow = (
+    map: Map<string, (typeof costReview.rows)[number]>,
+    row: (typeof costReview.rows)[number],
+  ) => {
+    const current = map.get(row.productKey);
+
+    if (!current || row.increasePercent > current.increasePercent) {
+      map.set(row.productKey, row);
+    }
+  };
+
+  costReview.sameVendorRows.forEach((row) =>
+    storeBestCostReviewRow(sameVendorCostIncreaseByProductKey, row),
+  );
+  costReview.crossVendorRows.forEach((row) =>
+    storeBestCostReviewRow(crossVendorCostDifferenceByProductKey, row),
+  );
+  const stockStatusPriority: Record<InventoryStatus, number> = {
+    Backorder: 4,
+    Critical: 3,
+    Healthy: 0,
+    Reorder: 2,
+  };
+  const reorderAlertRows = stockLedgerProducts
+    .map((product) => {
+      let sameVendorCostIncrease: (typeof costReview.rows)[number] | null =
+        null;
+      let crossVendorCostDifference: (typeof costReview.rows)[number] | null =
+        null;
+
+      for (const key of getProductReceiptLookupKeys(product)) {
+        const sameVendorMatch = sameVendorCostIncreaseByProductKey.get(key);
+        const crossVendorMatch = crossVendorCostDifferenceByProductKey.get(key);
+
+        if (sameVendorMatch) {
+          sameVendorCostIncrease = sameVendorMatch;
+        }
+
+        if (crossVendorMatch) {
+          crossVendorCostDifference = crossVendorMatch;
+        }
+
+        if (sameVendorCostIncrease && crossVendorCostDifference) {
+          break;
+        }
+      }
+
+      const marginPercent = calculateProductMarginPercent(product);
+      const marginGap = product.targetMarginPercent - marginPercent;
+      const recommendedOrder = Math.max(
+        product.reorderLevel * 2 - product.quantity,
+        0,
+      );
+      const daysCover =
+        product.dailyVelocity > 0
+          ? product.quantity / product.dailyVelocity
+          : null;
+      const priority =
+        stockStatusPriority[product.status] * 100 +
+        Math.max(marginGap, 0) +
+        (sameVendorCostIncrease ? 50 : 0) +
+        (crossVendorCostDifference ? 35 : 0);
+
+      return {
+        ...product,
+        crossVendorCostDifference,
+        daysCover,
+        marginGap,
+        marginPercent,
+        priority,
+        recommendedOrder,
+        sameVendorCostIncrease,
+      };
+    })
+    .filter(
+      (product) =>
+        product.status !== "Healthy" ||
+        product.marginGap > 0 ||
+        Boolean(product.sameVendorCostIncrease) ||
+        Boolean(product.crossVendorCostDifference),
+    )
+    .sort((left, right) => right.priority - left.priority)
+    .slice(0, 12);
 
   return (
     <>
@@ -311,6 +412,177 @@ export default async function InventoryPage() {
       </div>
 
       <div className="mt-6">
+        <SectionCard
+          title="Reorder alert board"
+          description="Buying priority using target margin, cost movement, stock cover, and latest vendor receipt history."
+          className="mb-6"
+          contentClassName="p-0"
+        >
+          <div className="overflow-x-auto">
+            <Table totalRows={reorderAlertRows.length}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Alert</TableHead>
+                  <TableHead className="text-right">Stock</TableHead>
+                  <TableHead className="text-right">Margin</TableHead>
+                  <TableHead>Cost history</TableHead>
+                  <TableHead className="text-right">Recommended order</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {reorderAlertRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="py-10 text-center text-dark-5 dark:text-dark-6"
+                    >
+                      No reorder alerts are active right now.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  reorderAlertRows.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell>
+                        <div className="font-semibold text-dark dark:text-white">
+                          {product.name}
+                        </div>
+                        <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                          {product.sku} - {product.supplierName}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-2">
+                          <StatusBadge
+                            tone={inventoryStatusTone[product.status] ?? "slate"}
+                          >
+                            {product.status}
+                          </StatusBadge>
+                          {product.marginGap > 0 ? (
+                            <StatusBadge tone="red">Margin gap</StatusBadge>
+                          ) : null}
+                          {product.sameVendorCostIncrease ? (
+                            <StatusBadge tone="amber">
+                              Same vendor up
+                            </StatusBadge>
+                          ) : null}
+                          {product.crossVendorCostDifference ? (
+                            <StatusBadge tone="blue">Vendor gap</StatusBadge>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="font-semibold text-dark dark:text-white">
+                          {product.quantity} on hand
+                        </div>
+                        <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                          {product.daysCover === null
+                            ? "No velocity"
+                            : `${product.daysCover.toFixed(1)} days cover`}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="font-semibold text-dark dark:text-white">
+                          {product.marginPercent.toFixed(1)}%
+                        </div>
+                        <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                          target {product.targetMarginPercent.toFixed(1)}%
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {product.sameVendorCostIncrease ||
+                        product.crossVendorCostDifference ? (
+                          <div className="space-y-2">
+                            {product.sameVendorCostIncrease ? (
+                              <div>
+                                <StatusBadge tone="amber">
+                                  Same vendor +
+                                  {product.sameVendorCostIncrease.increasePercent.toFixed(
+                                    1,
+                                  )}
+                                  %
+                                </StatusBadge>
+                                <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                                  {product.sameVendorCostIncrease.latestSupplierName ??
+                                    "Vendor"}
+                                  :{" "}
+                                  {formatCurrency(
+                                    product.sameVendorCostIncrease.previousCost,
+                                  )}{" "}
+                                  to{" "}
+                                  {formatCurrency(
+                                    product.sameVendorCostIncrease.latestCost,
+                                  )}{" "}
+                                  on{" "}
+                                  {formatReceiptDate(
+                                    product.sameVendorCostIncrease
+                                      .latestReceiptDate,
+                                    activeStore.timeZone,
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {product.crossVendorCostDifference ? (
+                              <div>
+                                <StatusBadge tone="blue">
+                                  Vendor gap +
+                                  {product.crossVendorCostDifference.increasePercent.toFixed(
+                                    1,
+                                  )}
+                                  %
+                                </StatusBadge>
+                                <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                                  {product.crossVendorCostDifference.previousSupplierName ??
+                                    "Lower vendor"}{" "}
+                                  {formatCurrency(
+                                    product.crossVendorCostDifference
+                                      .previousCost,
+                                  )}{" "}
+                                  vs{" "}
+                                  {product.crossVendorCostDifference.latestSupplierName ??
+                                    "Higher vendor"}{" "}
+                                  {formatCurrency(
+                                    product.crossVendorCostDifference.latestCost,
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : product.latestInvoiceHref &&
+                          product.latestInvoiceNumber ? (
+                          <Link
+                            href={product.latestInvoiceHref}
+                            className="font-semibold text-primary transition hover:text-primary/80"
+                          >
+                            {product.latestInvoiceNumber}
+                            <div className="mt-1 text-xs font-medium text-dark-5 dark:text-dark-6">
+                              received{" "}
+                              {product.latestInvoiceReceiptDateLabel ?? "-"}
+                            </div>
+                          </Link>
+                        ) : (
+                          <span className="text-dark-5 dark:text-dark-6">
+                            No receipt history
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="font-semibold text-dark dark:text-white">
+                          {product.recommendedOrder} units
+                        </div>
+                        <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                          reorder level {product.reorderLevel}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </SectionCard>
+
         <SectionCard
           title="Stock ledger"
           description="Quantity on hand, reorder pressure, margin, and location"

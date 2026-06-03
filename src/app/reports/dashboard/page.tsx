@@ -125,7 +125,7 @@ export default async function ReportsDashboard() {
 
         <SectionCard
           title="Product Cost Review"
-          description={`Saved vendor invoice receipts compared against prior receipts; flags ${INVOICE_COST_INCREASE_WARNING_PERCENT}%+ cost increases.`}
+          description={`Flags ${INVOICE_COST_INCREASE_WARNING_PERCENT}%+ same-vendor cost increases and cross-vendor cost gaps from saved invoice receipts.`}
         >
           <div className="grid gap-4 border-b border-stroke pb-4 dark:border-dark-3 md:grid-cols-3">
             <div>
@@ -138,7 +138,7 @@ export default async function ReportsDashboard() {
             </div>
             <div>
               <div className="text-xs uppercase text-dark-5 dark:text-dark-6">
-                Cost increases
+                Cost alerts
               </div>
               <div className="text-amber mt-1 text-xl font-semibold">
                 {productCostReview.increaseCount}
@@ -160,7 +160,7 @@ export default async function ReportsDashboard() {
             {productCostReview.rows.length > 0 ? (
               productCostReview.rows.map((review) => (
                 <div
-                  key={review.productKey}
+                  key={review.reviewKey}
                   className="grid gap-3 border-b border-stroke pb-3 last:border-b-0 last:pb-0 dark:border-dark-3 md:grid-cols-[1fr_auto_auto]"
                 >
                   <div>
@@ -168,8 +168,12 @@ export default async function ReportsDashboard() {
                       {review.productName}
                     </div>
                     <div className="mt-1 text-xs text-dark-5 dark:text-dark-6">
-                      {review.supplierName ?? "Vendor"} / {review.productSku} /{" "}
-                      {formatDate(review.latestReceiptDate)}
+                      {review.comparisonType === "same-vendor"
+                        ? `Same vendor: ${review.latestSupplierName ?? "Vendor"}`
+                        : `Vendor gap: ${
+                            review.previousSupplierName ?? "Lower vendor"
+                          } vs ${review.latestSupplierName ?? "Higher vendor"}`}{" "}
+                      / {review.productSku} / {formatDate(review.latestReceiptDate)}
                     </div>
                   </div>
                   <div className="text-sm text-dark-5 dark:text-dark-6 md:text-right">
@@ -185,9 +189,9 @@ export default async function ReportsDashboard() {
               ))
             ) : (
               <p className="text-sm text-dark-5 dark:text-dark-6">
-                No product cost increases found from saved receipt history.
-                Products need at least two saved vendor invoice receipts before
-                they can be compared.
+                No product cost alerts found from saved receipt history.
+                Products need saved vendor invoice receipts from the same vendor
+                or multiple vendors before they can be compared.
               </p>
             )}
           </div>

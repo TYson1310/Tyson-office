@@ -37,6 +37,11 @@ const headerCopy: Record<string, { title: string; subtitle: string }> = {
     title: "Store Selection",
     subtitle: "Choose the active store workspace for this admin session.",
   },
+  "/admin/store-health": {
+    title: "Store Health",
+    subtitle:
+      "Check migrations, storage, backups, Supabase config, and active store data counts.",
+  },
   "/admin/staff": {
     title: "Staff & Access",
     subtitle: "Manage employees, roles, and granular system permissions.",

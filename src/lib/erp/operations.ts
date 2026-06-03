@@ -527,7 +527,12 @@ type InventoryMovementRow = {
   created_by: string | null;
   created_at: string;
   vendor_adjustments?: RelatedRecord<{ id: string; adjustment_number: string }>;
-  vendor_invoices?: RelatedRecord<{ id: string; invoice_number: string }>;
+  vendor_invoices?: RelatedRecord<{
+    id: string;
+    invoice_number: string;
+    supplier_id?: string | null;
+    suppliers?: RelatedRecord<{ id: string; name: string }>;
+  }>;
 };
 
 type ExpenseRow = {
@@ -1196,7 +1201,7 @@ async function fetchInventoryMovementsResult(
   };
 
   const result = await fetchPagedInventoryMovements(
-    "id,product_id,vendor_adjustment_id,vendor_invoice_id,movement_type,quantity_delta,quantity_before,quantity_after,unit_cost,total_amount,product_name,product_sku,notes,created_by,created_at,vendor_adjustments(id,adjustment_number),vendor_invoices(id,invoice_number)",
+    "id,product_id,vendor_adjustment_id,vendor_invoice_id,movement_type,quantity_delta,quantity_before,quantity_after,unit_cost,total_amount,product_name,product_sku,notes,created_by,created_at,vendor_adjustments(id,adjustment_number),vendor_invoices(id,invoice_number,supplier_id,suppliers(id,name))",
   );
 
   if (result.error && isMissingRelation(result.error, "inventory_movements")) {
@@ -1856,12 +1861,15 @@ export async function getOperationsDataset(): Promise<OperationsDataset> {
     ).map((row) => {
       const adjustment = firstRelated(row.vendor_adjustments);
       const invoice = firstRelated(row.vendor_invoices);
+      const invoiceSupplier = firstRelated(invoice?.suppliers);
 
       return {
         id: row.id,
         productId: row.product_id ?? undefined,
         vendorAdjustmentId: row.vendor_adjustment_id ?? undefined,
         vendorInvoiceId: row.vendor_invoice_id ?? undefined,
+        vendorId: invoice?.supplier_id ?? invoiceSupplier?.id ?? undefined,
+        vendorName: invoiceSupplier?.name ?? undefined,
         adjustmentNumber:
           adjustment?.adjustment_number ?? invoice?.invoice_number ?? undefined,
         movementType: row.movement_type,

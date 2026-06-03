@@ -42,6 +42,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CurrencyInput } from "@/components/ui/currency-input";
+import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
 
 interface LogEntry {
   id: string;
@@ -811,6 +812,8 @@ function DailySalesEntryContent() {
 
   return (
     <div className="space-y-6">
+      <StoreScopeBanner />
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div>

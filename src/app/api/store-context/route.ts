@@ -41,6 +41,22 @@ function serializeContext(
   };
 }
 
+async function getAuthenticatedUser(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  request?: NextRequest,
+) {
+  const authorization = request?.headers.get("authorization")?.trim() ?? "";
+  const bearerToken = authorization.toLowerCase().startsWith("bearer ")
+    ? authorization.slice(7).trim()
+    : "";
+
+  if (bearerToken) {
+    return supabase.auth.getUser(bearerToken);
+  }
+
+  return getUserSafely(supabase);
+}
+
 async function verifyStoreContextAccess(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
@@ -90,7 +106,7 @@ export async function GET() {
     const {
       data: { user },
       error,
-    } = await getUserSafely(supabase);
+    } = await getAuthenticatedUser(supabase);
 
     if (error || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -134,7 +150,7 @@ export async function POST(request: NextRequest) {
     const {
       data: { user },
       error,
-    } = await getUserSafely(supabase);
+    } = await getAuthenticatedUser(supabase);
 
     if (error || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -188,6 +204,34 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
-  return applyStoreCookie(NextResponse.json({ success: true }), null);
+export async function DELETE(request: NextRequest) {
+  try {
+    if (!isSupabaseConfigured()) {
+      return applyStoreCookie(NextResponse.json({ success: true }), null);
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error,
+    } = await getAuthenticatedUser(supabase, request);
+
+    if (error || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const access = await verifyStoreContextAccess(supabase, user.id);
+
+    if (access.error) {
+      return access.error;
+    }
+
+    return applyStoreCookie(NextResponse.json({ success: true }), null);
+  } catch (error) {
+    console.error("Store context DELETE error:", error);
+    return NextResponse.json(
+      { error: "Failed to clear store context" },
+      { status: 500 },
+    );
+  }
 }

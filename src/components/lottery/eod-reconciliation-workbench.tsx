@@ -21,6 +21,7 @@ import {
   ScanLine,
   Ticket,
   Wallet,
+  X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -42,6 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CurrencyInput } from "@/components/ui/currency-input";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { useAppNotifications } from "@/contexts/NotificationContext";
 import type { LotteryEodReconciliationData } from "@/lib/lottery/eod-reconciliation";
 import type { ScratchAuditBin } from "@/lib/scratch-cards/data";
@@ -545,6 +547,8 @@ export function EodReconciliationWorkbench({
   const [scannerMessage, setScannerMessage] = useState("Start scanner.");
   const [scannerState, setScannerState] = useState<ScannerState>("idle");
   const [soldOutBinNumber, setSoldOutBinNumber] = useState<number | null>(null);
+  const [pendingSoldOutBin, setPendingSoldOutBin] =
+    useState<ScratchAuditBin | null>(null);
 
   const scannerBin = useMemo(
     () => activeBins.find((bin) => bin.binNumber === scannerBinNumber) ?? null,
@@ -1231,7 +1235,7 @@ export function EodReconciliationWorkbench({
     }
   }
 
-  async function markBinSoldOutDuringEod(bin: ScratchAuditBin) {
+  function openSoldOutConfirmation(bin: ScratchAuditBin) {
     if (data.source !== "database") {
       notifyError("Lottery EOD data is not available.");
       return;
@@ -1258,15 +1262,32 @@ export function EodReconciliationWorkbench({
       return;
     }
 
-    const confirmed = window.confirm(
-      `Mark bin ${bin.binNumber} pack ${
-        bin.packNumber ?? ""
-      } sold out from ticket ${bin.lastTicketNumber} to ${finalTicketNumber}? This records ${formatCurrency(
-        remainingSales ?? 0,
-      )} in scratch sales for ${data.businessDate}.`,
-    );
+    setPendingSoldOutBin(bin);
+  }
 
-    if (!confirmed) {
+  async function markBinSoldOutDuringEod(bin: ScratchAuditBin) {
+    if (data.source !== "database") {
+      notifyError("Lottery EOD data is not available.");
+      return;
+    }
+
+    if (reconciliationLocked) {
+      notifyError(SAVED_RECONCILIATION_MESSAGE);
+      return;
+    }
+
+    const inventoryId = bin.inventoryId;
+
+    if (!inventoryId) {
+      notifyError("No active pack is loaded in this bin.");
+      return;
+    }
+
+    const finalTicketNumber = getFinalTicketNumber(bin);
+    const remainingTickets = getSoldOutRemainingTickets(bin);
+
+    if (!finalTicketNumber || remainingTickets === null) {
+      notifyError("Current pack is missing a valid pack ticket count.");
       return;
     }
 
@@ -1307,6 +1328,7 @@ export function EodReconciliationWorkbench({
       setSubmittedBinSignature(null);
       setActiveTab("log");
       setSaveState({ status: "idle" });
+      setPendingSoldOutBin(null);
       success(
         `Marked bin ${bin.binNumber} pack ${
           payload.packNumber ?? bin.packNumber
@@ -1321,6 +1343,13 @@ export function EodReconciliationWorkbench({
       setSoldOutBinNumber(null);
     }
   }
+
+  const pendingSoldOutFinalTicket = pendingSoldOutBin
+    ? getFinalTicketNumber(pendingSoldOutBin)
+    : null;
+  const pendingSoldOutRemainingSales = pendingSoldOutBin
+    ? getSoldOutRemainingSales(pendingSoldOutBin)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -1348,6 +1377,101 @@ export function EodReconciliationWorkbench({
           />
         </div>
       </div>
+
+      {pendingSoldOutBin ? (
+        <ModalPortal>
+          <div className="modal-shell z-99999 bg-slate-950/50 backdrop-blur-sm">
+            <div className="modal-card max-w-md rounded-[24px] bg-white shadow-1 dark:bg-gray-dark">
+              <div className="flex items-start justify-between gap-4 border-b border-stroke px-6 py-5 dark:border-dark-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-dark dark:text-white">
+                    Mark pack sold out
+                  </h2>
+                  <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
+                    This records the remaining scratch sales for the business
+                    date.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    soldOutBinNumber === null && setPendingSoldOutBin(null)
+                  }
+                  className="app-icon-button"
+                  aria-label="Close sold-out confirmation"
+                  disabled={soldOutBinNumber !== null}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="space-y-4 px-6 py-6">
+                <dl className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-slate-500">Business date</dt>
+                    <dd className="font-semibold text-slate-950">
+                      {data.businessDate}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-slate-500">Bin</dt>
+                    <dd className="font-semibold text-slate-950">
+                      {pendingSoldOutBin.binNumber}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-slate-500">Pack</dt>
+                    <dd className="font-semibold text-slate-950">
+                      {pendingSoldOutBin.packNumber ?? "-"}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-slate-500">Ticket range</dt>
+                    <dd className="font-semibold text-slate-950">
+                      {pendingSoldOutBin.lastTicketNumber} to{" "}
+                      {pendingSoldOutFinalTicket ?? "-"}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-slate-500">Scratch sales</dt>
+                    <dd className="font-semibold text-slate-950">
+                      {formatCurrency(pendingSoldOutRemainingSales ?? 0)}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPendingSoldOutBin(null)}
+                    disabled={soldOutBinNumber !== null}
+                    className="app-secondary-button-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void markBinSoldOutDuringEod(pendingSoldOutBin)
+                    }
+                    disabled={soldOutBinNumber !== null}
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-55"
+                  >
+                    {soldOutBinNumber === pendingSoldOutBin.binNumber ? (
+                      <>
+                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                        Recording
+                      </>
+                    ) : (
+                      "Confirm sold out"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      ) : null}
 
       <div className="flex justify-center sm:justify-start">
         <div className="flex gap-2 rounded-full border border-stroke bg-white p-1 shadow-sm dark:border-dark-3 dark:bg-dark-2">
@@ -1707,7 +1831,7 @@ export function EodReconciliationWorkbench({
                             </div>
                             <button
                               type="button"
-                              onClick={() => void markBinSoldOutDuringEod(bin)}
+                              onClick={() => openSoldOutConfirmation(bin)}
                               disabled={
                                 data.source !== "database" ||
                                 reconciliationLocked ||

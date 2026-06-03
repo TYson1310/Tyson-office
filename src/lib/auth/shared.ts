@@ -57,13 +57,14 @@ export function getDefaultPermissions(role: UserRole) {
     return ["*"];
   }
 
-  if (supportedRole === "manager") {
+  if (role === "manager") {
     return [
       "view:dashboard",
       "view:staff",
       "view:shifts",
       "view:vendors",
       "view:inventory",
+      "view:managed_payroll",
       "view:payroll",
       "view:reports",
       "view:profile",
@@ -81,6 +82,60 @@ export function getDefaultPermissions(role: UserRole) {
       "view:approvals",
       "view:products",
       "manage:payroll_adjustments",
+    ];
+  }
+
+  if (role === "accountant") {
+    return [
+      "view:dashboard",
+      "view:vendors",
+      "view:inventory",
+      "view:expenses",
+      "view:bank_deposits",
+      "view:approvals",
+      "view:reports",
+      "view:managed_payroll",
+      "view:financials",
+      "view:profile",
+      "view:schedule",
+      "view:payroll",
+      "view:sales",
+      "view:lottery",
+      "view:scratch_cards",
+      "view:lottery_reconciliation",
+      "view:lottery_eft",
+      "view:lottery_reports",
+      "manage:payroll_adjustments",
+    ];
+  }
+
+  if (role === "cashier") {
+    return [
+      "view:profile",
+      "view:schedule",
+      "view:payroll",
+      "view:performance",
+      "view:sales",
+      "create:sales",
+      "view:lottery",
+      "view:scratch_delivery",
+      "view:scratch_cards",
+      "view:lottery_reconciliation",
+      "view:lottery_reports",
+    ];
+  }
+
+  if (role === "warehouse") {
+    return [
+      "view:profile",
+      "view:schedule",
+      "view:payroll",
+      "view:performance",
+      "view:inventory",
+      "update:inventory",
+      "view:products",
+      "view:scratch_delivery",
+      "view:scratch_cards",
     ];
   }
 
@@ -102,7 +157,7 @@ export function getDefaultPermissions(role: UserRole) {
 
 function normalizeRole(role: unknown): UserRole {
   if (typeof role === "string" && VALID_ROLES.includes(role as UserRole)) {
-    return collapseUserRole(role as UserRole);
+    return role as UserRole;
   }
 
   return "employee";

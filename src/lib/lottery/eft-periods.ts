@@ -49,6 +49,18 @@ export function getLotteryEftSweepPeriod(sweepDate: string) {
   };
 }
 
+export function getLotteryEftSweepDateForReportDate(reportDate: string) {
+  if (!isValidLotteryEftDateKey(reportDate)) {
+    return null;
+  }
+
+  const dayOfWeek = getUtcDayOfWeek(reportDate);
+  const daysUntilThursday =
+    (THURSDAY_UTC_DAY - dayOfWeek + 7) % 7 || 7;
+
+  return addDaysToLotteryEftDateKey(reportDate, daysUntilThursday);
+}
+
 export function getLotteryEftSweepPeriods({
   latestSweepDate,
   weeks,

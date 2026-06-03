@@ -2,6 +2,7 @@ import {
   enumerateIsoDateRange,
   getTodayIsoDateInTimeZone,
 } from "@/lib/date-time";
+import { assertAccountingPeriodUnlocked } from "@/lib/accounting/period-locks";
 import { loadStoreSettingsForStore } from "@/lib/store-settings";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -13,6 +14,7 @@ import {
   normalizeOptionalLotteryEftPaidAmount,
 } from "./eft-paid-amount";
 import {
+  getLotteryEftSweepDateForReportDate,
   getLatestLotteryEftSweepDate,
   getLotteryEftSweepPeriod,
   getLotteryEftSweepPeriods,
@@ -20,6 +22,10 @@ import {
 } from "./eft-periods";
 import {
   buildScratchPackSettlementSales,
+  SCRATCH_EFT_SETTLEMENT_AUDIT_TYPE,
+  SCRATCH_EFT_SETTLEMENT_REVERSAL_AUDIT_TYPE,
+  isScratchEftSettlementAudit,
+  isScratchEftSettlementReversalAudit,
   sumScratchPackSettlementsByDate,
   type ScratchPackSettlementSale,
   type ScratchSettlementAuditRow,
@@ -225,11 +231,15 @@ export type LotteryEftSoldOutPackRow = {
   gameId: string;
   gameName: string;
   hasSoldOutAudit: boolean;
+  includedAuditId: string | null;
   includedDate: string | null;
   includedInSelectedEft: boolean;
   inventoryId: string;
+  inventoryStatus: string;
   packNumber: string;
   packValue: number | null;
+  reversalAuditId: string | null;
+  reversedDate: string | null;
   soldOutAuditType: string | null;
   soldOutDate: string;
   status: LotteryEftSoldOutPackStatus;
@@ -427,10 +437,6 @@ function normalizeTicketCount(value: number | string | null | undefined) {
   return Math.trunc(normalized);
 }
 
-function isEftIncludedSettlementAudit(auditType: string | null | undefined) {
-  return auditType === "bin_load_retirement";
-}
-
 function isDateInRange(dateKey: string, startDate: string, endDate: string) {
   return dateKey >= startDate && dateKey <= endDate;
 }
@@ -455,6 +461,44 @@ function hasReachedFinalTicket(
       endTicketNumber &&
       endTicketNumber >= finalTicketNumber,
   );
+}
+
+function getScratchEftSettlementState(
+  auditRows: ScratchSettlementAuditRow[],
+  ticketCount: number | null,
+) {
+  let soldOutAudit: ScratchSettlementAuditRow | null = null;
+  let activeIncludedAudit: ScratchSettlementAuditRow | null = null;
+  let latestReversalAudit: ScratchSettlementAuditRow | null = null;
+
+  for (const audit of auditRows) {
+    if (!hasReachedFinalTicket(audit, ticketCount)) {
+      continue;
+    }
+
+    if (
+      !soldOutAudit &&
+      !isScratchEftSettlementReversalAudit(audit.audit_type)
+    ) {
+      soldOutAudit = audit;
+    }
+
+    if (isScratchEftSettlementAudit(audit.audit_type)) {
+      activeIncludedAudit = audit;
+      continue;
+    }
+
+    if (isScratchEftSettlementReversalAudit(audit.audit_type)) {
+      activeIncludedAudit = null;
+      latestReversalAudit = audit;
+    }
+  }
+
+  return {
+    activeIncludedAudit,
+    latestReversalAudit,
+    soldOutAudit,
+  };
 }
 
 function getLatestAuditByInventory(auditRows: InventoryAuditRow[]) {
@@ -682,7 +726,10 @@ function buildSoldOutPackLedger({
   }, new Map<string, ScratchSettlementAuditRow[]>());
 
   return inventoryRows
-    .filter((inventory) => inventory.status === "sold_out")
+    .filter(
+      (inventory) =>
+        inventory.status === "sold_out" || inventory.status === "settled",
+    )
     .map((inventory) => {
       const game = gameById.get(inventory.game_id);
       const ticketCount = normalizeTicketCount(
@@ -693,21 +740,9 @@ function buildSoldOutPackLedger({
         ? normalizeMoney(ticketCount * ticketPrice)
         : null;
       const inventoryAudits = auditsByInventory.get(inventory.id) ?? [];
-      const soldOutAudit =
-        ticketCount === null
-          ? null
-          : (inventoryAudits.find((audit) =>
-              hasReachedFinalTicket(audit, ticketCount),
-            ) ?? null);
-      const includedAudit =
-        ticketCount === null
-          ? null
-          : (inventoryAudits.find(
-              (audit) =>
-                hasReachedFinalTicket(audit, ticketCount) &&
-                isEftIncludedSettlementAudit(audit.audit_type),
-            ) ?? null);
-      const includedDate = includedAudit?.audit_date ?? null;
+      const { activeIncludedAudit, latestReversalAudit, soldOutAudit } =
+        getScratchEftSettlementState(inventoryAudits, ticketCount);
+      const includedDate = activeIncludedAudit?.audit_date ?? null;
       const includedInSelectedEft = includedDate
         ? isDateInRange(
             includedDate,
@@ -715,7 +750,7 @@ function buildSoldOutPackLedger({
             selectedWeekEndDate,
           )
         : false;
-      const status: LotteryEftSoldOutPackStatus = includedAudit
+      const status: LotteryEftSoldOutPackStatus = activeIncludedAudit
         ? includedInSelectedEft
           ? "included-selected"
           : "included-other"
@@ -726,11 +761,15 @@ function buildSoldOutPackLedger({
         gameId: inventory.game_id,
         gameName: game?.game_name ?? "Unknown game",
         hasSoldOutAudit: Boolean(soldOutAudit),
+        includedAuditId: activeIncludedAudit?.audit_id ?? null,
         includedDate,
         includedInSelectedEft,
         inventoryId: inventory.id,
+        inventoryStatus: inventory.status,
         packNumber: inventory.pack_number,
         packValue,
+        reversalAuditId: latestReversalAudit?.audit_id ?? null,
+        reversedDate: latestReversalAudit?.audit_date ?? null,
         soldOutAuditType: soldOutAudit?.audit_type ?? null,
         soldOutDate:
           soldOutAudit?.audit_date ?? inventory.updated_at.slice(0, 10),
@@ -766,7 +805,7 @@ async function loadSoldOutPackLedger({
       "id,game_id,pack_number,pack_ticket_count,bin_number,date_activated,status,updated_at",
     )
     .eq("store_key", storeKey)
-    .eq("status", "sold_out")
+    .in("status", ["sold_out", "settled"])
     .returns<SoldOutPackInventoryRow[]>();
 
   if (inventoryResult.error) {
@@ -805,7 +844,7 @@ async function loadSoldOutPackLedger({
   const auditResult = await supabase
     .from("daily_audits")
     .select(
-      "inventory_id,audit_date,audit_type,bin_number,end_ticket_no,created_at",
+      "audit_id,inventory_id,audit_date,audit_type,bin_number,end_ticket_no,created_at",
     )
     .eq("store_key", storeKey)
     .in("inventory_id", inventoryIds)
@@ -1446,7 +1485,7 @@ export async function loadLotteryEftData(
       supabase
         .from("daily_audits")
         .select(
-          "inventory_id,audit_date,audit_type,bin_number,end_ticket_no,created_at",
+          "audit_id,inventory_id,audit_date,audit_type,bin_number,end_ticket_no,created_at",
         )
         .eq("store_key", activeStoreKey)
         .not("inventory_id", "is", null)
@@ -1792,7 +1831,7 @@ export async function includeSoldOutPackInLotteryEft(
   const { data: auditRows, error: auditError } = await access.supabase
     .from("daily_audits")
     .select(
-      "inventory_id,audit_date,audit_type,bin_number,end_ticket_no,created_at",
+      "audit_id,inventory_id,audit_date,audit_type,bin_number,end_ticket_no,created_at",
     )
     .eq("store_key", access.activeStoreKey)
     .eq("inventory_id", inventory.id)
@@ -1808,8 +1847,9 @@ export async function includeSoldOutPackInLotteryEft(
     );
   }
 
-  const soldOutAudit = (auditRows ?? []).find((audit) =>
-    hasReachedFinalTicket(audit, ticketCount),
+  const { activeIncludedAudit, soldOutAudit } = getScratchEftSettlementState(
+    auditRows ?? [],
+    ticketCount,
   );
 
   if (!soldOutAudit) {
@@ -1819,15 +1859,9 @@ export async function includeSoldOutPackInLotteryEft(
     );
   }
 
-  const includedAudit = (auditRows ?? []).find(
-    (audit) =>
-      hasReachedFinalTicket(audit, ticketCount) &&
-      isEftIncludedSettlementAudit(audit.audit_type),
-  );
-
-  if (includedAudit) {
+  if (activeIncludedAudit) {
     throw new LotteryEftWorkflowError(
-      `This pack is already settled to EFT on ${includedAudit.audit_date}.`,
+      `This pack is already settled to EFT on ${activeIncludedAudit.audit_date}.`,
       409,
     );
   }
@@ -1852,7 +1886,7 @@ export async function includeSoldOutPackInLotteryEft(
     .from("daily_audits")
     .insert({
       audit_date: inclusionDate,
-      audit_type: "bin_load_retirement",
+      audit_type: SCRATCH_EFT_SETTLEMENT_AUDIT_TYPE,
       bin_number: binNumber,
       calculated_revenue: 0,
       employee_id: access.currentUser.id,
@@ -1916,6 +1950,235 @@ export async function includeSoldOutPackInLotteryEft(
     sweepDate: period.sweepDate,
     weekEndDate: period.weekEndDate,
     weekStartDate: period.weekStartDate,
+  };
+}
+
+export async function reverseSoldOutPackLotteryEft(
+  access: ScratchCardAccess,
+  input: {
+    inventoryId: unknown;
+    reason: unknown;
+  },
+) {
+  const inventoryId = normalizeRequiredText(input.inventoryId, "Inventory id");
+  const reason = normalizeRequiredText(input.reason, "Reversal reason");
+
+  const { data: inventory, error: inventoryError } = await access.supabase
+    .from("inventory")
+    .select(
+      "id,game_id,pack_number,pack_ticket_count,bin_number,date_activated,status,updated_at",
+    )
+    .eq("store_key", access.activeStoreKey)
+    .eq("id", inventoryId)
+    .maybeSingle<SoldOutPackInventoryRow>();
+
+  if (inventoryError) {
+    throw new LotteryEftWorkflowError(
+      inventoryError.message ?? "Failed to load scratch pack",
+      500,
+    );
+  }
+
+  if (!inventory) {
+    throw new LotteryEftWorkflowError("Scratch pack was not found", 404);
+  }
+
+  if (inventory.status !== "settled" && inventory.status !== "sold_out") {
+    throw new LotteryEftWorkflowError(
+      "Only settled scratch packs can be reversed from EFT.",
+      409,
+    );
+  }
+
+  const { data: game, error: gameError } = await access.supabase
+    .from("game_catalog")
+    .select("game_id,game_name,ticket_count,ticket_price")
+    .eq("game_id", inventory.game_id)
+    .maybeSingle<SoldOutPackGameRow>();
+
+  if (gameError) {
+    throw new LotteryEftWorkflowError(
+      gameError.message ?? "Failed to load scratch game",
+      500,
+    );
+  }
+
+  if (!game) {
+    throw new LotteryEftWorkflowError("Scratch game was not found", 404);
+  }
+
+  const ticketCount = normalizeTicketCount(
+    inventory.pack_ticket_count ?? game.ticket_count,
+  );
+  const finalTicketNumber = getFinalTicketNumber(ticketCount);
+
+  if (!ticketCount || !finalTicketNumber) {
+    throw new LotteryEftWorkflowError(
+      "Pack ticket count is required before reversing EFT settlement.",
+      400,
+    );
+  }
+
+  const { data: auditRows, error: auditError } = await access.supabase
+    .from("daily_audits")
+    .select(
+      "audit_id,inventory_id,audit_date,audit_type,bin_number,end_ticket_no,created_at",
+    )
+    .eq("store_key", access.activeStoreKey)
+    .eq("inventory_id", inventory.id)
+    .order("audit_date", { ascending: true })
+    .order("created_at", { ascending: true })
+    .returns<ScratchSettlementAuditRow[]>();
+
+  if (auditError) {
+    throw new LotteryEftWorkflowError(
+      auditError.message ?? "Failed to load EFT settlement history",
+      500,
+    );
+  }
+
+  const { activeIncludedAudit, soldOutAudit } = getScratchEftSettlementState(
+    auditRows ?? [],
+    ticketCount,
+  );
+
+  if (!activeIncludedAudit) {
+    throw new LotteryEftWorkflowError(
+      "This scratch pack does not have an active EFT settlement to reverse.",
+      409,
+    );
+  }
+
+  const includedSweepDate = getLotteryEftSweepDateForReportDate(
+    activeIncludedAudit.audit_date,
+  );
+
+  if (!includedSweepDate) {
+    throw new LotteryEftWorkflowError(
+      "The original EFT settlement date is invalid.",
+      500,
+    );
+  }
+
+  const statusResult = await access.supabase
+    .from("lottery_eft_weekly_status")
+    .select("status")
+    .eq("store_key", access.activeStoreKey)
+    .eq("sweep_date", includedSweepDate)
+    .maybeSingle<{ status: LotteryEftPaymentStatus }>();
+
+  if (
+    statusResult.error &&
+    !isMissingEftWeeklyStatusTableError(statusResult.error)
+  ) {
+    throw new LotteryEftWorkflowError(
+      statusResult.error.message ?? "Failed to check EFT payment status",
+      500,
+    );
+  }
+
+  if (statusResult.data?.status === "paid") {
+    throw new LotteryEftWorkflowError(
+      "Mark the original EFT week unpaid before reversing this pack.",
+      409,
+    );
+  }
+
+  const periodLock = await assertAccountingPeriodUnlocked(
+    access.supabase,
+    access.activeStoreKey,
+    activeIncludedAudit.audit_date,
+    "Lottery EFT pack settlement reversal",
+  );
+
+  if (periodLock) {
+    throw new LotteryEftWorkflowError(periodLock.error, periodLock.status);
+  }
+
+  const binNumber =
+    activeIncludedAudit.bin_number ??
+    soldOutAudit?.bin_number ??
+    inventory.bin_number;
+
+  if (!binNumber || binNumber <= 0) {
+    throw new LotteryEftWorkflowError(
+      "Original sold-out bin number is required before reversing this settlement.",
+      400,
+    );
+  }
+
+  const { data: reversal, error: reversalError } = await access.supabase
+    .from("daily_audits")
+    .insert({
+      audit_date: activeIncludedAudit.audit_date,
+      audit_type: SCRATCH_EFT_SETTLEMENT_REVERSAL_AUDIT_TYPE,
+      bin_number: binNumber,
+      calculated_revenue: 0,
+      employee_id: access.currentUser.id,
+      end_ticket_no: finalTicketNumber,
+      inventory_id: inventory.id,
+      start_ticket_no: finalTicketNumber,
+      store_key: access.activeStoreKey,
+      tickets_sold: 0,
+    })
+    .select("audit_id,audit_date")
+    .single<{ audit_id: string; audit_date: string }>();
+
+  if (reversalError) {
+    throw new LotteryEftWorkflowError(
+      reversalError.message ?? "Failed to reverse EFT settlement",
+      500,
+    );
+  }
+
+  const { data: reversedInventory, error: reversedInventoryError } =
+    await access.supabase
+      .from("inventory")
+      .update({
+        bin_number: null,
+        status: "sold_out",
+      })
+      .eq("store_key", access.activeStoreKey)
+      .eq("id", inventory.id)
+      .in("status", ["settled", "sold_out"])
+      .select("id")
+      .maybeSingle<{ id: string }>();
+
+  if (reversedInventoryError) {
+    throw new LotteryEftWorkflowError(
+      reversedInventoryError.message ??
+        "Settlement was reversed, but inventory could not be marked sold out.",
+      500,
+    );
+  }
+
+  if (!reversedInventory) {
+    throw new LotteryEftWorkflowError(
+      "Settlement was reversed, but inventory was already changed by another user.",
+      409,
+    );
+  }
+
+  const ticketPrice = normalizeMoney(game.ticket_price);
+  const packValue = normalizeMoney(ticketCount * ticketPrice);
+  const includedPeriod = getLotteryEftSweepPeriod(includedSweepDate);
+
+  return {
+    auditId: reversal.audit_id,
+    binNumber,
+    gameId: inventory.game_id,
+    gameName: game.game_name ?? "Unknown game",
+    includedAuditId: activeIncludedAudit.audit_id ?? null,
+    includedDate: activeIncludedAudit.audit_date,
+    inventoryId: inventory.id,
+    packNumber: inventory.pack_number,
+    packValue,
+    reason,
+    reversedDate: reversal.audit_date,
+    soldOutDate: soldOutAudit?.audit_date ?? inventory.updated_at.slice(0, 10),
+    sweepDate: includedSweepDate,
+    weekEndDate: includedPeriod.weekEndDate,
+    weekStartDate: includedPeriod.weekStartDate,
   };
 }
 

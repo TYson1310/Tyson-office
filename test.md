@@ -42,13 +42,6 @@ npm run test
 npm run build
 ```
 
-Optional browser smoke:
-
-```bash
-npx playwright install chromium
-npm run test:e2e
-```
-
 Expected result:
 
 - All commands pass

@@ -13,6 +13,7 @@ const ROUTE_ACCESS_RULES: RouteAccessRule[] = [
   { prefix: "/admin/login-tracking", roles: ["admin"] },
   { prefix: "/admin/settings", roles: ["admin"] },
   { prefix: "/admin/store-selection", roles: ["admin"] },
+  { prefix: "/admin/store-health", roles: ["admin"] },
   { prefix: "/admin/audit-logs", roles: ["admin"] },
   { prefix: "/admin/owner-command-center", roles: ["admin"] },
   { prefix: "/admin/loss-prevention", roles: ["admin"] },
@@ -169,9 +170,10 @@ function hasMatchingPermission(
   permissions: string[] | null | undefined,
   requiredPermissions: string[] | undefined,
   allowedRoles: SupportedUserRole[],
-  role: SupportedUserRole,
+  supportedRole: SupportedUserRole,
+  permissionRole: UserRole,
 ) {
-  if (!allowedRoles.includes(role)) {
+  if (!allowedRoles.includes(supportedRole)) {
     return false;
   }
 
@@ -179,7 +181,8 @@ function hasMatchingPermission(
     return true;
   }
 
-  const effectivePermissions = permissions ?? getDefaultPermissions(role);
+  const effectivePermissions =
+    permissions ?? getDefaultPermissions(permissionRole);
 
   if (effectivePermissions.includes("*")) {
     return true;
@@ -232,6 +235,7 @@ export function canAccessPath(
     matchingRule.permissions,
     matchingRule.roles,
     supportedRole,
+    role,
   );
 }
 

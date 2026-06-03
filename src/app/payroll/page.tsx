@@ -2,6 +2,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { OperationsCompatibilityNotice } from "@/components/erp/operations-compatibility-notice";
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
+import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
 import { DeletePayrollButton } from "@/components/payroll/delete-payroll-button";
 import { PayrollStatementEditor } from "@/components/payroll/payroll-statement-editor";
 import { PayrollStatusEditor } from "@/components/payroll/payroll-status-editor";
@@ -303,6 +304,11 @@ export default async function PayrollPage() {
   return (
     <>
       <Breadcrumb pageName="Payroll" />
+      <StoreScopeBanner
+        storeKey={activeStoreKey}
+        storeName={activeStore.name}
+        timeZone={activeStore.timeZone}
+      />
 
       {dataset.source !== "database" && (
         <div className="mb-6 rounded-[24px] border border-dashed border-primary/30 bg-primary/5 px-5 py-4 text-sm text-dark-5 dark:text-dark-6">

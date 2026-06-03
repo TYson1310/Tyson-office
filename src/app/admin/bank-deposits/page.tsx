@@ -12,6 +12,7 @@ import { OperationsCompatibilityNotice } from "@/components/erp/operations-compa
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
+import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
 import { loadFinancialAccountabilityStatus } from "@/lib/accountability/financial-controls";
 import {
   Table,
@@ -110,7 +111,7 @@ function getDepositSlipHref(depositId: string) {
 }
 
 export default async function BankDepositsPage() {
-  const { activeStoreKey } = await requireActiveStoreContext();
+  const { activeStore, activeStoreKey } = await requireActiveStoreContext();
   const [dataset, supabase] = await Promise.all([
     getOperationsDataset(),
     createClient(),
@@ -155,6 +156,11 @@ export default async function BankDepositsPage() {
   return (
     <div className="mx-auto max-w-7xl">
       <Breadcrumb pageName="Cash Vault" />
+      <StoreScopeBanner
+        storeKey={activeStoreKey}
+        storeName={activeStore.name}
+        timeZone={timeZone}
+      />
 
       <OperationsCompatibilityNotice
         warnings={[

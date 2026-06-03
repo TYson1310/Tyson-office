@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import Image from "next/image";
 import {
   AlertTriangle,
@@ -167,6 +173,28 @@ type GameLedgerEditState = {
 };
 
 type PortalView = "admins" | "catalog" | "stores";
+type SortDirection = "asc" | "desc";
+type SortState<T extends string> = {
+  direction: SortDirection;
+  key: T;
+};
+type AdminSortKey = "admin" | "status" | "updated";
+type PriceSettingsSortKey =
+  | "games"
+  | "packValue"
+  | "status"
+  | "ticketCount"
+  | "ticketPrice";
+type GameLedgerSortKey =
+  | "game"
+  | "gameId"
+  | "imported"
+  | "packTickets"
+  | "packValue"
+  | "price"
+  | "source"
+  | "status";
+type StoreSortKey = "bins" | "eft" | "status" | "store" | "timezone" | "updated";
 
 const EMPTY_FORM: AdminFormState = {
   fullName: "",
@@ -241,6 +269,117 @@ function formatTimestamp(
   });
 }
 
+function flipSortDirection(direction: SortDirection) {
+  return direction === "asc" ? "desc" : "asc";
+}
+
+function getNextSortState<T extends string>(
+  current: SortState<T>,
+  key: T,
+): SortState<T> {
+  return {
+    direction: current.key === key ? flipSortDirection(current.direction) : "asc",
+    key,
+  };
+}
+
+function compareText(
+  left: string | null | undefined,
+  right: string | null | undefined,
+) {
+  return (left ?? "").localeCompare(right ?? "", undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
+}
+
+function compareNumber(
+  left: number | null | undefined,
+  right: number | null | undefined,
+) {
+  const normalizedLeft =
+    typeof left === "number" && Number.isFinite(left) ? left : -1;
+  const normalizedRight =
+    typeof right === "number" && Number.isFinite(right) ? right : -1;
+  return normalizedLeft - normalizedRight;
+}
+
+function compareDate(
+  left: string | null | undefined,
+  right: string | null | undefined,
+) {
+  const normalizedLeft = Date.parse(left ?? "");
+  const normalizedRight = Date.parse(right ?? "");
+  const leftTime = Number.isFinite(normalizedLeft) ? normalizedLeft : 0;
+  const rightTime = Number.isFinite(normalizedRight) ? normalizedRight : 0;
+  return leftTime - rightTime;
+}
+
+function applySortDirection(value: number, direction: SortDirection) {
+  return direction === "asc" ? value : -value;
+}
+
+function sortableColumnLabel({
+  active,
+  direction,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  direction: SortDirection;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 text-inherit transition hover:text-rose-700"
+      aria-label={`Sort by ${label}`}
+    >
+      <span>{label}</span>
+      <ChevronDown
+        className={`h-3.5 w-3.5 transition ${
+          active
+            ? direction === "asc"
+              ? "rotate-180 text-rose-600"
+              : "text-rose-600"
+            : "text-slate-300"
+        }`}
+      />
+    </button>
+  );
+}
+
+function SortableTableHead<T extends string>({
+  align = "left",
+  label,
+  sortKey,
+  sortState,
+  updateSort,
+}: {
+  align?: "left" | "right";
+  label: string;
+  sortKey: T;
+  sortState: SortState<T>;
+  updateSort: (key: T) => void;
+}) {
+  const isActive = sortState.key === sortKey;
+
+  return (
+    <TableHead className={align === "right" ? "text-right" : undefined}>
+      <div className={align === "right" ? "flex justify-end" : undefined}>
+        {sortableColumnLabel({
+          active: isActive,
+          direction: sortState.direction,
+          label,
+          onClick: () => updateSort(sortKey),
+        })}
+      </div>
+    </TableHead>
+  );
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as T & {
     error?: string;
@@ -312,6 +451,26 @@ export function PrivateAdminPortal({
   >({});
   const [credentialNotice, setCredentialNotice] =
     useState<CredentialNotice | null>(null);
+  const [adminSort, setAdminSort] = useState<SortState<AdminSortKey>>({
+    direction: "asc",
+    key: "admin",
+  });
+  const [priceSettingsSort, setPriceSettingsSort] = useState<
+    SortState<PriceSettingsSortKey>
+  >({
+    direction: "asc",
+    key: "ticketPrice",
+  });
+  const [gameLedgerSort, setGameLedgerSort] = useState<
+    SortState<GameLedgerSortKey>
+  >({
+    direction: "asc",
+    key: "gameId",
+  });
+  const [storeSort, setStoreSort] = useState<SortState<StoreSortKey>>({
+    direction: "asc",
+    key: "store",
+  });
 
   const showNotice = useCallback(
     (type: "success" | "error", message: string) => {
@@ -319,6 +478,18 @@ export function PrivateAdminPortal({
     },
     [notify],
   );
+  const updateAdminSort = useCallback((key: AdminSortKey) => {
+    setAdminSort((current) => getNextSortState(current, key));
+  }, []);
+  const updatePriceSettingsSort = useCallback((key: PriceSettingsSortKey) => {
+    setPriceSettingsSort((current) => getNextSortState(current, key));
+  }, []);
+  const updateGameLedgerSort = useCallback((key: GameLedgerSortKey) => {
+    setGameLedgerSort((current) => getNextSortState(current, key));
+  }, []);
+  const updateStoreSort = useCallback((key: StoreSortKey) => {
+    setStoreSort((current) => getNextSortState(current, key));
+  }, []);
 
   const resetForm = useCallback(() => {
     setEditingAdminId(null);
@@ -1059,6 +1230,140 @@ export function PrivateAdminPortal({
     }
   };
 
+  const sortedAdmins = useMemo(
+    () =>
+      [...admins].sort((left, right) => {
+        let comparison = 0;
+
+        if (adminSort.key === "admin") {
+          comparison =
+            compareText(left.fullName, right.fullName) ||
+            compareText(left.email, right.email);
+        } else if (adminSort.key === "status") {
+          comparison = compareText(left.status, right.status);
+        } else {
+          comparison = compareDate(left.updatedAt, right.updatedAt);
+        }
+
+        return (
+          applySortDirection(comparison, adminSort.direction) ||
+          compareText(left.fullName, right.fullName) ||
+          compareText(left.id, right.id)
+        );
+      }),
+    [adminSort, admins],
+  );
+  const sortedPriceSettings = useMemo(
+    () =>
+      [...gameCatalogPriceSettings].sort((left, right) => {
+        let comparison = 0;
+        const leftStatus = left.ticketCount
+          ? left.hasMixedTicketCounts
+            ? 1
+            : 2
+          : 0;
+        const rightStatus = right.ticketCount
+          ? right.hasMixedTicketCounts
+            ? 1
+            : 2
+          : 0;
+
+        if (priceSettingsSort.key === "ticketPrice") {
+          comparison = compareNumber(left.ticketPrice, right.ticketPrice);
+        } else if (priceSettingsSort.key === "games") {
+          comparison =
+            compareNumber(left.activeGameCount, right.activeGameCount) ||
+            compareNumber(left.gameCount, right.gameCount);
+        } else if (priceSettingsSort.key === "ticketCount") {
+          comparison = compareNumber(left.ticketCount, right.ticketCount);
+        } else if (priceSettingsSort.key === "packValue") {
+          comparison = compareNumber(left.packValue, right.packValue);
+        } else {
+          comparison = compareNumber(leftStatus, rightStatus);
+        }
+
+        return (
+          applySortDirection(comparison, priceSettingsSort.direction) ||
+          compareNumber(left.ticketPrice, right.ticketPrice)
+        );
+      }),
+    [gameCatalogPriceSettings, priceSettingsSort],
+  );
+  const sortedGameCatalogGames = useMemo(
+    () =>
+      [...gameCatalogGames].sort((left, right) => {
+        let comparison = 0;
+
+        if (gameLedgerSort.key === "game") {
+          comparison = compareText(left.gameName, right.gameName);
+        } else if (gameLedgerSort.key === "gameId") {
+          comparison = compareText(left.gameId, right.gameId);
+        } else if (gameLedgerSort.key === "status") {
+          comparison = compareNumber(
+            left.isActive ? 1 : 0,
+            right.isActive ? 1 : 0,
+          );
+        } else if (gameLedgerSort.key === "price") {
+          comparison = compareNumber(left.ticketPrice, right.ticketPrice);
+        } else if (gameLedgerSort.key === "packTickets") {
+          comparison = compareNumber(left.ticketCount, right.ticketCount);
+        } else if (gameLedgerSort.key === "packValue") {
+          comparison = compareNumber(left.packValue, right.packValue);
+        } else if (gameLedgerSort.key === "source") {
+          comparison =
+            compareNumber(left.sourcePage, right.sourcePage) ||
+            compareNumber(left.cropIndex, right.cropIndex);
+        } else {
+          comparison = compareDate(left.importedAt, right.importedAt);
+        }
+
+        return (
+          applySortDirection(comparison, gameLedgerSort.direction) ||
+          compareText(left.gameId, right.gameId)
+        );
+      }),
+    [gameCatalogGames, gameLedgerSort],
+  );
+  const sortedStores = useMemo(
+    () =>
+      [...stores].sort((left, right) => {
+        let comparison = 0;
+
+        if (storeSort.key === "store") {
+          comparison =
+            compareText(left.name, right.name) ||
+            compareText(left.storeKey, right.storeKey);
+        } else if (storeSort.key === "status") {
+          comparison = compareText(left.status, right.status);
+        } else if (storeSort.key === "timezone") {
+          comparison = compareText(left.timeZone, right.timeZone);
+        } else if (storeSort.key === "bins") {
+          comparison = compareNumber(
+            left.scratchBinCount,
+            right.scratchBinCount,
+          );
+        } else if (storeSort.key === "eft") {
+          comparison =
+            compareNumber(
+              left.lotteryRetailerCommissionRate,
+              right.lotteryRetailerCommissionRate,
+            ) ||
+            compareNumber(
+              left.lotteryCashingBonusRate,
+              right.lotteryCashingBonusRate,
+            );
+        } else {
+          comparison = compareDate(left.updatedAt, right.updatedAt);
+        }
+
+        return (
+          applySortDirection(comparison, storeSort.direction) ||
+          compareText(left.name, right.name) ||
+          compareText(left.storeKey, right.storeKey)
+        );
+      }),
+    [storeSort, stores],
+  );
   const activeAdminCount = admins.filter(
     (admin) => admin.status === "active",
   ).length;
@@ -1396,16 +1701,31 @@ export function PrivateAdminPortal({
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Admin</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Updated</TableHead>
+                            <SortableTableHead
+                              label="Admin"
+                              sortKey="admin"
+                              sortState={adminSort}
+                              updateSort={updateAdminSort}
+                            />
+                            <SortableTableHead
+                              label="Status"
+                              sortKey="status"
+                              sortState={adminSort}
+                              updateSort={updateAdminSort}
+                            />
+                            <SortableTableHead
+                              label="Updated"
+                              sortKey="updated"
+                              sortState={adminSort}
+                              updateSort={updateAdminSort}
+                            />
                             <TableHead className="text-right">
                               Actions
                             </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {admins.map((admin) => (
+                          {sortedAdmins.map((admin) => (
                             <TableRow key={admin.id}>
                               <TableCell>
                                 <div>
@@ -1711,22 +2031,45 @@ export function PrivateAdminPortal({
                       <Table rowsPerPage={5}>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Ticket price</TableHead>
-                            <TableHead>Games</TableHead>
-                            <TableHead className="text-right">
-                              Tickets per pack
-                            </TableHead>
-                            <TableHead className="text-right">
-                              Pack value
-                            </TableHead>
-                            <TableHead>Status</TableHead>
+                            <SortableTableHead
+                              label="Ticket price"
+                              sortKey="ticketPrice"
+                              sortState={priceSettingsSort}
+                              updateSort={updatePriceSettingsSort}
+                            />
+                            <SortableTableHead
+                              label="Games"
+                              sortKey="games"
+                              sortState={priceSettingsSort}
+                              updateSort={updatePriceSettingsSort}
+                            />
+                            <SortableTableHead
+                              align="right"
+                              label="Tickets per pack"
+                              sortKey="ticketCount"
+                              sortState={priceSettingsSort}
+                              updateSort={updatePriceSettingsSort}
+                            />
+                            <SortableTableHead
+                              align="right"
+                              label="Pack value"
+                              sortKey="packValue"
+                              sortState={priceSettingsSort}
+                              updateSort={updatePriceSettingsSort}
+                            />
+                            <SortableTableHead
+                              label="Status"
+                              sortKey="status"
+                              sortState={priceSettingsSort}
+                              updateSort={updatePriceSettingsSort}
+                            />
                             <TableHead className="text-right">
                               Actions
                             </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {gameCatalogPriceSettings.map((setting) => {
+                          {sortedPriceSettings.map((setting) => {
                             const priceKey = getPriceSettingKey(
                               setting.ticketPrice,
                             );
@@ -2092,25 +2435,65 @@ export function PrivateAdminPortal({
                         <TableHeader>
                           <TableRow>
                             <TableHead>Image</TableHead>
-                            <TableHead>Game</TableHead>
-                            <TableHead>Game ID</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Price</TableHead>
-                            <TableHead className="text-right">
-                              Pack tickets
-                            </TableHead>
-                            <TableHead className="text-right">
-                              Pack value
-                            </TableHead>
-                            <TableHead className="text-right">Source</TableHead>
-                            <TableHead>Imported</TableHead>
+                            <SortableTableHead
+                              label="Game"
+                              sortKey="game"
+                              sortState={gameLedgerSort}
+                              updateSort={updateGameLedgerSort}
+                            />
+                            <SortableTableHead
+                              label="Game ID"
+                              sortKey="gameId"
+                              sortState={gameLedgerSort}
+                              updateSort={updateGameLedgerSort}
+                            />
+                            <SortableTableHead
+                              label="Status"
+                              sortKey="status"
+                              sortState={gameLedgerSort}
+                              updateSort={updateGameLedgerSort}
+                            />
+                            <SortableTableHead
+                              align="right"
+                              label="Price"
+                              sortKey="price"
+                              sortState={gameLedgerSort}
+                              updateSort={updateGameLedgerSort}
+                            />
+                            <SortableTableHead
+                              align="right"
+                              label="Pack tickets"
+                              sortKey="packTickets"
+                              sortState={gameLedgerSort}
+                              updateSort={updateGameLedgerSort}
+                            />
+                            <SortableTableHead
+                              align="right"
+                              label="Pack value"
+                              sortKey="packValue"
+                              sortState={gameLedgerSort}
+                              updateSort={updateGameLedgerSort}
+                            />
+                            <SortableTableHead
+                              align="right"
+                              label="Source"
+                              sortKey="source"
+                              sortState={gameLedgerSort}
+                              updateSort={updateGameLedgerSort}
+                            />
+                            <SortableTableHead
+                              label="Imported"
+                              sortKey="imported"
+                              sortState={gameLedgerSort}
+                              updateSort={updateGameLedgerSort}
+                            />
                             <TableHead className="text-right">
                               Actions
                             </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {gameCatalogGames.map((game) => {
+                          {sortedGameCatalogGames.map((game) => {
                             const isEditing = editingGameId === game.gameId;
                             const editState = isEditing
                               ? gameLedgerEditState
@@ -2368,19 +2751,49 @@ export function PrivateAdminPortal({
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Store</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Timezone</TableHead>
-                            <TableHead>Bins</TableHead>
-                            <TableHead>EFT</TableHead>
-                            <TableHead>Updated</TableHead>
+                            <SortableTableHead
+                              label="Store"
+                              sortKey="store"
+                              sortState={storeSort}
+                              updateSort={updateStoreSort}
+                            />
+                            <SortableTableHead
+                              label="Status"
+                              sortKey="status"
+                              sortState={storeSort}
+                              updateSort={updateStoreSort}
+                            />
+                            <SortableTableHead
+                              label="Timezone"
+                              sortKey="timezone"
+                              sortState={storeSort}
+                              updateSort={updateStoreSort}
+                            />
+                            <SortableTableHead
+                              label="Bins"
+                              sortKey="bins"
+                              sortState={storeSort}
+                              updateSort={updateStoreSort}
+                            />
+                            <SortableTableHead
+                              label="EFT"
+                              sortKey="eft"
+                              sortState={storeSort}
+                              updateSort={updateStoreSort}
+                            />
+                            <SortableTableHead
+                              label="Updated"
+                              sortKey="updated"
+                              sortState={storeSort}
+                              updateSort={updateStoreSort}
+                            />
                             <TableHead className="text-right">
                               Actions
                             </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {stores.map((store) => (
+                          {sortedStores.map((store) => (
                             <TableRow key={store.storeKey}>
                               <TableCell>
                                 <div>

@@ -531,6 +531,7 @@ export function ScratchCardBinManager({
     key: null,
     type: null,
   });
+  const [scanMode, setScanMode] = useState(false);
 
   const selectedBin = useMemo(
     () => bins.find((bin) => bin.binNumber === selectedBinNumber) ?? null,
@@ -619,6 +620,30 @@ export function ScratchCardBinManager({
   );
   const occupancyPercent =
     binCount > 0 ? Math.round((activeBinCount / binCount) * 100) : 0;
+  const scanModeBins = useMemo(
+    () =>
+      bins
+        .slice()
+        .sort((left, right) => {
+          const leftPriority = isSoldOut(left)
+            ? 0
+            : left.inventoryId
+              ? 1
+              : 2;
+          const rightPriority = isSoldOut(right)
+            ? 0
+            : right.inventoryId
+              ? 1
+              : 2;
+
+          if (leftPriority !== rightPriority) {
+            return leftPriority - rightPriority;
+          }
+
+          return left.binNumber - right.binNumber;
+        }),
+    [bins],
+  );
 
   const receiveLoadScannerBarcode = useCallback((rawBarcode: string) => {
     const parsed = parseScannedLoadBarcode(rawBarcode);
@@ -1203,12 +1228,45 @@ export function ScratchCardBinManager({
 
       <SectionCard
         title="Scratch card bins"
-        description="Review active games, swap bins, and return discontinued games."
+        description={
+          scanMode
+            ? "Phone-first controls with larger cards and only the fields needed while scanning packs."
+            : "Review active games, swap bins, and return discontinued games."
+        }
+        action={
+          <button
+            type="button"
+            onClick={() => setScanMode((current) => !current)}
+            className={cn(
+              "inline-flex h-11 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold transition",
+              scanMode
+                ? "border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                : "bg-slate-950 text-white hover:bg-slate-800",
+            )}
+          >
+            <ScanLine className="h-4 w-4" />
+            {scanMode ? "Exit scan mode" : "Mobile scan mode"}
+          </button>
+        }
         className="rounded-lg sm:rounded-lg"
         headerClassName="px-4 py-3 sm:px-4"
       >
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(176px,1fr))] gap-4">
-          {bins.map((bin) => {
+        {scanMode ? (
+          <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-900">
+            Sold-out bins appear first. Tap a card to open the same bin manager
+            with scanner, load, sold-out, move, and return actions.
+          </div>
+        ) : null}
+
+        <div
+          className={cn(
+            "grid gap-4",
+            scanMode
+              ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+              : "grid-cols-[repeat(auto-fill,minmax(176px,1fr))]",
+          )}
+        >
+          {(scanMode ? scanModeBins : bins).map((bin) => {
             const isActive = Boolean(bin.inventoryId);
             const status = getBinStatus(bin);
 
@@ -1218,7 +1276,8 @@ export function ScratchCardBinManager({
                 key={bin.binNumber}
                 onClick={() => openBin(bin.binNumber)}
                 className={cn(
-                  "group relative flex min-h-[190px] min-w-0 flex-col overflow-hidden rounded-lg border text-left transition hover:border-primary/40 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2",
+                  "group relative flex min-w-0 flex-col overflow-hidden rounded-lg border text-left transition hover:border-primary/40 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2",
+                  scanMode ? "min-h-[230px]" : "min-h-[190px]",
                   isActive
                     ? "border-slate-200 bg-white"
                     : "border-dashed border-slate-200 bg-white",
@@ -1267,8 +1326,29 @@ export function ScratchCardBinManager({
                         </span>
                       </div>
 
+                      {scanMode ? (
+                        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                          <div className="rounded-xl bg-slate-50 px-3 py-2">
+                            <div className="text-[10px] font-bold uppercase text-slate-500">
+                              Pack
+                            </div>
+                            <div className="mt-1 truncate font-mono font-semibold text-slate-950">
+                              {bin.packNumber ?? "-"}
+                            </div>
+                          </div>
+                          <div className="rounded-xl bg-slate-50 px-3 py-2">
+                            <div className="text-[10px] font-bold uppercase text-slate-500">
+                              Last ticket
+                            </div>
+                            <div className="mt-1 font-mono font-semibold text-slate-950">
+                              {bin.lastTicketNumber || "-"}
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+
                       <div className="mt-auto pt-4 text-[11px] font-semibold text-slate-700">
-                        Manage
+                        {scanMode ? "Open scan controls" : "Manage"}
                       </div>
                     </div>
                   </>
@@ -1287,7 +1367,7 @@ export function ScratchCardBinManager({
                       Ready for backstock
                     </div>
                     <div className="mt-1 text-xs font-medium text-slate-500">
-                      Load pack
+                      {scanMode ? "Tap to scan or select pack" : "Load pack"}
                     </div>
                   </div>
                 )}

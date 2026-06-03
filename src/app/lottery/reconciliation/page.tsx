@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
 import { EodReconciliationWorkbench } from "@/components/lottery/eod-reconciliation-workbench";
 import { getTodayIsoDateInTimeZone } from "@/lib/date-time";
 import { loadLotteryEodReconciliationData } from "@/lib/lottery/eod-reconciliation";
@@ -44,6 +45,11 @@ export default async function LotteryEodReconciliationPage({
   return (
     <>
       <Breadcrumb pageName="Lottery EOD Reconciliation" />
+      <StoreScopeBanner
+        storeKey={storeContext.activeStore?.storeKey}
+        storeName={storeContext.activeStore?.name}
+        timeZone={storeContext.activeStore?.timeZone}
+      />
       <EodReconciliationWorkbench
         canSelectDate={storeContext.isAdmin}
         data={data}

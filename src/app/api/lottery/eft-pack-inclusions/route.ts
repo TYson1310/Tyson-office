@@ -3,6 +3,7 @@ import { appendAuditEvent } from "@/lib/audit/events";
 import {
   includeSoldOutPackInLotteryEft,
   LotteryEftWorkflowError,
+  reverseSoldOutPackLotteryEft,
 } from "@/lib/lottery/eft";
 import {
   getLotteryEftSweepPeriod,
@@ -19,6 +20,11 @@ export const runtime = "nodejs";
 type IncludeEftPackBody = {
   inventoryId?: unknown;
   sweepDate?: unknown;
+};
+
+type ReverseEftPackBody = {
+  inventoryId?: unknown;
+  reason?: unknown;
 };
 
 export async function POST(request: NextRequest) {
@@ -81,6 +87,55 @@ export async function POST(request: NextRequest) {
     return scratchCardErrorResponse(
       error,
       "Failed to settle sold-out pack to EFT",
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const access = await requireScratchCardAccess(
+      ["admin", "manager", "accountant"],
+      "/lottery/eft",
+    );
+
+    if ("error" in access) {
+      return access.error;
+    }
+
+    const body = (await request.json()) as ReverseEftPackBody;
+    const result = await reverseSoldOutPackLotteryEft(access, {
+      inventoryId: body.inventoryId,
+      reason: body.reason,
+    });
+
+    await appendAuditEvent({
+      supabase: access.supabase,
+      storeKey: access.activeStoreKey,
+      entityType: "lottery_eft_pack_inclusion",
+      entityId: result.auditId,
+      action: "lottery.eft_pack_reversed",
+      summary: `Sold-out pack ${result.packNumber} reversed from EFT sweep ${result.sweepDate}`,
+      actorId: access.currentUser.id,
+      actorName:
+        access.currentUser.user_metadata?.full_name ??
+        access.currentUser.email ??
+        "User",
+      actorRole: access.currentUserRole,
+      metadata: result,
+    });
+
+    return NextResponse.json(result);
+  } catch (error) {
+    if (error instanceof LotteryEftWorkflowError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status },
+      );
+    }
+
+    return scratchCardErrorResponse(
+      error,
+      "Failed to reverse sold-out pack EFT settlement",
     );
   }
 }

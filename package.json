@@ -16,11 +16,9 @@
     "backup:local": "node scripts/backup-supabase.mjs",
     "backup:db": "node scripts/backup-supabase.mjs --db-only",
     "backup:storage": "node scripts/backup-supabase.mjs --storage-only",
-    "seed:lottery-sample": "node scripts/seed-lottery-sample.mjs",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "node --test --experimental-strip-types src/lib/vendors/accounting.test.ts src/lib/vendors/adjustments.test.ts src/lib/vendors/invoice-processing.test.ts src/lib/vendors/payments.test.ts src/lib/accounting/period-locks.test.ts src/lib/auth/login-activity.test.ts src/lib/auth/route-access.test.ts src/lib/date-time.test.ts src/lib/expenses/expense-records.test.ts src/lib/lottery/cash.test.ts src/lib/lottery/eft-paid-amount.test.ts src/lib/lottery/eft.test.ts",
-    "test:e2e": "playwright test"
+    "test": "node --test --experimental-strip-types src/lib/vendors/accounting.test.ts src/lib/vendors/adjustments.test.ts src/lib/vendors/invoice-processing.test.ts src/lib/vendors/payments.test.ts src/lib/accounting/period-locks.test.ts src/lib/auth/login-activity.test.ts src/lib/auth/route-access.test.ts src/lib/date-time.test.ts src/lib/expenses/expense-records.test.ts src/lib/lottery/cash.test.ts src/lib/lottery/eft-paid-amount.test.ts src/lib/lottery/eft.test.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
@@ -30,19 +28,15 @@
     "@zxing/library": "^0.22.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "dayjs": "^1.11.13",
     "lucide-react": "^1.8.0",
     "next": "^16.2.3",
-    "next-themes": "^0.4.4",
     "nextjs-toploader": "^3.7.15",
-    "playwright": "^1.59.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.8.1",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
     "@types/node": "^22",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
