@@ -18,6 +18,7 @@ import {
   calculateInvoiceItemCatalogCost,
   calculateDueDateFromPaymentTerms,
   calculateInvoiceItemInventoryQuantity,
+  calculateSellingPriceForMargin,
   isAllowedInvoiceFile,
   MAX_INVOICE_UPLOAD_BYTES,
   normalizeInvoiceAmount,
@@ -41,7 +42,7 @@ const ALLOWED_VENDOR_INVOICE_STATUSES = new Set([
   "overdue",
   "cancelled",
 ]);
-const DEFAULT_PRODUCT_TARGET_MARGIN_PERCENT = 40;
+const INVOICE_PRODUCT_MARGIN_PERCENT = 40;
 
 type SupplierRecord = {
   id: string;
@@ -334,6 +335,13 @@ function buildInvoiceProductUpserts(
         return null;
       }
 
+      const productCost =
+        unitCost > 0
+          ? unitCost
+          : matchedProduct
+            ? toNumber(matchedProduct.cost)
+            : 0;
+
       return {
         store_key: storeKey,
         supplier_id: supplierId,
@@ -349,13 +357,11 @@ function buildInvoiceProductUpserts(
         category:
           normalizeInvoiceText(matchedProduct?.category ?? "") ||
           defaultCategory,
-        price: matchedProduct ? toNumber(matchedProduct.price) : 0,
-        cost:
-          unitCost > 0
-            ? unitCost
-            : matchedProduct
-              ? toNumber(matchedProduct.cost)
-              : 0,
+        price: calculateSellingPriceForMargin(
+          productCost,
+          INVOICE_PRODUCT_MARGIN_PERCENT,
+        ),
+        cost: productCost,
         quantity:
           (matchedProduct?.quantity ?? 0) +
           Math.max(entry.inventoryQuantity, 0),
@@ -366,7 +372,7 @@ function buildInvoiceProductUpserts(
           : 0,
         target_margin_percent: matchedProduct
           ? toNumber(matchedProduct.target_margin_percent)
-          : DEFAULT_PRODUCT_TARGET_MARGIN_PERCENT,
+          : INVOICE_PRODUCT_MARGIN_PERCENT,
       } satisfies ProductUpsertRecord;
     })
     .filter((entry): entry is ProductUpsertRecord => Boolean(entry));

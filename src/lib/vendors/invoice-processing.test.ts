@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildInvoiceItemCostReview,
+  calculateSellingPriceForMargin,
   findSuggestedProductId,
   normalizeInvoiceBarcode,
   normalizeInvoiceItems,
@@ -91,6 +92,12 @@ test("normalizeInvoiceItems preserves extracted item code aliases", () => {
 test("normalizeInvoiceBarcode keeps real UPC-like codes only", () => {
   assert.equal(normalizeInvoiceBarcode("UPC 0 123456 78905"), "012345678905");
   assert.equal(normalizeInvoiceBarcode("RD-12345"), "");
+});
+
+test("calculateSellingPriceForMargin sets gross margin price", () => {
+  assert.equal(calculateSellingPriceForMargin(6, 40), 10);
+  assert.equal(calculateSellingPriceForMargin("1.20", 40), 2);
+  assert.equal(calculateSellingPriceForMargin(0, 40), 0);
 });
 
 test("findSuggestedProductId prefers item code barcode matches", () => {

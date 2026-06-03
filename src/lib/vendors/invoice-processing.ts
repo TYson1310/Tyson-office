@@ -412,6 +412,20 @@ export function calculateInvoiceItemCatalogCost(item: Partial<InvoiceItem>) {
   return amount > 0 ? amount : 0;
 }
 
+export function calculateSellingPriceForMargin(
+  cost: unknown,
+  marginPercent: number,
+) {
+  const normalizedCost = normalizeInvoiceAmount(cost);
+  const targetRatio = Math.min(Math.max(marginPercent / 100, 0), 0.95);
+
+  if (normalizedCost <= 0) {
+    return 0;
+  }
+
+  return roundCurrency(normalizedCost / (1 - targetRatio));
+}
+
 export function buildInvoiceProductSku(
   supplierId: string,
   itemDescription: string,

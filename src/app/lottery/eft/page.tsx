@@ -14,7 +14,6 @@ import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
 import { EftPackInclusionButton } from "@/components/lottery/eft-pack-inclusion-button";
-import { EftPackReversalButton } from "@/components/lottery/eft-pack-reversal-button";
 import { EftPaidStatusControl } from "@/components/lottery/eft-paid-status-control";
 import {
   Table,
@@ -191,17 +190,18 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
     eft.weeklyLedger.find((week) => week.sweepDate === eft.selectedSweepDate) ??
     null;
   const selectedWeekPaid = selectedLedgerWeek?.paymentStatus === "paid";
-  const pendingSoldOutPacks = eft.soldOutPacks.filter(
+  const pendingSoldOutPackRows = eft.soldOutPacks.filter(
     (pack) => pack.status === "pending",
-  ).length;
+  );
+  const pendingSoldOutPacks = pendingSoldOutPackRows.length;
   const paidAmountMismatches = eft.weeklyLedger.filter(
     (week) =>
       week.paymentStatus === "paid" &&
       week.paidAmount !== null &&
       Math.abs(week.paidAmount - week.netEftDue) >= 0.01,
   );
-  const packsSoldOutAfterSelectedWeek = eft.soldOutPacks.filter(
-    (pack) => pack.status === "pending" && pack.soldOutDate > eft.weekEndDate,
+  const packsSoldOutAfterSelectedWeek = pendingSoldOutPackRows.filter(
+    (pack) => pack.soldOutDate > eft.weekEndDate,
   );
   const eftExceptionCards = [
     {
@@ -554,7 +554,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
 
         <SectionCard
           title="Sold-out pack EFT ledger"
-          description="Pending sold-out packs stay out of EFT until settled. Settled rows remain visible here for auditable correction."
+          description="Only pending sold-out packs show here. Once settled, the pack leaves this action ledger and is included in the selected EFT."
           action={
             <StatusBadge tone={pendingSoldOutPacks > 0 ? "amber" : "green"}>
               {pendingSoldOutPacks} pending settlement
@@ -565,7 +565,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
           contentClassName="p-0"
         >
           <div className="overflow-x-auto">
-            <Table totalRows={eft.soldOutPacks.length}>
+            <Table totalRows={pendingSoldOutPackRows.length}>
               <TableHeader>
                 <TableRow>
                   <TableHead>Sold Out</TableHead>
@@ -573,24 +573,23 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                   <TableHead>Bin</TableHead>
                   <TableHead className="text-right">Pack Value</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Settled</TableHead>
                   <TableHead className="w-[9.5rem] text-right">
                     Action
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {eft.soldOutPacks.length === 0 ? (
+                {pendingSoldOutPackRows.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={7}
+                      colSpan={6}
                       className="py-10 text-center text-slate-500"
                     >
                       No sold-out packs are waiting for EFT settlement.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  eft.soldOutPacks.map((pack) => {
+                  pendingSoldOutPackRows.map((pack) => {
                     const disabledReason = selectedWeekPaid
                       ? "Mark the selected EFT week unpaid before settling packs"
                       : !pack.hasSoldOutAudit
@@ -640,53 +639,15 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                             {getSoldOutPackStatusLabel(pack.status)}
                           </StatusBadge>
                         </TableCell>
-                        <TableCell>
-                          {pack.includedDate ? (
-                            <div>
-                              <div className="font-semibold text-slate-950">
-                                {formatDate(pack.includedDate)}
-                              </div>
-                              <div className="text-xs text-slate-500">
-                                {pack.includedInSelectedEft
-                                  ? "selected EFT"
-                                  : "other EFT"}
-                              </div>
-                            </div>
-                          ) : (
-                            <div>
-                              <span className="text-slate-400">-</span>
-                              {pack.reversedDate ? (
-                                <div className="text-xs text-amber-700">
-                                  reversed {formatDate(pack.reversedDate)}
-                                </div>
-                              ) : null}
-                            </div>
-                          )}
-                        </TableCell>
                         <TableCell className="w-[9.5rem] text-right">
-                          {pack.status === "pending" ? (
-                            <EftPackInclusionButton
-                              canManage={canManageEftPacks}
-                              disabledReason={disabledReason}
-                              inventoryId={pack.inventoryId}
-                              packLabel={`Pack ${pack.packNumber}`}
-                              packValue={pack.packValue}
-                              sweepDate={eft.selectedSweepDate}
-                            />
-                          ) : (
-                            <EftPackReversalButton
-                              canManage={canManageEftPacks}
-                              disabledReason={
-                                pack.includedInSelectedEft && selectedWeekPaid
-                                  ? "Mark the selected EFT week unpaid before reversing packs"
-                                  : undefined
-                              }
-                              includedDate={pack.includedDate}
-                              inventoryId={pack.inventoryId}
-                              packLabel={`Pack ${pack.packNumber}`}
-                              packValue={pack.packValue}
-                            />
-                          )}
+                          <EftPackInclusionButton
+                            canManage={canManageEftPacks}
+                            disabledReason={disabledReason}
+                            inventoryId={pack.inventoryId}
+                            packLabel={`Pack ${pack.packNumber}`}
+                            packValue={pack.packValue}
+                            sweepDate={eft.selectedSweepDate}
+                          />
                         </TableCell>
                       </TableRow>
                     );
