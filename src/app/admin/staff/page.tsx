@@ -43,7 +43,7 @@ import {
   Users,
 } from "lucide-react";
 
-type StaffRole = SupportedUserRole;
+type StaffRole = Exclude<SupportedUserRole, "admin">;
 
 type StaffStatus = "active" | "inactive" | "on-leave";
 
@@ -210,12 +210,6 @@ const ROLE_PERMISSIONS: Record<
   StaffRole,
   { label: string; description: string; permissions: string[]; color: string }
 > = {
-  admin: {
-    label: "Owner",
-    description: "Full system access and store ownership controls",
-    permissions: ["*"],
-    color: "#5750F1",
-  },
   manager: {
     label: "Manager",
     description: "Management and operations access",
@@ -586,10 +580,6 @@ export default function StaffManagementPage() {
   }
 
   function togglePermission(permission: string) {
-    if (formData.role === "admin") {
-      return;
-    }
-
     setFormData((current) => ({
       ...current,
       permissions: current.permissions.includes(permission)
@@ -2306,41 +2296,35 @@ export default function StaffManagementPage() {
                     </span>
                   </div>
 
-                  {formData.role === "admin" ? (
-                    <div className="rounded-lg border border-dashed border-primary/30 bg-white p-4 text-sm text-dark-5 dark:border-primary/20 dark:bg-dark-2 dark:text-dark-6">
-                      Admin accounts always receive full access (`*`).
-                    </div>
-                  ) : (
-                    <div className="max-h-[360px] space-y-4 overflow-y-auto pr-2">
-                      {PERMISSION_GROUPS.map((group) => (
-                        <div key={group.label}>
-                          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-dark-5 dark:text-dark-6">
-                            {group.label}
-                          </p>
-                          <div className="grid grid-cols-1 gap-2">
-                            {group.permissions.map((permission) => (
-                              <button
-                                key={permission}
-                                onClick={() => togglePermission(permission)}
-                                className={`flex items-center justify-between rounded-lg border p-3 transition-all ${
-                                  formData.permissions.includes(permission)
-                                    ? "border-primary bg-primary/5 text-primary"
-                                    : "border-stroke bg-white text-dark-5 dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6"
-                                }`}
-                              >
-                                <span className="text-xs font-semibold capitalize">
-                                  {formatPermission(permission)}
-                                </span>
-                                {formData.permissions.includes(permission) ? (
-                                  <Check className="h-3 w-3" />
-                                ) : null}
-                              </button>
-                            ))}
-                          </div>
+                  <div className="max-h-[360px] space-y-4 overflow-y-auto pr-2">
+                    {PERMISSION_GROUPS.map((group) => (
+                      <div key={group.label}>
+                        <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-dark-5 dark:text-dark-6">
+                          {group.label}
+                        </p>
+                        <div className="grid grid-cols-1 gap-2">
+                          {group.permissions.map((permission) => (
+                            <button
+                              key={permission}
+                              onClick={() => togglePermission(permission)}
+                              className={`flex items-center justify-between rounded-lg border p-3 transition-all ${
+                                formData.permissions.includes(permission)
+                                  ? "border-primary bg-primary/5 text-primary"
+                                  : "border-stroke bg-white text-dark-5 dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6"
+                              }`}
+                            >
+                              <span className="text-xs font-semibold capitalize">
+                                {formatPermission(permission)}
+                              </span>
+                              {formData.permissions.includes(permission) ? (
+                                <Check className="h-3 w-3" />
+                              ) : null}
+                            </button>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      </div>
+                    ))}
+                  </div>
 
                   <p className="mt-4 text-[10px] italic leading-relaxed text-dark-5 dark:text-dark-6">
                     Changing the role resets permissions to the role default.

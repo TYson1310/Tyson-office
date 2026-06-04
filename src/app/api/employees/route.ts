@@ -15,6 +15,7 @@ import {
 } from "@/lib/supabase/env";
 
 type EmployeeStatus = "active" | "inactive" | "on-leave";
+type StaffAssignableRole = Exclude<SupportedUserRole, "admin">;
 
 type EmployeeProfileRow = {
   id: string;
@@ -149,12 +150,28 @@ async function selectProfilesWithFallback<T>(
   return execute(PROFILE_SELECT_BASE);
 }
 
-function normalizeRole(role: unknown): SupportedUserRole {
-  if (typeof role === "string") {
-    return collapseUserRole(role as UserRole);
+function normalizeStaffAssignableRole(
+  role: unknown,
+): StaffAssignableRole | null {
+  if (role === undefined || role === null || role === "") {
+    return "employee";
   }
 
-  return "employee";
+  if (typeof role !== "string") {
+    return null;
+  }
+
+  const normalized = role.trim().toLowerCase();
+
+  if (normalized === "manager") {
+    return "manager";
+  }
+
+  if (normalized === "employee" || normalized === "staff") {
+    return "employee";
+  }
+
+  return null;
 }
 
 function normalizeStatus(status: unknown): EmployeeStatus {
@@ -506,13 +523,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const role = normalizeRole(body.role);
+    const role = normalizeStaffAssignableRole(body.role);
     const status = normalizeStatus(body.status);
 
-    if (role === "admin" && currentUserRole !== "admin") {
+    if (!role) {
       return NextResponse.json(
-        { error: "Only admins can create admin accounts" },
-        { status: 403 },
+        { error: "Staff role must be Manager or Staff" },
+        { status: 400 },
       );
     }
 
@@ -709,13 +726,14 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const role = normalizeRole(body.role ?? targetProfile.role);
+    const existingRole = collapseUserRole(targetProfile.role ?? "employee");
+    const role = normalizeStaffAssignableRole(body.role ?? existingRole);
     const status = normalizeStatus(body.status ?? targetProfile.status);
 
-    if (role === "admin" && currentUserRole !== "admin") {
+    if (!role) {
       return NextResponse.json(
-        { error: "Only admins can assign the admin role" },
-        { status: 403 },
+        { error: "Staff role must be Manager or Staff" },
+        { status: 400 },
       );
     }
 
