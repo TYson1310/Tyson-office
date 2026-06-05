@@ -10,12 +10,45 @@ import { getTodayIsoDateInTimeZone } from "@/lib/date-time";
 const INPUT_CLASSNAME = "app-input";
 const TEXTAREA_CLASSNAME = `${INPUT_CLASSNAME} min-h-24 resize-y`;
 
+export type BankDepositCashSource = "store_till" | "lottery_till";
+
+const CASH_SOURCE_OPTIONS: Array<{
+  value: BankDepositCashSource;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: "store_till",
+    label: "Store cash",
+    description: "Regular register and cash vault funds.",
+  },
+  {
+    value: "lottery_till",
+    label: "Lottery cash",
+    description: "Lottery drawer cash in hand.",
+  },
+];
+
+function formatDefaultAmount(value?: number) {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value.toFixed(2)
+    : "";
+}
+
 export function MakeDepositButton({
+  buttonLabel = "Make Deposit",
+  defaultAmount,
+  defaultCashSource = "store_till",
   disabled = false,
+  lockCashSource = false,
   storeKey,
   timeZone,
 }: {
+  buttonLabel?: string;
+  defaultAmount?: number;
+  defaultCashSource?: BankDepositCashSource;
   disabled?: boolean;
+  lockCashSource?: boolean;
   storeKey: string;
   timeZone: string;
 }) {
@@ -23,7 +56,11 @@ export function MakeDepositButton({
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(() =>
+    formatDefaultAmount(defaultAmount),
+  );
+  const [cashSource, setCashSource] =
+    useState<BankDepositCashSource>(defaultCashSource);
   const [depositDate, setDepositDate] = useState(() =>
     getTodayIsoDateInTimeZone(timeZone),
   );
@@ -31,7 +68,8 @@ export function MakeDepositButton({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const resetForm = () => {
-    setAmount("");
+    setAmount(formatDefaultAmount(defaultAmount));
+    setCashSource(defaultCashSource);
     setDepositDate(getTodayIsoDateInTimeZone(timeZone));
     setNotes("");
     setSelectedFile(null);
@@ -73,6 +111,7 @@ export function MakeDepositButton({
 
       const formData = new FormData();
       formData.set("amount", String(depositAmount));
+      formData.set("cashSource", cashSource);
       formData.set("depositDate", depositDate);
       formData.set("notes", notes.trim());
 
@@ -114,7 +153,7 @@ export function MakeDepositButton({
         className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Landmark className="h-4 w-4" />
-        Make Deposit
+        {buttonLabel}
       </button>
 
       {isOpen ? (
@@ -170,6 +209,34 @@ export function MakeDepositButton({
                         disabled={isSubmitting}
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      Cash Source
+                    </label>
+                    <select
+                      required
+                      className={INPUT_CLASSNAME}
+                      value={cashSource}
+                      onChange={(e) =>
+                        setCashSource(e.target.value as BankDepositCashSource)
+                      }
+                      disabled={isSubmitting || lockCashSource}
+                    >
+                      {CASH_SOURCE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-2 text-xs text-dark-5 dark:text-dark-6">
+                      {
+                        CASH_SOURCE_OPTIONS.find(
+                          (option) => option.value === cashSource,
+                        )?.description
+                      }
+                    </p>
                   </div>
 
                   <div>

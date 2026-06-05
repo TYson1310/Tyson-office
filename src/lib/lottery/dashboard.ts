@@ -104,6 +104,11 @@ type LotteryCashAdvancePaymentImpactRow = {
   amount: number | string;
 };
 
+type LotteryDepositImpactRow = {
+  deposit_date: string;
+  amount: number | string;
+};
+
 export type LotteryDashboardSummary = {
   businessDate: string;
   bondingFee: number;
@@ -591,6 +596,51 @@ async function loadLotteryCashAdvanceImpactByDate(
   };
 }
 
+async function loadLotteryDepositImpactByDate(
+  supabase: SupabaseServerClient,
+  storeKey: string,
+  endDate: string,
+) {
+  const { data, error } = await supabase
+    .from("bank_deposits")
+    .select("deposit_date,amount")
+    .eq("store_key", storeKey)
+    .eq("status", "posted")
+    .eq("cash_source", "lottery_till")
+    .lte("deposit_date", endDate)
+    .returns<LotteryDepositImpactRow[]>();
+
+  if (error) {
+    return {
+      data: new Map<string, number>(),
+      error,
+    };
+  }
+
+  const impactByDate = new Map<string, number>();
+
+  for (const deposit of data ?? []) {
+    impactByDate.set(
+      deposit.deposit_date,
+      normalizeMoney(
+        (impactByDate.get(deposit.deposit_date) ?? 0) -
+          normalizeMoney(deposit.amount),
+      ),
+    );
+  }
+
+  for (const [dateKey, impact] of impactByDate) {
+    if (impact === 0) {
+      impactByDate.delete(dateKey);
+    }
+  }
+
+  return {
+    data: impactByDate,
+    error: null,
+  };
+}
+
 function isMissingEftWeeklyStatusTableError(error: {
   code?: string | null;
   message?: string | null;
@@ -706,7 +756,24 @@ async function loadCashInHandSummary({
   supabase: SupabaseServerClient;
   sweepDate: string;
 }) {
-  if (settlementRows.length === 0 && cashAdvanceImpactByDate.size === 0) {
+  const lotteryDepositImpactResult = await loadLotteryDepositImpactByDate(
+    supabase,
+    storeKey,
+    businessDate,
+  );
+
+  if (lotteryDepositImpactResult.error) {
+    return {
+      data: null,
+      error: lotteryDepositImpactResult.error,
+    };
+  }
+
+  if (
+    settlementRows.length === 0 &&
+    cashAdvanceImpactByDate.size === 0 &&
+    lotteryDepositImpactResult.data.size === 0
+  ) {
     const rpcResult = await supabase
       .rpc("get_lottery_cash_in_hand_summary", {
         p_end_date: businessDate,
@@ -773,6 +840,7 @@ async function loadCashInHandSummary({
       cashAdvanceImpactByDate,
       cashingBonusRate,
       eftStatusRows: eftStatusRowsResult.data ?? [],
+      lotteryDepositImpactByDate: lotteryDepositImpactResult.data,
       reconciliationRows: reconciliationRowsResult.data ?? [],
       retailerCommissionRate,
       settlementRows,
@@ -1140,6 +1208,7 @@ function buildCashInHandSummary({
   cashAdvanceImpactByDate,
   cashingBonusRate,
   eftStatusRows,
+  lotteryDepositImpactByDate,
   reconciliationRows,
   retailerCommissionRate,
   settlementRows,
@@ -1149,6 +1218,7 @@ function buildCashInHandSummary({
   cashAdvanceImpactByDate: Map<string, number>;
   cashingBonusRate: number;
   eftStatusRows: EftWeeklyStatusRow[];
+  lotteryDepositImpactByDate: Map<string, number>;
   reconciliationRows: EodReconciliationRow[];
   retailerCommissionRate: number;
   settlementRows: ScratchPackSettlementSale[];
@@ -1164,18 +1234,24 @@ function buildCashInHandSummary({
       ...terminalRows.map((row) => row.report_date),
       ...reconciliationRows.map((row) => row.report_date),
       ...cashAdvanceImpactByDate.keys(),
+      ...lotteryDepositImpactByDate.keys(),
     ]),
   ).sort();
   const cashAvailableBeforePaidEft = normalizeMoney(
     reportDates.reduce((total, reportDate) => {
       const reconciliation = reconciliationsByDate.get(reportDate);
       const cashAdvanceImpact = cashAdvanceImpactByDate.get(reportDate) ?? 0;
+      const lotteryDepositImpact =
+        lotteryDepositImpactByDate.get(reportDate) ?? 0;
+      const cashMovementImpact = normalizeMoney(
+        cashAdvanceImpact + lotteryDepositImpact,
+      );
 
       if (reconciliation) {
         return (
           total +
           applyLotteryCashAdvanceImpact({
-            cashAdvanceImpact,
+            cashAdvanceImpact: cashMovementImpact,
             cashInHand: calculateLotteryCashInHandFromReconciliation({
               openingCashFloat: reconciliation.opening_cash_float,
               posRegisterTotal: reconciliation.pos_register_total,
@@ -1191,7 +1267,7 @@ function buildCashInHandSummary({
           reportDate,
           terminal: terminalsByDate.get(reportDate),
         }) +
-        cashAdvanceImpact
+        cashMovementImpact
       );
     }, 0),
   );

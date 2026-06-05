@@ -28,17 +28,21 @@ const ALLOWED_DEPOSIT_SLIP_MIME_TYPES = new Set([
 type BankDepositInsertRow = {
   id: string;
   amount: number | string;
+  cash_source?: BankDepositCashSource | null;
   deposit_date: string;
 };
 
 type BankDepositMutationRow = {
   id: string;
   amount: number | string;
+  cash_source?: BankDepositCashSource | null;
   deposit_date: string;
   notes: string | null;
   status: "posted" | "void";
   void_reason: string | null;
 };
+
+type BankDepositCashSource = "store_till" | "lottery_till";
 
 function sanitizeStorageFileName(fileName: string) {
   const extension = fileName.split(".").pop()?.toLowerCase();
@@ -59,6 +63,10 @@ function parseAmount(value: FormDataEntryValue | null) {
 function parseDate(value: FormDataEntryValue | null) {
   const normalized = typeof value === "string" ? value.trim() : "";
   return /^\d{4}-\d{2}-\d{2}$/.test(normalized) ? normalized : null;
+}
+
+function parseCashSource(value: FormDataEntryValue | null): BankDepositCashSource {
+  return value === "lottery_till" ? "lottery_till" : "store_till";
 }
 
 function normalizeId(value: unknown) {
@@ -175,6 +183,7 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const amount = parseAmount(formData.get("amount"));
+    const cashSource = parseCashSource(formData.get("cashSource"));
     const depositDate = parseDate(formData.get("depositDate"));
     const notes =
       typeof formData.get("notes") === "string"
@@ -251,6 +260,7 @@ export async function POST(request: NextRequest) {
       .from("bank_deposits")
       .insert({
         amount,
+        cash_source: cashSource,
         created_by: access.currentUser.id,
         deposit_date: depositDate,
         notes: notes || null,
@@ -258,7 +268,7 @@ export async function POST(request: NextRequest) {
         slip_photo_url: null,
         store_key: access.activeStoreKey,
       })
-      .select("id,amount,deposit_date")
+      .select("id,amount,cash_source,deposit_date")
       .single<BankDepositInsertRow>();
 
     if (error || !data) {
@@ -286,6 +296,7 @@ export async function POST(request: NextRequest) {
       actorRole: access.currentUserRole,
       metadata: {
         amount: Number(data.amount),
+        cashSource: data.cash_source ?? cashSource,
         depositDate: data.deposit_date,
         hasSlip: Boolean(slipPhotoPath),
         status: "posted",
@@ -295,6 +306,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         amount: Number(data.amount),
+        cashSource: data.cash_source ?? cashSource,
         depositDate: data.deposit_date,
         id: data.id,
       },

@@ -33,6 +33,7 @@ import { calculateCashOnHand } from "@/lib/erp/reporting";
 import { loadStoreSettingsForStore } from "@/lib/store-settings";
 import { requireActiveStoreContext } from "@/lib/stores/server";
 import { createClient } from "@/lib/supabase/server";
+import type { CashSource } from "@/types/erp.types";
 
 export const metadata: Metadata = {
   title: "Cash Vault & Deposits",
@@ -92,10 +93,17 @@ function buildCashTransactionLedgerRows(
     id: transaction.id,
     businessDateLabel: formatDate(transaction.businessDate),
     type: toLedgerLabel(transaction.movementType),
-    details: transaction.details,
+    details:
+      transaction.movementType === "bank_deposit"
+        ? `${transaction.details} (${formatCashSource(transaction.cashSource)})`
+        : transaction.details,
     amount: transaction.amount,
     recordedAtLabel: formatRecordedAt(transaction.recordedAt, timeZone),
   }));
+}
+
+function formatCashSource(source: CashSource) {
+  return source === "lottery_till" ? "Lottery cash" : "Store cash";
 }
 
 function formatRecordedAt(value: Date, timeZone: string) {
@@ -209,6 +217,7 @@ export default async function BankDepositsPage() {
                 <TableHead>Deposit date</TableHead>
                 <TableHead>Recorded</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Notes</TableHead>
                 <TableHead className="text-right">Slip photo</TableHead>
@@ -219,7 +228,7 @@ export default async function BankDepositsPage() {
               {dataset.bankDeposits.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={8}
                     className="py-10 text-center text-dark-5 dark:text-dark-6"
                   >
                     No bank deposits recorded yet.
@@ -239,6 +248,17 @@ export default async function BankDepositsPage() {
                         tone={deposit.status === "void" ? "red" : "green"}
                       >
                         {deposit.status === "void" ? "Void" : "Posted"}
+                      </StatusBadge>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        tone={
+                          deposit.cashSource === "lottery_till"
+                            ? "amber"
+                            : "blue"
+                        }
+                      >
+                        {formatCashSource(deposit.cashSource)}
                       </StatusBadge>
                     </TableCell>
                     <TableCell className="font-bold text-dark dark:text-white">

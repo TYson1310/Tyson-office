@@ -780,9 +780,12 @@ export interface Report {
 }
 
 // Cash Vault & Bank Deposits
+export type CashSource = "store_till" | "lottery_till";
+
 export interface BankDeposit {
   id: string;
   amount: number;
+  cashSource: CashSource;
   date: Date;
   notes?: string;
   slipPhotoUrl?: string;
@@ -814,6 +817,7 @@ export interface CashVaultTransaction {
   sourceTable: string;
   sourceId: string;
   movementType: CashVaultMovementType;
+  cashSource: CashSource;
   businessDate: Date;
   amount: number;
   details: string;

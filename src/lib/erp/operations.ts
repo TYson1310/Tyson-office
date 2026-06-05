@@ -1,6 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 import type {
   BankDeposit,
+  CashSource,
   CashVaultTransaction,
   DailyReconciliation,
   DailySalesSummary,
@@ -666,6 +667,7 @@ type PayrollDueRow = {
 type BankDepositRow = {
   id: string;
   amount: number | string;
+  cash_source?: CashSource | null;
   deposit_date: string;
   notes: string | null;
   slip_photo_url: string | null;
@@ -691,8 +693,11 @@ type CashVaultTransactionRow = {
     | "vendor_payment_cash"
     | "payroll_cash"
     | "bank_deposit"
+    | "lottery_cash_advance_to_vault"
+    | "lottery_cash_advance_payback_from_vault"
     | "opening_balance"
     | "manual_adjustment";
+  cash_source?: CashSource | null;
   business_date: string;
   amount: number | string;
   details: string;
@@ -1486,18 +1491,19 @@ async function fetchCashVaultTransactionsResult(
   supabase: SupabaseServerClient,
   storeKey: string,
 ): Promise<CompatibilityQueryCollectionResult<CashVaultTransactionRow>> {
-  const result = await supabase
+  const primary = await supabase
     .from("cash_vault_transactions")
     .select(
-      "id,source_table,source_id,movement_type,business_date,amount,details,metadata,recorded_at,created_at,updated_at",
+      "id,source_table,source_id,movement_type,cash_source,business_date,amount,details,metadata,recorded_at,created_at,updated_at",
     )
     .eq("store_key", storeKey)
+    .eq("cash_source", "store_till")
     .order("recorded_at", { ascending: false })
     .order("business_date", { ascending: false });
 
   if (
-    result.error &&
-    isMissingRelation(result.error, "cash_vault_transactions")
+    primary.error &&
+    isMissingRelation(primary.error, "cash_vault_transactions")
   ) {
     return {
       data: [],
@@ -1508,7 +1514,30 @@ async function fetchCashVaultTransactionsResult(
     };
   }
 
-  return result as CompatibilityQueryCollectionResult<CashVaultTransactionRow>;
+  if (
+    primary.error &&
+    isMissingSchemaField(primary.error, "cash_vault_transactions", [
+      "cash_source",
+    ])
+  ) {
+    const legacy = await supabase
+      .from("cash_vault_transactions")
+      .select(
+        "id,source_table,source_id,movement_type,business_date,amount,details,metadata,recorded_at,created_at,updated_at",
+      )
+      .eq("store_key", storeKey)
+      .order("recorded_at", { ascending: false })
+      .order("business_date", { ascending: false });
+
+    return {
+      ...(legacy as CompatibilityQueryCollectionResult<CashVaultTransactionRow>),
+      compatibilityWarnings: [
+        "Cash source tracking is unavailable until the bank deposit cash-source migration is applied.",
+      ],
+    };
+  }
+
+  return primary as CompatibilityQueryCollectionResult<CashVaultTransactionRow>;
 }
 
 function isNextRedirectError(error: unknown) {
@@ -2106,6 +2135,7 @@ export async function getOperationsDataset(): Promise<OperationsDataset> {
     ).map((row) => ({
       id: row.id,
       amount: toNumber(row.amount),
+      cashSource: row.cash_source ?? "store_till",
       date: toDate(row.deposit_date),
       notes: row.notes ?? undefined,
       slipPhotoUrl: row.slip_photo_url ?? undefined,
@@ -2125,6 +2155,7 @@ export async function getOperationsDataset(): Promise<OperationsDataset> {
       sourceTable: row.source_table,
       sourceId: row.source_id,
       movementType: row.movement_type,
+      cashSource: row.cash_source ?? "store_till",
       businessDate: toDate(row.business_date),
       amount: toNumber(row.amount),
       details: row.details,
