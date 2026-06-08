@@ -10,6 +10,7 @@ import { requireActiveStoreContext } from "@/lib/stores/server";
 import {
   applyLotteryCashAdvanceImpact,
   calculateLotteryCashInHandFromReconciliation,
+  calculateLotteryEodScratchSales,
   calculateLotteryExpectedCashInHandFromReconciliation,
 } from "./cash";
 import { isMissingLotteryCashAdvanceMigration } from "./cash-advances";
@@ -27,8 +28,9 @@ import {
 } from "./scratch-pack-settlements";
 
 type DailyAuditRow = {
+  audit_type: string | null;
   audit_date: string;
-  calculated_revenue: number | string;
+  calculated_revenue: number | string | null;
 };
 
 type TerminalReportRow = {
@@ -42,11 +44,13 @@ type TerminalReportRow = {
 };
 
 type EodReconciliationRow = {
+  created_at?: string | null;
   opening_cash_float: number | string | null;
   report_date: string;
   pos_register_total: number | string;
   short_over_amount: number | string;
   total_expected_cash: number | string;
+  updated_at?: string | null;
 };
 
 type LotteryDashboardEftPaymentStatus = "paid" | "unpaid";
@@ -86,14 +90,6 @@ type EftWeeklyStatusRow = {
   week_start_date: string | null;
 };
 
-type CashInHandSummaryRpcRow = {
-  cash_after_eft: number | string | null;
-  cash_available_before_paid_eft: number | string | null;
-  paid_eft_total: number | string | null;
-  paid_eft_weeks: number | null;
-  recorded_days: number | null;
-};
-
 type LotteryCashAdvanceImpactRow = {
   advance_date: string;
   amount: number | string;
@@ -107,6 +103,50 @@ type LotteryCashAdvancePaymentImpactRow = {
 type LotteryDepositImpactRow = {
   deposit_date: string;
   amount: number | string;
+};
+
+type LotteryCashAdvanceTransactionSourceRow = {
+  id: string;
+  advance_date: string;
+  amount: number | string;
+  created_at: string | null;
+  person_name: string;
+  reason: string;
+};
+
+type LotteryCashPaybackTransactionSourceRow = {
+  id: string;
+  advance_id: string;
+  amount: number | string;
+  created_at: string | null;
+  notes: string | null;
+  payment_date: string;
+};
+
+type LotteryDepositTransactionSourceRow = {
+  id: string;
+  amount: number | string;
+  created_at: string | null;
+  deposit_date: string;
+  notes: string | null;
+};
+
+export type LotteryCashTransactionType =
+  | "EOD Cash Count"
+  | "Pending Expected Cash"
+  | "Cash Advance"
+  | "Cash Payback"
+  | "Lottery Deposit"
+  | "Paid EFT";
+
+export type LotteryCashTransactionRow = {
+  id: string;
+  amount: number;
+  balanceAfter: number;
+  businessDate: string;
+  details: string;
+  recordedAt: string | null;
+  type: LotteryCashTransactionType;
 };
 
 export type LotteryDashboardSummary = {
@@ -194,6 +234,8 @@ export type LotteryInventorySummary = {
 export type LotteryDashboardData = {
   source: "database" | "unconfigured" | "error";
   storeKey: string;
+  timeZone: string;
+  cashTransactions: LotteryCashTransactionRow[];
   inventorySummary: LotteryInventorySummary;
   summary: LotteryDashboardSummary;
   scratchLedger: LotteryScratchLedgerItem[];
@@ -208,6 +250,13 @@ const MIN_REPORT_DATE = "0000-01-01";
 function normalizeMoney(value: number | string | null | undefined) {
   const normalized = typeof value === "number" ? value : Number(value);
   return Number.isFinite(normalized) ? Math.round(normalized * 100) / 100 : 0;
+}
+
+function formatMoneyForDetails(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    currency: "USD",
+    style: "currency",
+  }).format(value);
 }
 
 function normalizePercent(value: number | string | null | undefined) {
@@ -234,15 +283,6 @@ function getSummaryStatus(shortOver: number, countedDays: number) {
   }
 
   return "balanced" as const;
-}
-
-function calculateScratchRevenue(auditRows: DailyAuditRow[]) {
-  return normalizeMoney(
-    auditRows.reduce(
-      (total, audit) => total + normalizeMoney(audit.calculated_revenue),
-      0,
-    ),
-  );
 }
 
 function groupAuditRowsByDate(auditRows: DailyAuditRow[]) {
@@ -413,8 +453,9 @@ async function loadAuditRowsThroughDate(
   return loadPagedRows<DailyAuditRow>((from, to) =>
     supabase
       .from("daily_audits")
-      .select("audit_date,calculated_revenue")
+      .select("audit_date,audit_type,calculated_revenue")
       .eq("store_key", storeKey)
+      .eq("audit_type", "eod")
       .lte("audit_date", endDate)
       .order("audit_date", { ascending: true })
       .range(from, to)
@@ -431,8 +472,9 @@ async function loadAuditRowsForDateRange(
   return loadPagedRows<DailyAuditRow>((from, to) =>
     supabase
       .from("daily_audits")
-      .select("audit_date,calculated_revenue")
+      .select("audit_date,audit_type,calculated_revenue")
       .eq("store_key", storeKey)
+      .eq("audit_type", "eod")
       .gte("audit_date", startDate)
       .lte("audit_date", endDate)
       .order("audit_date", { ascending: true })
@@ -490,7 +532,7 @@ async function loadEodReconciliationRowsThroughDate(
     supabase
       .from("eod_reconciliation")
       .select(
-        "report_date,total_expected_cash,pos_register_total,short_over_amount,opening_cash_float",
+        "report_date,total_expected_cash,pos_register_total,short_over_amount,opening_cash_float,created_at,updated_at",
       )
       .eq("store_key", storeKey)
       .lte("report_date", endDate)
@@ -510,7 +552,7 @@ async function loadEodReconciliationRowsForDateRange(
     supabase
       .from("eod_reconciliation")
       .select(
-        "report_date,total_expected_cash,pos_register_total,short_over_amount,opening_cash_float",
+        "report_date,total_expected_cash,pos_register_total,short_over_amount,opening_cash_float,created_at,updated_at",
       )
       .eq("store_key", storeKey)
       .gte("report_date", startDate)
@@ -641,6 +683,71 @@ async function loadLotteryDepositImpactByDate(
   };
 }
 
+async function loadLotteryCashTransactionSources(
+  supabase: SupabaseServerClient,
+  storeKey: string,
+  endDate: string,
+) {
+  const [advanceResult, paybackResult, depositResult, eftStatusResult] =
+    await Promise.all([
+      supabase
+        .from("lottery_cash_advances")
+        .select("id,advance_date,amount,person_name,reason,created_at")
+        .eq("store_key", storeKey)
+        .eq("status", "posted")
+        .lte("advance_date", endDate)
+        .returns<LotteryCashAdvanceTransactionSourceRow[]>(),
+      supabase
+        .from("lottery_cash_advance_payments")
+        .select("id,advance_id,payment_date,amount,notes,created_at")
+        .eq("store_key", storeKey)
+        .eq("status", "posted")
+        .lte("payment_date", endDate)
+        .returns<LotteryCashPaybackTransactionSourceRow[]>(),
+      supabase
+        .from("bank_deposits")
+        .select("id,deposit_date,amount,notes,created_at")
+        .eq("store_key", storeKey)
+        .eq("status", "posted")
+        .eq("cash_source", "lottery_till")
+        .lte("deposit_date", endDate)
+        .returns<LotteryDepositTransactionSourceRow[]>(),
+      loadEftWeeklyStatusRowsThroughSweepDate(supabase, storeKey, endDate),
+    ]);
+
+  const cashAdvanceError =
+    isMissingLotteryCashAdvanceMigration(advanceResult.error) ||
+    isMissingLotteryCashAdvanceMigration(paybackResult.error)
+      ? null
+      : (advanceResult.error ?? paybackResult.error);
+  const error = cashAdvanceError ?? depositResult.error ?? eftStatusResult.error;
+
+  if (error) {
+    return {
+      data: null,
+      error,
+    };
+  }
+
+  return {
+    data: {
+      advances:
+        isMissingLotteryCashAdvanceMigration(advanceResult.error) ||
+        isMissingLotteryCashAdvanceMigration(paybackResult.error)
+          ? []
+          : (advanceResult.data ?? []),
+      deposits: depositResult.data ?? [],
+      eftStatuses: eftStatusResult.data ?? [],
+      paybacks:
+        isMissingLotteryCashAdvanceMigration(advanceResult.error) ||
+        isMissingLotteryCashAdvanceMigration(paybackResult.error)
+          ? []
+          : (paybackResult.data ?? []),
+    },
+    error: null,
+  };
+}
+
 function isMissingEftWeeklyStatusTableError(error: {
   code?: string | null;
   message?: string | null;
@@ -665,19 +772,6 @@ function isMissingEftPaidAmountColumnError(error: {
     (error.code === "42703" ||
       error.code === "PGRST204" ||
       message.includes("schema cache"))
-  );
-}
-
-function isMissingCashInHandSummaryFunction(error: {
-  code?: string | null;
-  message?: string | null;
-}) {
-  const message = error.message?.toLowerCase() ?? "";
-
-  return (
-    error.code === "42883" ||
-    error.code === "PGRST202" ||
-    message.includes("get_lottery_cash_in_hand_summary")
   );
 }
 
@@ -767,47 +861,6 @@ async function loadCashInHandSummary({
       data: null,
       error: lotteryDepositImpactResult.error,
     };
-  }
-
-  if (
-    settlementRows.length === 0 &&
-    cashAdvanceImpactByDate.size === 0 &&
-    lotteryDepositImpactResult.data.size === 0
-  ) {
-    const rpcResult = await supabase
-      .rpc("get_lottery_cash_in_hand_summary", {
-        p_end_date: businessDate,
-        p_latest_sweep_date: sweepDate,
-        p_payout_commission_rate: cashingBonusRate,
-        p_retailer_commission_rate: retailerCommissionRate,
-        p_store_key: storeKey,
-      })
-      .maybeSingle<CashInHandSummaryRpcRow>();
-
-    if (!rpcResult.error && rpcResult.data) {
-      return {
-        data: {
-          cashAfterEft: normalizeMoney(rpcResult.data.cash_after_eft),
-          cashAvailableBeforePaidEft: normalizeMoney(
-            rpcResult.data.cash_available_before_paid_eft,
-          ),
-          paidEftTotal: normalizeMoney(rpcResult.data.paid_eft_total),
-          paidEftWeeks: Number(rpcResult.data.paid_eft_weeks ?? 0),
-          recordedDays: Number(rpcResult.data.recorded_days ?? 0),
-        },
-        error: null,
-      };
-    }
-
-    if (
-      rpcResult.error &&
-      !isMissingCashInHandSummaryFunction(rpcResult.error)
-    ) {
-      return {
-        data: null,
-        error: rpcResult.error,
-      };
-    }
   }
 
   const [
@@ -1001,7 +1054,7 @@ function buildEftWindowSummary({
     (summary, reportDate) => {
       const terminal = terminalsByDate.get(reportDate);
       const reconciliation = reconciliationsByDate.get(reportDate);
-      const scratchSales = calculateScratchRevenue(
+      const scratchSales = calculateLotteryEodScratchSales(
         auditsByDate.get(reportDate) ?? [],
       );
       const drawSales = normalizeMoney(terminal?.draw_sales);
@@ -1145,7 +1198,7 @@ function calculateDailyExpectedCash({
   reportDate: string;
   terminal: TerminalReportRow | undefined;
 }) {
-  const scratchSales = calculateScratchRevenue(
+  const scratchSales = calculateLotteryEodScratchSales(
     auditsByDate.get(reportDate) ?? [],
   );
   const drawSales = normalizeMoney(terminal?.draw_sales);
@@ -1313,6 +1366,221 @@ function buildCashInHandSummary({
   };
 }
 
+type LotteryCashTransactionDraft = Omit<
+  LotteryCashTransactionRow,
+  "balanceAfter"
+> & {
+  order: number;
+};
+
+function getShortOverDetail(shortOver: number) {
+  if (shortOver > 0) {
+    return `short ${formatMoneyForDetails(shortOver)}`;
+  }
+
+  if (shortOver < 0) {
+    return `over ${formatMoneyForDetails(Math.abs(shortOver))}`;
+  }
+
+  return "balanced";
+}
+
+function buildLotteryCashTransactionRows({
+  advances,
+  auditRows,
+  cashingBonusRate,
+  deposits,
+  eftStatuses,
+  reconciliationRows,
+  retailerCommissionRate,
+  settlementRows,
+  terminalRows,
+  paybacks,
+}: {
+  advances: LotteryCashAdvanceTransactionSourceRow[];
+  auditRows: DailyAuditRow[];
+  cashingBonusRate: number;
+  deposits: LotteryDepositTransactionSourceRow[];
+  eftStatuses: EftWeeklyStatusRow[];
+  reconciliationRows: EodReconciliationRow[];
+  retailerCommissionRate: number;
+  settlementRows: ScratchPackSettlementSale[];
+  terminalRows: TerminalReportRow[];
+  paybacks: LotteryCashPaybackTransactionSourceRow[];
+}) {
+  const auditsByDate = groupAuditRowsByDate(auditRows);
+  const terminalsByDate = mapTerminalRowsByDate(terminalRows);
+  const reconciliationsByDate = mapReconciliationRowsByDate(reconciliationRows);
+  const reportDates = Array.from(
+    new Set([
+      ...auditRows.map((row) => row.audit_date),
+      ...terminalRows.map((row) => row.report_date),
+      ...reconciliationRows.map((row) => row.report_date),
+    ]),
+  ).sort();
+  const rows: LotteryCashTransactionDraft[] = [];
+
+  for (const reportDate of reportDates) {
+    const reconciliation = reconciliationsByDate.get(reportDate);
+
+    if (reconciliation) {
+      const cashCounted = calculateLotteryCashInHandFromReconciliation({
+        openingCashFloat: reconciliation.opening_cash_float,
+        posRegisterTotal: reconciliation.pos_register_total,
+      });
+      const expectedCash = calculateLotteryExpectedCashInHandFromReconciliation({
+        openingCashFloat: reconciliation.opening_cash_float,
+        totalExpectedCash: reconciliation.total_expected_cash,
+      });
+      const shortOver = normalizeMoney(expectedCash - cashCounted);
+
+      rows.push({
+        amount: cashCounted,
+        businessDate: reportDate,
+        details: `Counted lottery cash after removing opening float. Expected ${formatMoneyForDetails(
+          expectedCash,
+        )}; ${getShortOverDetail(shortOver)}.`,
+        id: `eod-cash-${reportDate}`,
+        order: 10,
+        recordedAt: reconciliation.updated_at ?? reconciliation.created_at ?? null,
+        type: "EOD Cash Count",
+      });
+      continue;
+    }
+
+    const expectedCash = calculateDailyExpectedCash({
+      auditsByDate,
+      reportDate,
+      terminal: terminalsByDate.get(reportDate),
+    });
+
+    if (expectedCash !== 0) {
+      rows.push({
+        amount: expectedCash,
+        businessDate: reportDate,
+        details:
+          "Estimated lottery cash from EOD scratch sales, terminal sales, payouts, cancels, and PROMO. Save EOD to replace this estimate with counted cash.",
+        id: `pending-cash-${reportDate}`,
+        order: 20,
+        recordedAt: null,
+        type: "Pending Expected Cash",
+      });
+    }
+  }
+
+  advances.forEach((advance) => {
+    rows.push({
+      amount: -normalizeMoney(advance.amount),
+      businessDate: advance.advance_date,
+      details: `Advance to ${advance.person_name}: ${advance.reason}`,
+      id: `advance-${advance.id}`,
+      order: 30,
+      recordedAt: advance.created_at,
+      type: "Cash Advance",
+    });
+  });
+
+  paybacks.forEach((payback) => {
+    rows.push({
+      amount: normalizeMoney(payback.amount),
+      businessDate: payback.payment_date,
+      details: payback.notes
+        ? `Cash advance payback: ${payback.notes}`
+        : "Cash advance payback",
+      id: `payback-${payback.id}`,
+      order: 40,
+      recordedAt: payback.created_at,
+      type: "Cash Payback",
+    });
+  });
+
+  deposits.forEach((deposit) => {
+    rows.push({
+      amount: -normalizeMoney(deposit.amount),
+      businessDate: deposit.deposit_date,
+      details: deposit.notes
+        ? `Lottery till bank deposit: ${deposit.notes}`
+        : "Lottery till bank deposit",
+      id: `deposit-${deposit.id}`,
+      order: 50,
+      recordedAt: deposit.created_at,
+      type: "Lottery Deposit",
+    });
+  });
+
+  eftStatuses
+    .filter((statusRow) => statusRow.status === "paid")
+    .forEach((statusRow) => {
+      const fallbackPeriod = getLotteryEftSweepPeriod(statusRow.sweep_date);
+      const period = {
+        sweepDate: statusRow.sweep_date,
+        weekEndDate: statusRow.week_end_date ?? fallbackPeriod.weekEndDate,
+        weekStartDate:
+          statusRow.week_start_date ?? fallbackPeriod.weekStartDate,
+      };
+      const netEftDue = calculateNetEftDueForPeriod({
+        cashingBonusRate,
+        period,
+        retailerCommissionRate,
+        settlementRows,
+        terminalRows: filterTerminalRowsByDateRange(
+          terminalRows,
+          period.weekStartDate,
+          period.weekEndDate,
+        ),
+      });
+      const appliedEftPaid = calculateAppliedLotteryEftPayment({
+        netEftDue,
+        paidAmount: statusRow.paid_amount,
+      });
+
+      if (appliedEftPaid === 0) {
+        return;
+      }
+
+      rows.push({
+        amount: -appliedEftPaid,
+        businessDate: statusRow.sweep_date,
+        details: `Paid lottery EFT sweep for ${period.weekStartDate} to ${period.weekEndDate}`,
+        id: `paid-eft-${statusRow.sweep_date}`,
+        order: 60,
+        recordedAt: statusRow.paid_at,
+        type: "Paid EFT",
+      });
+    });
+
+  const chronologicalRows = rows.sort((left, right) => {
+    const dateCompare = left.businessDate.localeCompare(right.businessDate);
+
+    if (dateCompare !== 0) {
+      return dateCompare;
+    }
+
+    if (left.order !== right.order) {
+      return left.order - right.order;
+    }
+
+    return (left.recordedAt ?? "").localeCompare(right.recordedAt ?? "");
+  });
+  let balance = 0;
+
+  return chronologicalRows
+    .map((row) => {
+      balance = normalizeMoney(balance + row.amount);
+
+      return {
+        amount: row.amount,
+        balanceAfter: balance,
+        businessDate: row.businessDate,
+        details: row.details,
+        id: row.id,
+        recordedAt: row.recordedAt,
+        type: row.type,
+      };
+    })
+    .reverse();
+}
+
 export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> {
   noStore();
 
@@ -1337,6 +1605,8 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     return {
       source: "unconfigured",
       storeKey: activeStoreKey,
+      timeZone: activeStore.timeZone,
+      cashTransactions: [],
       inventorySummary: emptyInventorySummary,
       summary: emptySummary,
       scratchLedger: [],
@@ -1363,6 +1633,10 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     currentWeekTerminalReportsResult,
     settlementAuditResult,
     cashAdvanceImpactResult,
+    cashAuditRowsResult,
+    cashTerminalRowsResult,
+    cashReconciliationRowsResult,
+    cashTransactionSourcesResult,
   ] = await Promise.all([
     loadAuditRowsForDateRange(
       supabase,
@@ -1412,6 +1686,14 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
       .lte("audit_date", businessDate)
       .returns<ScratchSettlementAuditRow[]>(),
     loadLotteryCashAdvanceImpactByDate(supabase, activeStoreKey, businessDate),
+    loadAuditRowsThroughDate(supabase, activeStoreKey, businessDate),
+    loadTerminalRowsThroughDate(supabase, activeStoreKey, businessDate),
+    loadEodReconciliationRowsThroughDate(
+      supabase,
+      activeStoreKey,
+      businessDate,
+    ),
+    loadLotteryCashTransactionSources(supabase, activeStoreKey, businessDate),
   ]);
 
   const eftStatusError =
@@ -1427,12 +1709,18 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     eftStatusError ??
     currentWeekTerminalReportsResult.error ??
     settlementAuditResult.error ??
-    cashAdvanceImpactResult.error;
+    cashAdvanceImpactResult.error ??
+    cashAuditRowsResult.error ??
+    cashTerminalRowsResult.error ??
+    cashReconciliationRowsResult.error ??
+    cashTransactionSourcesResult.error;
 
   if (firstError) {
     return {
       source: "error",
       storeKey: activeStoreKey,
+      timeZone: activeStore.timeZone,
+      cashTransactions: [],
       inventorySummary: emptyInventorySummary,
       summary: emptySummary,
       scratchLedger: [],
@@ -1488,6 +1776,8 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     return {
       source: "error",
       storeKey: activeStoreKey,
+      timeZone: activeStore.timeZone,
+      cashTransactions: [],
       inventorySummary: emptyInventorySummary,
       summary: emptySummary,
       scratchLedger: [],
@@ -1539,10 +1829,30 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     paidEftTotal: cashInHandSummary.paidEftTotal,
     paidEftWeeks: cashInHandSummary.paidEftWeeks,
   };
+  const cashTransactionSources = cashTransactionSourcesResult.data ?? {
+    advances: [],
+    deposits: [],
+    eftStatuses: [],
+    paybacks: [],
+  };
+  const cashTransactions = buildLotteryCashTransactionRows({
+    advances: cashTransactionSources.advances,
+    auditRows: cashAuditRowsResult.data ?? [],
+    cashingBonusRate,
+    deposits: cashTransactionSources.deposits,
+    eftStatuses: cashTransactionSources.eftStatuses,
+    paybacks: cashTransactionSources.paybacks,
+    reconciliationRows: cashReconciliationRowsResult.data ?? [],
+    retailerCommissionRate,
+    settlementRows,
+    terminalRows: cashTerminalRowsResult.data ?? [],
+  });
 
   return {
     source: "database",
     storeKey: activeStoreKey,
+    timeZone: activeStore.timeZone,
+    cashTransactions,
     inventorySummary,
     summary,
     scratchLedger: mapScratchLedgerItems({

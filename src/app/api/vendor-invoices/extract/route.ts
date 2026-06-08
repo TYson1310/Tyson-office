@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  detectInvoiceMimeType,
   isAllowedInvoiceFile,
   MAX_INVOICE_UPLOAD_BYTES,
 } from "@/lib/vendors/invoice-processing";
@@ -59,10 +60,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: fileError }, { status: 400 });
     }
 
-    const base64 = Buffer.from(await file.arrayBuffer()).toString("base64");
+    const fileBytes = Buffer.from(await file.arrayBuffer());
+    const mimeType = detectInvoiceMimeType(fileBytes, file.type, file.name);
+
+    if (!mimeType) {
+      return NextResponse.json(
+        { error: "Upload a valid PDF, PNG, JPG, or WEBP invoice" },
+        { status: 400 },
+      );
+    }
+
     const invoice = await processInvoice(
-      base64,
-      file.type || "application/pdf",
+      fileBytes.toString("base64"),
+      mimeType,
     );
     const responseBody: InvoiceExtractionResponse = { invoice };
 

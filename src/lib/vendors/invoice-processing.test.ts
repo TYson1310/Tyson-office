@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   buildInvoiceItemCostReview,
   calculateSellingPriceForMargin,
+  detectInvoiceMimeType,
   findSuggestedProductId,
   normalizeInvoiceBarcode,
   normalizeInvoiceItems,
@@ -92,6 +93,25 @@ test("normalizeInvoiceItems preserves extracted item code aliases", () => {
 test("normalizeInvoiceBarcode keeps real UPC-like codes only", () => {
   assert.equal(normalizeInvoiceBarcode("UPC 0 123456 78905"), "012345678905");
   assert.equal(normalizeInvoiceBarcode("RD-12345"), "");
+});
+
+test("detectInvoiceMimeType trusts file bytes before filename or browser type", () => {
+  assert.equal(
+    detectInvoiceMimeType(
+      new Uint8Array([0xff, 0xd8, 0xff, 0xe0]),
+      "image/png",
+      "invoice.png",
+    ),
+    "image/jpeg",
+  );
+  assert.equal(
+    detectInvoiceMimeType(
+      new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]),
+      "",
+      "invoice",
+    ),
+    "application/pdf",
+  );
 });
 
 test("calculateSellingPriceForMargin sets gross margin price", () => {

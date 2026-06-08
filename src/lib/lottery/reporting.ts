@@ -5,6 +5,7 @@ import {
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveStoreContext } from "@/lib/stores/server";
+import { calculateLotteryEodScratchSales } from "./cash";
 
 type DailyAuditRow = {
   audit_date: string;
@@ -201,12 +202,7 @@ function buildDailyRows({
       const dateAudits = auditsByDate.get(reportDate) ?? [];
       const terminal = terminalsByDate.get(reportDate);
       const reconciliation = reconciliationsByDate.get(reportDate);
-      const scratchSales = normalizeMoney(
-        dateAudits.reduce(
-          (total, row) => total + normalizeMoney(row.calculated_revenue),
-          0,
-        ),
-      );
+      const scratchSales = calculateLotteryEodScratchSales(dateAudits);
       const ticketsSold = dateAudits.reduce(
         (total, row) => total + normalizeInteger(row.tickets_sold),
         0,
@@ -404,6 +400,7 @@ export async function loadLotteryReportingData(
           "audit_date,audit_type,bin_number,calculated_revenue,end_ticket_no,inventory_id,start_ticket_no,tickets_sold",
         )
         .eq("store_key", activeStoreKey)
+        .eq("audit_type", "eod")
         .gte("audit_date", startDate)
         .lte("audit_date", endDate)
         .order("audit_date", { ascending: false })

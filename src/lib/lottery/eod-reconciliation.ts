@@ -12,6 +12,7 @@ import {
   loadLotteryCashAdvanceSummary,
   type LotteryCashAdvanceRecord,
 } from "@/lib/lottery/cash-advances";
+import { calculateLotteryEodScratchSales } from "@/lib/lottery/cash";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveStoreContext } from "@/lib/stores/server";
@@ -449,10 +450,16 @@ export async function loadLotteryEodReconciliationData(input?: {
     loadEodReconciliationRow(supabase, auditData.storeKey, businessDate),
     supabase
       .from("daily_audits")
-      .select("calculated_revenue")
+      .select("audit_type,calculated_revenue")
       .eq("store_key", auditData.storeKey)
+      .eq("audit_type", "eod")
       .eq("audit_date", businessDate)
-      .returns<Array<{ calculated_revenue: number | string }>>(),
+      .returns<
+        Array<{
+          audit_type: string | null;
+          calculated_revenue: number | string | null;
+        }>
+      >(),
     loadLotteryCashAdvanceSummary({
       supabase,
       storeKey: auditData.storeKey,
@@ -520,13 +527,7 @@ export async function loadLotteryEodReconciliationData(input?: {
     scratchCardTotalPayout: normalizeStoredMoney(
       terminalReportResult.data?.scratch_payouts,
     ),
-    scratchSalesToDate: normalizeStoredMoney(
-      (auditResult.data ?? []).reduce(
-        (total, audit) =>
-          total + normalizeStoredMoney(audit.calculated_revenue),
-        0,
-      ),
-    ),
+    scratchSalesToDate: calculateLotteryEodScratchSales(auditResult.data ?? []),
     startingFloat: normalizeStoredMoney(
       existingReconciliation?.opening_cash_float,
     ),
@@ -1319,21 +1320,22 @@ async function calculateScratchSalesTotal(
 ) {
   const { data, error } = await supabase
     .from("daily_audits")
-    .select("calculated_revenue")
+    .select("audit_type,calculated_revenue")
     .eq("store_key", storeKey)
+    .eq("audit_type", "eod")
     .eq("audit_date", reportDate)
-    .returns<Array<{ calculated_revenue: number | string | null }>>();
+    .returns<
+      Array<{
+        audit_type: string | null;
+        calculated_revenue: number | string | null;
+      }>
+    >();
 
   if (error) {
     throwDatabaseError("Failed to calculate scratch sales", error);
   }
 
-  return roundMoney(
-    (data ?? []).reduce(
-      (total, audit) => total + normalizeStoredMoney(audit.calculated_revenue),
-      0,
-    ),
-  );
+  return roundMoney(calculateLotteryEodScratchSales(data ?? []));
 }
 
 function isMissingLotteryBondingFeeColumnError(error: {

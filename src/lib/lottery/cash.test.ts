@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   applyLotteryCashAdvanceImpact,
   calculateLotteryCashInHandFromReconciliation,
+  calculateLotteryEodScratchSales,
   calculateLotteryExpectedCashInHandFromReconciliation,
 } from "./cash.ts";
 import { calculateLotteryCashAdvanceImpact } from "./cash-advance-calculation.ts";
@@ -24,6 +25,18 @@ test("lottery expected cash in hand excludes the starting float", () => {
       totalExpectedCash: 851,
     }),
     651,
+  );
+});
+
+test("lottery scratch sales include only EOD audit revenue", () => {
+  assert.equal(
+    calculateLotteryEodScratchSales([
+      { audit_type: "shift", calculated_revenue: 40 },
+      { audit_type: "eod", calculated_revenue: 125.12 },
+      { audit_type: "bin_load_retirement", calculated_revenue: 75 },
+      { audit_type: "eod", calculated_revenue: "24.88" },
+    ]),
+    150,
   );
 });
 

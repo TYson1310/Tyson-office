@@ -19,6 +19,7 @@ import {
   calculateDueDateFromPaymentTerms,
   calculateInvoiceItemInventoryQuantity,
   calculateSellingPriceForMargin,
+  detectInvoiceMimeType,
   isAllowedInvoiceFile,
   MAX_INVOICE_UPLOAD_BYTES,
   normalizeInvoiceAmount,
@@ -1159,12 +1160,17 @@ export async function POST(request: NextRequest) {
     let storageMimeType: string | null = null;
 
     if (file) {
+      const fileBytes = Buffer.from(await file.arrayBuffer());
+
       storageFileName = sanitizeStorageFileName(file.name);
-      storageMimeType = file.type || "application/pdf";
+      storageMimeType =
+        detectInvoiceMimeType(fileBytes, file.type, file.name) ||
+        file.type ||
+        "application/pdf";
       storagePath = `${access.activeStoreKey}/${access.currentUser.id}/${issueDate}/${randomUUID()}-${storageFileName}`;
       const { error: uploadError } = await access.supabase.storage
         .from(bucket)
-        .upload(storagePath, file, {
+        .upload(storagePath, fileBytes, {
           cacheControl: "3600",
           contentType: storageMimeType,
           upsert: false,

@@ -1041,24 +1041,6 @@ export async function markScratchPackSoldOut(
 
   await markInventorySoldOut();
 
-  const { error: reconciliationError } = await access.supabase.rpc(
-    "reconciliation_engine",
-    {
-      input_manager_notes: null,
-      input_pos_register_total: null,
-      reconciled_by: access.currentUser.id,
-      target_report_date: reportDate,
-      target_store_key: access.activeStoreKey,
-    },
-  );
-
-  if (reconciliationError) {
-    throw mapRpcError(
-      reconciliationError,
-      "Failed to refresh lottery reconciliation",
-    );
-  }
-
   return {
     auditId: auditRow.audit_id,
     binNumber: normalizedBinNumber,

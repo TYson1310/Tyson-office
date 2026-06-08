@@ -3,6 +3,29 @@ function normalizeMoney(value: number | string | null | undefined) {
   return Number.isFinite(normalized) ? Math.round(normalized * 100) / 100 : 0;
 }
 
+type LotteryAuditRevenueRow = {
+  audit_type?: string | null;
+  calculated_revenue?: number | string | null;
+};
+
+export function isLotteryEodAuditType(auditType: string | null | undefined) {
+  return auditType === "eod";
+}
+
+export function calculateLotteryEodScratchSales(
+  auditRows: LotteryAuditRevenueRow[],
+) {
+  return normalizeMoney(
+    auditRows.reduce(
+      (total, audit) =>
+        isLotteryEodAuditType(audit.audit_type)
+          ? total + normalizeMoney(audit.calculated_revenue)
+          : total,
+      0,
+    ),
+  );
+}
+
 export function calculateLotteryCashInHandFromReconciliation(input: {
   openingCashFloat?: number | string | null;
   posRegisterTotal?: number | string | null;

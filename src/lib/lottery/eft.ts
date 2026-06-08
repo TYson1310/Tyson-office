@@ -8,6 +8,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveStoreContext } from "@/lib/stores/server";
 import type { ScratchCardAccess } from "@/lib/scratch-cards/api";
+import { calculateLotteryEodScratchSales } from "./cash";
 import { calculateLotteryEftFormula } from "./eft-calculation";
 import {
   calculateAppliedLotteryEftPayment,
@@ -34,8 +35,9 @@ import {
 } from "./scratch-pack-settlements";
 
 type DailyAuditRow = {
+  audit_type: string | null;
   audit_date: string;
-  calculated_revenue: number | string;
+  calculated_revenue: number | string | null;
 };
 
 type TerminalReportRow = {
@@ -897,11 +899,8 @@ function buildRows({
   const dailyRows = dateKeys
     .map((reportDate) => {
       const terminal = terminalsByDate.get(reportDate);
-      const scratchSales = normalizeMoney(
-        (auditsByDate.get(reportDate) ?? []).reduce(
-          (total, audit) => total + normalizeMoney(audit.calculated_revenue),
-          0,
-        ),
+      const scratchSales = calculateLotteryEodScratchSales(
+        auditsByDate.get(reportDate) ?? [],
       );
       const drawSales = normalizeMoney(terminal?.draw_sales);
       const drawPayouts = normalizeMoney(terminal?.draw_payouts);
@@ -1460,8 +1459,9 @@ export async function loadLotteryEftData(
     await Promise.all([
       supabase
         .from("daily_audits")
-        .select("audit_date,calculated_revenue")
+        .select("audit_date,audit_type,calculated_revenue")
         .eq("store_key", activeStoreKey)
+        .eq("audit_type", "eod")
         .gte("audit_date", queryStartDate)
         .lte("audit_date", queryEndDate)
         .returns<DailyAuditRow[]>(),

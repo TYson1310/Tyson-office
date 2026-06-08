@@ -11,10 +11,12 @@ import {
   CircleDollarSign,
   Landmark,
   PackageCheck,
+  RotateCcw,
+  Search,
   Ticket,
   WalletCards,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
@@ -26,19 +28,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDateOnly } from "@/lib/date-time";
+import { formatDateOnly, formatDateTime } from "@/lib/date-time";
 import type {
+  LotteryCashTransactionRow,
+  LotteryCashTransactionType,
   LotteryDashboardSummary,
   LotteryInventorySummary,
   LotteryScratchLedgerItem,
 } from "@/lib/lottery/dashboard";
 
 type LotteryDashboardProps = {
+  cashTransactions: LotteryCashTransactionRow[];
   errorMessage?: string;
   inventorySummary: LotteryInventorySummary;
   scratchLedger: LotteryScratchLedgerItem[];
   source: "database" | "error" | "unconfigured";
   summary: LotteryDashboardSummary;
+  timeZone: string;
 };
 
 type ScratchLedgerSortKey =
@@ -236,6 +242,17 @@ function ScratchLedgerSortButton({
 }
 
 type MetricTone = "amber" | "emerald" | "red" | "sky" | "slate" | "violet";
+type CashFlowFilter = "all" | "inbound" | "outbound";
+
+const INPUT_CLASSNAME = "app-input";
+const LOTTERY_CASH_TRANSACTION_TYPE_ORDER: LotteryCashTransactionType[] = [
+  "EOD Cash Count",
+  "Pending Expected Cash",
+  "Cash Payback",
+  "Cash Advance",
+  "Lottery Deposit",
+  "Paid EFT",
+];
 
 const metricToneClasses: Record<MetricTone, { icon: string; value: string }> = {
   amber: {
@@ -285,12 +302,275 @@ function BreakdownRow({
   );
 }
 
+function formatRecordedAt(value: string | null, timeZone: string) {
+  if (!value) {
+    return "Not recorded";
+  }
+
+  return (
+    formatDateTime(value, {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone,
+    }) || "Not recorded"
+  );
+}
+
+function getTransactionTypeTone(type: LotteryCashTransactionType) {
+  if (type === "EOD Cash Count" || type === "Cash Payback") {
+    return "green" as const;
+  }
+
+  if (type === "Pending Expected Cash") {
+    return "amber" as const;
+  }
+
+  if (type === "Cash Advance" || type === "Lottery Deposit") {
+    return "red" as const;
+  }
+
+  return "blue" as const;
+}
+
+function LotteryCashTransactionLedger({
+  timeZone,
+  transactions,
+}: {
+  timeZone: string;
+  transactions: LotteryCashTransactionRow[];
+}) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState<
+    LotteryCashTransactionType | "all"
+  >("all");
+  const [flowFilter, setFlowFilter] = useState<CashFlowFilter>("all");
+  const deferredSearch = useDeferredValue(searchTerm.trim().toLowerCase());
+  const availableTypes = useMemo(
+    () =>
+      LOTTERY_CASH_TRANSACTION_TYPE_ORDER.filter((type) =>
+        transactions.some((transaction) => transaction.type === type),
+      ),
+    [transactions],
+  );
+  const filteredTransactions = useMemo(
+    () =>
+      transactions.filter((transaction) => {
+        const recordedAtLabel = formatRecordedAt(
+          transaction.recordedAt,
+          timeZone,
+        );
+        const matchesType =
+          typeFilter === "all" || transaction.type === typeFilter;
+        const matchesFlow =
+          flowFilter === "all" ||
+          (flowFilter === "inbound"
+            ? transaction.amount >= 0
+            : transaction.amount < 0);
+        const matchesSearch =
+          deferredSearch.length === 0 ||
+          formatDate(transaction.businessDate)
+            .toLowerCase()
+            .includes(deferredSearch) ||
+          transaction.businessDate.toLowerCase().includes(deferredSearch) ||
+          transaction.type.toLowerCase().includes(deferredSearch) ||
+          transaction.details.toLowerCase().includes(deferredSearch) ||
+          recordedAtLabel.toLowerCase().includes(deferredSearch) ||
+          formatCurrency(Math.abs(transaction.amount))
+            .toLowerCase()
+            .includes(deferredSearch) ||
+          formatCurrency(transaction.balanceAfter)
+            .toLowerCase()
+            .includes(deferredSearch);
+
+        return matchesType && matchesFlow && matchesSearch;
+      }),
+    [deferredSearch, flowFilter, timeZone, transactions, typeFilter],
+  );
+  const hasActiveFilters =
+    searchTerm.length > 0 || typeFilter !== "all" || flowFilter !== "all";
+  const inflowTotal = transactions.reduce(
+    (total, transaction) =>
+      transaction.amount > 0 ? total + transaction.amount : total,
+    0,
+  );
+  const outflowTotal = transactions.reduce(
+    (total, transaction) =>
+      transaction.amount < 0 ? total + Math.abs(transaction.amount) : total,
+    0,
+  );
+  const latestBalance = transactions[0]?.balanceAfter ?? 0;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Current ledger balance
+          </p>
+          <p
+            className={`mt-2 text-2xl font-black ${
+              latestBalance >= 0 ? "text-emerald-700" : "text-red-700"
+            }`}
+          >
+            {formatCurrency(latestBalance)}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            Inflows
+          </p>
+          <p className="mt-2 text-2xl font-black text-emerald-700">
+            {formatCurrency(inflowTotal)}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-red-700">
+            Outflows
+          </p>
+          <p className="mt-2 text-2xl font-black text-red-700">
+            {formatCurrency(outflowTotal)}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-[1.2fr_220px_220px_auto]">
+        <label className="relative block">
+          <Search className="pointer-events-none absolute left-4 top-3.5 h-4 w-4 text-dark-5 dark:text-dark-6" />
+          <input
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            className={`${INPUT_CLASSNAME} pl-10`}
+            placeholder="Search date, type, details, recorded time, or amount"
+          />
+        </label>
+
+        <select
+          value={typeFilter}
+          onChange={(event) =>
+            setTypeFilter(event.target.value as LotteryCashTransactionType | "all")
+          }
+          className={INPUT_CLASSNAME}
+        >
+          <option value="all">All types</option>
+          {availableTypes.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={flowFilter}
+          onChange={(event) =>
+            setFlowFilter(event.target.value as CashFlowFilter)
+          }
+          className={INPUT_CLASSNAME}
+        >
+          <option value="all">All movement</option>
+          <option value="inbound">Inflows only</option>
+          <option value="outbound">Outflows only</option>
+        </select>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSearchTerm("");
+            setTypeFilter("all");
+            setFlowFilter("all");
+          }}
+          disabled={!hasActiveFilters}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-stroke bg-gray-2 px-4 py-2 text-sm font-medium text-dark transition hover:bg-stroke disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-3 dark:text-white dark:hover:bg-dark-4"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Reset
+        </button>
+      </div>
+
+      <div className="text-sm text-dark-5 dark:text-dark-6">
+        Showing {filteredTransactions.length} of {transactions.length} lottery
+        cash transactions
+      </div>
+
+      <div className="overflow-x-auto">
+        <Table totalRows={filteredTransactions.length}>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Business date</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Details</TableHead>
+              <TableHead>Recorded</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="text-right">Balance after</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredTransactions.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="py-10 text-center text-dark-5 dark:text-dark-6"
+                >
+                  {transactions.length === 0
+                    ? "No lottery cash transactions recorded yet."
+                    : "No lottery cash transactions match the current filters."}
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredTransactions.map((transaction) => {
+                const isInbound = transaction.amount >= 0;
+
+                return (
+                  <TableRow key={transaction.id}>
+                    <TableCell className="font-medium text-dark dark:text-white">
+                      {formatDate(transaction.businessDate)}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge tone={getTransactionTypeTone(transaction.type)}>
+                        {transaction.type}
+                      </StatusBadge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="max-w-[420px] text-sm text-dark-5 dark:text-dark-6">
+                        {transaction.details}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-dark-5 dark:text-dark-6">
+                      {formatRecordedAt(transaction.recordedAt, timeZone)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span
+                        className={`font-bold ${
+                          isInbound
+                            ? "text-emerald-600"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {isInbound ? "+" : "-"}
+                        {formatCurrency(Math.abs(transaction.amount))}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right font-semibold text-dark dark:text-white">
+                      {formatCurrency(transaction.balanceAfter)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
 export function LotteryDashboard({
+  cashTransactions,
   errorMessage,
   inventorySummary,
   scratchLedger,
   source,
   summary,
+  timeZone,
 }: LotteryDashboardProps) {
   const [scratchLedgerSort, setScratchLedgerSort] = useState<ScratchLedgerSort>(
     {
@@ -563,6 +843,24 @@ export function LotteryDashboard({
           </div>
         </SectionCard>
       </div>
+
+      <SectionCard
+        title="Lottery cash transaction ledger"
+        description={`Running lottery cash flow from EOD counts, pending estimates, cash advances, paybacks, lottery deposits, and paid EFT. Recorded times are shown in ${timeZone}.`}
+        action={
+          <StatusBadge tone={summary.cashAfterEft >= 0 ? "green" : "red"}>
+            Balance {formatCurrency(summary.cashAfterEft)}
+          </StatusBadge>
+        }
+        className="rounded-lg sm:rounded-lg"
+        headerClassName="px-4 py-3 sm:px-4"
+        contentClassName="px-4 pb-4 pt-2"
+      >
+        <LotteryCashTransactionLedger
+          timeZone={timeZone}
+          transactions={cashTransactions}
+        />
+      </SectionCard>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <StatCard

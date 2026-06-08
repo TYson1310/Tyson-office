@@ -128,6 +128,44 @@ function isTransientGeminiTransportError(error: unknown) {
   );
 }
 
+function getGeminiApiErrorMessage(error: unknown) {
+  if (!(error instanceof Error)) {
+    return "";
+  }
+
+  const rawMessage = error.message.trim();
+
+  if (!rawMessage) {
+    return "";
+  }
+
+  try {
+    const parsed = JSON.parse(rawMessage) as {
+      error?: { message?: unknown };
+    };
+    const parsedMessage = parsed.error?.message;
+
+    if (typeof parsedMessage === "string") {
+      return parsedMessage;
+    }
+  } catch {
+    // Some SDK errors are plain text, not JSON.
+  }
+
+  return rawMessage;
+}
+
+function isGeminiApiKeyError(message: string) {
+  const normalized = message.toLowerCase();
+
+  return (
+    normalized.includes("api key expired") ||
+    normalized.includes("api_key_invalid") ||
+    normalized.includes("api key not valid") ||
+    normalized.includes("invalid api key")
+  );
+}
+
 export async function processInvoice(
   base64Data: string,
   mimeType: string,
@@ -186,8 +224,17 @@ export async function processInvoice(
       );
     }
 
+    const apiErrorMessage = getGeminiApiErrorMessage(error);
+
+    if (isGeminiApiKeyError(apiErrorMessage)) {
+      throw new InvoiceExtractionError(
+        "Gemini API key expired or invalid. Update GEMINI_API_KEY in .env.local and restart the server.",
+        503,
+      );
+    }
+
     throw new InvoiceExtractionError(
-      error instanceof Error ? error.message : "Failed to process invoice",
+      apiErrorMessage || "Failed to process invoice",
     );
   }
 }
