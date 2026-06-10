@@ -17,6 +17,7 @@ import {
 } from "./cash";
 import { isMissingLotteryCashAdvanceMigration } from "./cash-advances";
 import { calculateLotteryEftFormula } from "./eft-calculation";
+import { calculateAppliedLotteryEftPayment } from "./eft-paid-amount";
 import {
   getLatestLotteryEftSweepDate,
   getLotteryEftSweepPeriod,
@@ -88,6 +89,40 @@ type EftWeeklyStatusRow = {
   status: LotteryDashboardEftPaymentStatus;
   week_end_date: string | null;
   week_start_date: string | null;
+};
+
+type LotteryDashboardReconciliationStatus =
+  | "balanced"
+  | "over"
+  | "pending"
+  | "short";
+
+export type LotteryDashboardPeriodSummary = {
+  bondingFee: number;
+  cashingBonus: number;
+  cashingBonusCredit: number;
+  countedDays: number;
+  drawPayouts: number;
+  drawSales: number;
+  endDate: string;
+  grossSales: number;
+  netEftDue: number;
+  netSales: number;
+  netTicketSales: number;
+  payouts: number;
+  pendingDays: number;
+  retailerCommissionCredit: number;
+  scratchPayouts: number;
+  scratchSales: number;
+  settledPackSales: number;
+  shortOver: number;
+  startDate: string;
+  status: LotteryDashboardReconciliationStatus;
+  ticketCancels: number;
+  totalCommissions: number;
+  totalCredits: number;
+  totalPayouts: number;
+  windowDays: number;
 };
 
 type LotteryCashAdvanceImpactRow = {
@@ -181,6 +216,7 @@ export type LotteryDashboardSummary = {
   expectedCash: number;
   grossSales: number;
   hasReconciliation: boolean;
+  monthToDate: LotteryDashboardPeriodSummary;
   netSales: number;
   netEftDue: number;
   netTicketSales: number;
@@ -195,7 +231,7 @@ export type LotteryDashboardSummary = {
   scratchSales: number;
   settledPackSales: number;
   shortOver: number;
-  status: "balanced" | "over" | "pending" | "short";
+  status: LotteryDashboardReconciliationStatus;
   sweepDate: string;
   totalCommissions: number;
   totalCredits: number;
@@ -295,6 +331,84 @@ function getSummaryStatus(shortOver: number, countedDays: number) {
   return "balanced" as const;
 }
 
+function getMonthStartDate(dateKey: string) {
+  return `${dateKey.slice(0, 8)}01`;
+}
+
+function buildEmptyPeriodSummary({
+  endDate,
+  startDate,
+}: {
+  endDate: string;
+  startDate: string;
+}): LotteryDashboardPeriodSummary {
+  return {
+    bondingFee: 0,
+    cashingBonus: 0,
+    cashingBonusCredit: 0,
+    countedDays: 0,
+    drawPayouts: 0,
+    drawSales: 0,
+    endDate,
+    grossSales: 0,
+    netEftDue: 0,
+    netSales: 0,
+    netTicketSales: 0,
+    payouts: 0,
+    pendingDays: 0,
+    retailerCommissionCredit: 0,
+    scratchPayouts: 0,
+    scratchSales: 0,
+    settledPackSales: 0,
+    shortOver: 0,
+    startDate,
+    status: "pending",
+    ticketCancels: 0,
+    totalCommissions: 0,
+    totalCredits: 0,
+    totalPayouts: 0,
+    windowDays: enumerateIsoDateRange(startDate, endDate).length,
+  };
+}
+
+function buildPeriodSummaryFromDashboardSummary({
+  endDate,
+  startDate,
+  summary,
+}: {
+  endDate: string;
+  startDate: string;
+  summary: LotteryDashboardSummary;
+}): LotteryDashboardPeriodSummary {
+  return {
+    bondingFee: summary.bondingFee,
+    cashingBonus: summary.cashingBonus,
+    cashingBonusCredit: summary.cashingBonusCredit,
+    countedDays: summary.countedDays,
+    drawPayouts: summary.drawPayouts,
+    drawSales: summary.drawSales,
+    endDate,
+    grossSales: summary.grossSales,
+    netEftDue: summary.netEftDue,
+    netSales: summary.netSales,
+    netTicketSales: summary.netTicketSales,
+    payouts: summary.payouts,
+    pendingDays: summary.pendingDays,
+    retailerCommissionCredit: summary.retailerCommissionCredit,
+    scratchPayouts: summary.scratchPayouts,
+    scratchSales: summary.scratchSales,
+    settledPackSales: summary.settledPackSales,
+    shortOver: summary.shortOver,
+    startDate,
+    status: summary.status,
+    ticketCancels: summary.ticketCancels,
+    totalCommissions: summary.totalCommissions,
+    totalCredits: summary.totalCredits,
+    totalPayouts: summary.totalPayouts,
+    windowDays: summary.windowDays,
+  };
+}
+
 function groupAuditRowsByDate(auditRows: DailyAuditRow[]) {
   const auditsByDate = new Map<string, DailyAuditRow[]>();
 
@@ -383,6 +497,10 @@ function buildEmptySummary({
     expectedCash: 0,
     grossSales: 0,
     hasReconciliation: false,
+    monthToDate: buildEmptyPeriodSummary({
+      endDate: businessDate,
+      startDate: getMonthStartDate(businessDate),
+    }),
     netSales: 0,
     netEftDue: 0,
     netTicketSales: 0,
@@ -1428,7 +1546,10 @@ function buildCashInHandSummary({
         period.weekEndDate,
       ),
     });
-    const paidEftAmount = normalizeMoney(netEftDue);
+    const paidEftAmount = calculateAppliedLotteryEftPayment({
+      netEftDue,
+      paidAmount: statusRow.paid_amount,
+    });
 
     if (paidEftAmount === 0) {
       return;
@@ -1645,7 +1766,10 @@ function buildLotteryCashTransactionRows({
           period.weekEndDate,
         ),
       });
-      const appliedEftPaid = normalizeMoney(netEftDue);
+      const appliedEftPaid = calculateAppliedLotteryEftPayment({
+        netEftDue,
+        paidAmount: statusRow.paid_amount,
+      });
 
       if (appliedEftPaid === 0) {
         return;
@@ -1699,18 +1823,21 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
 
   const { activeStore, activeStoreKey } = await requireActiveStoreContext();
   const businessDate = getTodayIsoDateInTimeZone(activeStore.timeZone);
-  const cashInHandCutoffDate = addDaysToIsoDateKey(businessDate, -1);
-  const cashInHandSweepDate = getLatestLotteryEftSweepDate(
-    cashInHandCutoffDate,
+  const defaultCashInHandCutoffDate = addDaysToIsoDateKey(businessDate, -1);
+  const monthToDateStartDate = getMonthStartDate(businessDate);
+  const monthToDateEndDate = businessDate;
+  const monthToDateDateKeys = enumerateIsoDateRange(
+    monthToDateStartDate,
+    monthToDateEndDate,
   );
   const sweepDate = getLatestLotteryEftSweepDate(businessDate);
   const { weekEndDate, weekStartDate } = getLotteryEftSweepPeriod(sweepDate);
   const currentWeekStartDate = sweepDate;
   const currentWeekEndDate = businessDate;
   const dateKeys = enumerateIsoDateRange(weekStartDate, weekEndDate);
-  const emptySummary = buildEmptySummary({
+  const fallbackEmptySummary = buildEmptySummary({
     businessDate,
-    cashInHandCutoffDate,
+    cashInHandCutoffDate: defaultCashInHandCutoffDate,
     currentWeekEndDate,
     currentWeekStartDate,
     sweepDate,
@@ -1726,16 +1853,54 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
       timeZone: activeStore.timeZone,
       cashTransactions: [],
       inventorySummary: emptyInventorySummary,
-      summary: emptySummary,
+      summary: fallbackEmptySummary,
       scratchLedger: [],
     };
   }
 
   const supabase = await createClient();
-  const storeSettings = await loadStoreSettingsForStore(
-    supabase,
-    activeStoreKey,
+  const [storeSettings, todayReconciliationResult] = await Promise.all([
+    loadStoreSettingsForStore(supabase, activeStoreKey),
+    loadEodReconciliationRowsForDateRange(
+      supabase,
+      activeStoreKey,
+      businessDate,
+      businessDate,
+    ),
+  ]);
+  const cashInHandCutoffDate = (todayReconciliationResult.data ?? []).some(
+    (row) => row.report_date === businessDate,
+  )
+    ? businessDate
+    : defaultCashInHandCutoffDate;
+  const cashInHandSweepDate = getLatestLotteryEftSweepDate(
+    cashInHandCutoffDate,
   );
+  const emptySummary = buildEmptySummary({
+    businessDate,
+    cashInHandCutoffDate,
+    currentWeekEndDate,
+    currentWeekStartDate,
+    sweepDate,
+    weekEndDate,
+    weekStartDate,
+  });
+
+  if (todayReconciliationResult.error) {
+    return {
+      source: "error",
+      storeKey: activeStoreKey,
+      timeZone: activeStore.timeZone,
+      cashTransactions: [],
+      inventorySummary: emptyInventorySummary,
+      summary: emptySummary,
+      scratchLedger: [],
+      errorMessage:
+        todayReconciliationResult.error.message ??
+        "Lottery dashboard data could not be loaded.",
+    };
+  }
+
   const retailerCommissionRate = normalizePercent(
     storeSettings.lottery.retailerCommissionRate,
   );
@@ -1749,6 +1914,9 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     scratchLedgerResult,
     eftStatusResult,
     currentWeekTerminalReportsResult,
+    monthToDateAuditsResult,
+    monthToDateTerminalReportsResult,
+    monthToDateReconciliationResult,
     settlementAuditResult,
     cashAdvanceImpactResult,
     cashAuditRowsResult,
@@ -1795,6 +1963,24 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
       currentWeekStartDate,
       currentWeekEndDate,
     ),
+    loadAuditRowsForDateRange(
+      supabase,
+      activeStoreKey,
+      monthToDateStartDate,
+      monthToDateEndDate,
+    ),
+    loadTerminalRowsForDateRange(
+      supabase,
+      activeStoreKey,
+      monthToDateStartDate,
+      monthToDateEndDate,
+    ),
+    loadEodReconciliationRowsForDateRange(
+      supabase,
+      activeStoreKey,
+      monthToDateStartDate,
+      monthToDateEndDate,
+    ),
     supabase
       .from("daily_audits")
       .select("inventory_id,audit_date,audit_type,end_ticket_no,created_at")
@@ -1834,6 +2020,9 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     scratchLedgerResult.error ??
     eftStatusError ??
     currentWeekTerminalReportsResult.error ??
+    monthToDateAuditsResult.error ??
+    monthToDateTerminalReportsResult.error ??
+    monthToDateReconciliationResult.error ??
     settlementAuditResult.error ??
     cashAdvanceImpactResult.error ??
     cashAuditRowsResult.error ??
@@ -1858,6 +2047,10 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
   const auditRows = auditsResult.data ?? [];
   const terminalRows = terminalReportsResult.data ?? [];
   const currentWeekTerminalRows = currentWeekTerminalReportsResult.data ?? [];
+  const monthToDateAuditRows = monthToDateAuditsResult.data ?? [];
+  const monthToDateTerminalRows = monthToDateTerminalReportsResult.data ?? [];
+  const monthToDateReconciliationRows =
+    monthToDateReconciliationResult.data ?? [];
   const reconciliationRows = reconciliationResult.data ?? [];
   const currentEftStatus =
     eftStatusError || eftStatusResult.error
@@ -1931,6 +2124,20 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     weekEndDate,
     weekStartDate,
   });
+  const monthToDateWindowSummary = buildEftWindowSummary({
+    auditRows: monthToDateAuditRows,
+    businessDate,
+    cashingBonusRate,
+    dateKeys: monthToDateDateKeys,
+    eftStatus: null,
+    reconciliationRows: monthToDateReconciliationRows,
+    retailerCommissionRate,
+    settlementRows,
+    sweepDate,
+    terminalRows: monthToDateTerminalRows,
+    weekEndDate: monthToDateEndDate,
+    weekStartDate: monthToDateStartDate,
+  });
   const cashInHandSummary =
     cashInHandSummaryResult.data ?? buildEmptyCashInHandSummary();
   const currentWeekEftDue = calculateNetEftDueForPeriod({
@@ -1963,6 +2170,11 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     currentWeekEftDue,
     currentWeekEndDate,
     currentWeekStartDate,
+    monthToDate: buildPeriodSummaryFromDashboardSummary({
+      endDate: monthToDateEndDate,
+      startDate: monthToDateStartDate,
+      summary: monthToDateWindowSummary,
+    }),
     paidEftTotal: cashInHandSummary.paidEftTotal,
     paidEftWeeks: cashInHandSummary.paidEftWeeks,
   };

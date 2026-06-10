@@ -13,7 +13,10 @@ import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { StoreScopeBanner } from "@/components/erp/store-scope-banner";
-import { EftPackInclusionButton } from "@/components/lottery/eft-pack-inclusion-button";
+import {
+  EftBulkPackInclusionButton,
+  EftPackInclusionButton,
+} from "@/components/lottery/eft-pack-inclusion-button";
 import { EftPaidStatusControl } from "@/components/lottery/eft-paid-status-control";
 import {
   Table,
@@ -27,6 +30,7 @@ import {
   loadLotteryEftData,
   type LotteryEftDailyRow,
   type LotteryEftPaymentStatus,
+  type LotteryEftSettlementPackReason,
   type LotteryEftSoldOutPackStatus,
   type LotteryEftSweepReason,
 } from "@/lib/lottery/eft";
@@ -133,7 +137,7 @@ function formatPaymentStatus(status: LotteryEftPaymentStatus) {
 
 function getSweepReasonLabel(reason: LotteryEftSweepReason) {
   if (reason === "age") {
-    return ">21 days";
+    return "29 days active";
   }
 
   return ">80% depleted";
@@ -147,21 +151,9 @@ function getSweepReasonTone(reason: LotteryEftSweepReason) {
   return "red" as const;
 }
 
-function getSoldOutPackStatusTone(status: LotteryEftSoldOutPackStatus) {
-  if (status === "pending") {
-    return "amber" as const;
-  }
-
-  if (status === "included-selected") {
-    return "green" as const;
-  }
-
-  return "slate" as const;
-}
-
 function getSoldOutPackStatusLabel(status: LotteryEftSoldOutPackStatus) {
   if (status === "pending") {
-    return "Sold out";
+    return "Due";
   }
 
   if (status === "included-selected") {
@@ -169,6 +161,10 @@ function getSoldOutPackStatusLabel(status: LotteryEftSoldOutPackStatus) {
   }
 
   return "Settled elsewhere";
+}
+
+function getSettlementReasonLabel(reason: LotteryEftSettlementPackReason) {
+  return reason === "sold_out" ? "Sold out" : "29-day active";
 }
 
 export default async function LotteryEftPage({ searchParams }: PageProps) {
@@ -189,19 +185,30 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
   const selectedLedgerWeek =
     eft.weeklyLedger.find((week) => week.sweepDate === eft.selectedSweepDate) ??
     null;
-  const selectedWeekPaid = selectedLedgerWeek?.paymentStatus === "paid";
-  const pendingSoldOutPackRows = eft.soldOutPacks.filter(
+  const settlementSweepDate =
+    eft.thursdaySweep.sweepDate ?? eft.selectedSweepDate;
+  const settlementWeekEndDate =
+    eft.thursdaySweep.weekEndDate ?? eft.weekEndDate;
+  const settlementWeekPaid = eft.thursdaySweep.paymentStatus === "paid";
+  const pendingSettlementRows = eft.soldOutPacks.filter(
     (pack) => pack.status === "pending",
   );
-  const pendingSoldOutPacks = pendingSoldOutPackRows.length;
+  const pendingSettlements = pendingSettlementRows.length;
   const paidAmountMismatches = eft.weeklyLedger.filter(
     (week) =>
       week.paymentStatus === "paid" &&
       week.paidAmount !== null &&
       Math.abs(week.paidAmount - week.netEftDue) >= 0.01,
   );
-  const packsSoldOutAfterSelectedWeek = pendingSoldOutPackRows.filter(
-    (pack) => pack.soldOutDate > eft.weekEndDate,
+  const packsDueAfterRunningWeek = pendingSettlementRows.filter(
+    (pack) => pack.dueDate > settlementWeekEndDate,
+  );
+  const bulkSettlementRows = pendingSettlementRows.filter(
+    (pack) => pack.dueDate <= settlementWeekEndDate && pack.packValue !== null,
+  );
+  const bulkSettlementValue = bulkSettlementRows.reduce(
+    (total, pack) => total + (pack.packValue ?? 0),
+    0,
   );
   const eftExceptionCards = [
     {
@@ -214,13 +221,13 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
           : ("green" as const),
     },
     {
-      label: "Pending sold-out packs",
-      value: pendingSoldOutPacks,
+      label: "Pending settlements",
+      value: pendingSettlements,
       detail:
-        pendingSoldOutPacks > 0
-          ? "settle eligible packs into the selected EFT"
+        pendingSettlements > 0
+          ? "settle eligible packs into the running EFT"
           : "no packs waiting for EFT settlement",
-      tone: pendingSoldOutPacks > 0 ? ("amber" as const) : ("green" as const),
+      tone: pendingSettlements > 0 ? ("amber" as const) : ("green" as const),
     },
     {
       label: "Paid amount mismatch",
@@ -235,14 +242,14 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
           : ("green" as const),
     },
     {
-      label: "After selected week",
-      value: packsSoldOutAfterSelectedWeek.length,
+      label: "After running week",
+      value: packsDueAfterRunningWeek.length,
       detail:
-        packsSoldOutAfterSelectedWeek.length > 0
-          ? `sold out after ${formatDate(eft.weekEndDate)}`
+        packsDueAfterRunningWeek.length > 0
+          ? `due after ${formatDate(settlementWeekEndDate)}`
           : "no future-period pack settlement risk",
       tone:
-        packsSoldOutAfterSelectedWeek.length > 0
+        packsDueAfterRunningWeek.length > 0
           ? ("amber" as const)
           : ("green" as const),
     },
@@ -365,7 +372,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
           </div>
 
           {paidAmountMismatches.length > 0 ||
-          packsSoldOutAfterSelectedWeek.length > 0 ? (
+          packsDueAfterRunningWeek.length > 0 ? (
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
               {paidAmountMismatches.length > 0 ? (
                 <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
@@ -384,18 +391,18 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                 </div>
               ) : null}
 
-              {packsSoldOutAfterSelectedWeek.length > 0 ? (
+              {packsDueAfterRunningWeek.length > 0 ? (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                   <div className="font-semibold">
-                    Sold out after selected EFT week
+                    Due after running EFT week
                   </div>
                   <div className="mt-1">
-                    {packsSoldOutAfterSelectedWeek
+                    {packsDueAfterRunningWeek
                       .slice(0, 3)
                       .map(
                         (pack) =>
-                          `Pack ${pack.packNumber} sold out ${formatDate(
-                            pack.soldOutDate,
+                          `Pack ${pack.packNumber} due ${formatDate(
+                            pack.dueDate,
                           )}`,
                       )
                       .join("; ")}
@@ -553,49 +560,70 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
         </SectionCard>
 
         <SectionCard
-          title="Sold-out pack EFT ledger"
-          description="Only pending sold-out packs show here. Once settled, the pack leaves this action ledger and is included in the selected EFT."
+          title="Scratch pack EFT settlement ledger"
+          description="Due packs include sold-out packs and active packs that reached 29 days from activation. Once approved, the pack value is included in the running EFT week."
           action={
-            <StatusBadge tone={pendingSoldOutPacks > 0 ? "amber" : "green"}>
-              {pendingSoldOutPacks} pending settlement
-            </StatusBadge>
+            <>
+              <StatusBadge tone={pendingSettlements > 0 ? "amber" : "green"}>
+                {pendingSettlements} pending settlement
+              </StatusBadge>
+              <EftBulkPackInclusionButton
+                canManage={canManageEftPacks}
+                disabledReason={
+                  settlementWeekPaid
+                    ? "Mark the running EFT week unpaid before settling packs"
+                    : bulkSettlementRows.length === 0
+                      ? "No due packs are ready for this EFT week"
+                      : undefined
+                }
+                inventoryIds={bulkSettlementRows.map(
+                  (pack) => pack.inventoryId,
+                )}
+                packCount={bulkSettlementRows.length}
+                sweepDate={settlementSweepDate}
+                totalValue={bulkSettlementValue}
+              />
+            </>
           }
           className="rounded-lg sm:rounded-lg"
           headerClassName="px-4 py-3 sm:px-4"
           contentClassName="p-0"
         >
           <div className="overflow-x-auto">
-            <Table totalRows={pendingSoldOutPackRows.length}>
+            <Table totalRows={pendingSettlementRows.length}>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Sold Out</TableHead>
+                  <TableHead>Due</TableHead>
                   <TableHead>Game / Pack</TableHead>
                   <TableHead>Bin</TableHead>
                   <TableHead className="text-right">Pack Value</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Reason</TableHead>
                   <TableHead className="w-[9.5rem] text-right">
                     Action
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pendingSoldOutPackRows.length === 0 ? (
+                {pendingSettlementRows.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
                       className="py-10 text-center text-slate-500"
                     >
-                      No sold-out packs are waiting for EFT settlement.
+                      No scratch packs are waiting for EFT settlement.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  pendingSoldOutPackRows.map((pack) => {
-                    const disabledReason = selectedWeekPaid
-                      ? "Mark the selected EFT week unpaid before settling packs"
-                      : !pack.hasSoldOutAudit
+                  pendingSettlementRows.map((pack) => {
+                    const disabledReason = settlementWeekPaid
+                      ? "Mark the running EFT week unpaid before settling packs"
+                      : pack.pendingReason === "sold_out" &&
+                          !pack.hasSoldOutAudit
                         ? "Sold-out audit is missing"
-                        : pack.soldOutDate > eft.weekEndDate
-                          ? "Pack sold out after the selected EFT week"
+                        : pack.dueDate > settlementWeekEndDate
+                          ? "Pack is due after the running EFT week"
+                          : !pack.binNumber
+                            ? "Bin number is missing"
                           : pack.packValue === null
                             ? "Pack value is missing"
                             : undefined;
@@ -604,10 +632,12 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                       <TableRow key={pack.inventoryId}>
                         <TableCell>
                           <div className="font-semibold text-slate-950">
-                            {formatDate(pack.soldOutDate)}
+                            {formatDate(pack.dueDate)}
                           </div>
                           <div className="text-xs text-slate-500">
-                            {pack.soldOutAuditType ?? "missing audit"}
+                            {pack.pendingReason === "sold_out"
+                              ? `sold out ${formatOptionalDate(pack.soldOutDate)}`
+                              : `activated ${formatOptionalDate(pack.activatedDate)}`}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -633,11 +663,12 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <StatusBadge
-                            tone={getSoldOutPackStatusTone(pack.status)}
-                          >
-                            {getSoldOutPackStatusLabel(pack.status)}
+                          <StatusBadge tone="amber">
+                            {getSettlementReasonLabel(pack.pendingReason)}
                           </StatusBadge>
+                          <div className="mt-1 text-xs text-slate-500">
+                            {getSoldOutPackStatusLabel(pack.status)}
+                          </div>
                         </TableCell>
                         <TableCell className="w-[9.5rem] text-right">
                           <EftPackInclusionButton
@@ -646,7 +677,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                             inventoryId={pack.inventoryId}
                             packLabel={`Pack ${pack.packNumber}`}
                             packValue={pack.packValue}
-                            sweepDate={eft.selectedSweepDate}
+                            sweepDate={settlementSweepDate}
                           />
                         </TableCell>
                       </TableRow>
@@ -660,7 +691,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
 
         <SectionCard
           title="Thursday Sweep Predictor"
-          description="Active scratch packs over 21 days in the system or more than 80% depleted by the latest audit."
+          description={`Running EFT week ${formatOptionalDate(eft.thursdaySweep.weekStartDate)} to ${formatOptionalDate(eft.thursdaySweep.weekEndDate)}. Active scratch packs at least 29 days from activation or more than 80% depleted by the latest audit.`}
           action={
             <StatusBadge
               tone={eft.thursdaySweep.packs.length > 0 ? "amber" : "green"}
@@ -694,7 +725,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                 {eft.thursdaySweep.agedPackCount}
               </div>
               <p className="mt-1 text-xs text-slate-500">
-                active more than 21 days
+                active at least 29 days
               </p>
             </div>
             <div className="min-w-0">
@@ -753,7 +784,7 @@ export default async function LotteryEftPage({ searchParams }: PageProps) {
                           {pack.daysInSystem} days
                         </div>
                         <div className="text-xs text-slate-500">
-                          received {formatOptionalDate(pack.dateReceived)}
+                          activated {formatOptionalDate(pack.dateActivated)}
                         </div>
                       </TableCell>
                       <TableCell>

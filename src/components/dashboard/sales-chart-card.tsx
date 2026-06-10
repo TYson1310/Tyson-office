@@ -5,6 +5,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -12,11 +13,19 @@ import {
 } from "recharts";
 import { cn } from "@/lib/utils";
 
+type SalesChartPoint = {
+  currentDateLabel?: string;
+  label: string;
+  previousDateLabel?: string;
+  previousValue?: number;
+  value: number;
+};
+
 type SalesChartCardProps = {
   series: {
-    daily: { label: string; value: number }[];
-    monthly: { label: string; value: number }[];
-    yearly: { label: string; value: number }[];
+    daily: SalesChartPoint[];
+    monthly: SalesChartPoint[];
+    yearly: SalesChartPoint[];
   };
 };
 
@@ -27,8 +36,10 @@ const tabs = [
 ] as const;
 
 export function SalesChartCard({ series }: SalesChartCardProps) {
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["id"]>("daily");
+  const [activeTab, setActiveTab] =
+    useState<(typeof tabs)[number]["id"]>("daily");
   const data = series[activeTab];
+  const isDailyComparison = activeTab === "daily";
 
   return (
     <div className="space-y-5">
@@ -38,7 +49,7 @@ export function SalesChartCard({ series }: SalesChartCardProps) {
             Sales Trend
           </h3>
           <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-            Switch between daily, monthly, and yearly logged sales.
+            Daily compares each weekday with the same weekday last week.
           </p>
         </div>
 
@@ -68,7 +79,7 @@ export function SalesChartCard({ series }: SalesChartCardProps) {
           minWidth={0}
           initialDimension={{ width: 768, height: 320 }}
         >
-          <BarChart data={data}>
+          <BarChart data={data} barGap={6}>
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
@@ -88,18 +99,49 @@ export function SalesChartCard({ series }: SalesChartCardProps) {
             />
             <Tooltip
               cursor={{ fill: "rgba(15, 118, 110, 0.08)" }}
-              formatter={(value) => [
+              formatter={(value, name) => [
                 `$${Number(value ?? 0).toLocaleString()}`,
-                "Sales",
+                String(name),
               ]}
+              labelFormatter={(label, payload) => {
+                const point = payload?.[0]?.payload as
+                  | SalesChartPoint
+                  | undefined;
+
+                if (
+                  isDailyComparison &&
+                  point?.currentDateLabel &&
+                  point.previousDateLabel
+                ) {
+                  return `${point.currentDateLabel} vs ${point.previousDateLabel}`;
+                }
+
+                return String(label);
+              }}
               contentStyle={{
                 borderRadius: 16,
                 border: "1px solid rgba(15, 23, 42, 0.08)",
                 boxShadow: "0 18px 48px rgba(15, 23, 42, 0.12)",
               }}
             />
+            {isDailyComparison ? (
+              <>
+                <Legend
+                  iconType="circle"
+                  wrapperStyle={{ color: "#64748B", fontSize: 12 }}
+                />
+                <Bar
+                  dataKey="previousValue"
+                  name="Previous week"
+                  radius={[10, 10, 4, 4]}
+                  fill="#94A3B8"
+                  maxBarSize={42}
+                />
+              </>
+            ) : null}
             <Bar
               dataKey="value"
+              name={isDailyComparison ? "This week" : "Sales"}
               radius={[10, 10, 4, 4]}
               fill="#0F766E"
               maxBarSize={42}

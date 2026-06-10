@@ -96,10 +96,6 @@ const headerCopy: Record<string, { title: string; subtitle: string }> = {
     title: "Lottery EOD Reconciliation",
     subtitle: "Match bin end tickets, terminal totals, payouts, and till cash.",
   },
-  "/lottery/cash-advances": {
-    title: "Lottery Cash Advances",
-    subtitle: "Track temporary lottery cash taken and paid back.",
-  },
   "/lottery/eft": {
     title: "Lottery EFT",
     subtitle:
@@ -139,8 +135,8 @@ const headerCopy: Record<string, { title: string; subtitle: string }> = {
       "Log daily revenue totals and perform drawer reconciliation for the day.",
   },
   "/admin/bank-deposits": {
-    title: "Bank Deposit",
-    subtitle: "Log bank deposits",
+    title: "Cash Vault",
+    subtitle: "Track store cash, lottery cash, advances, and deposits.",
   },
 };
 

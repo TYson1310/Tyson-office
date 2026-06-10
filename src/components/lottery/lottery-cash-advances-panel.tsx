@@ -268,7 +268,7 @@ export function LotteryCashAdvancesPanel({
             Lottery Cash Advances
           </h2>
           <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-            Temporary lottery drawer cash out and payback tracking.
+            Temporary lottery cash advance and payback tracking.
           </p>
         </div>
         <button

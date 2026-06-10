@@ -11,12 +11,9 @@ import {
   CircleDollarSign,
   Landmark,
   PackageCheck,
-  RotateCcw,
-  Search,
   Ticket,
-  WalletCards,
 } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
@@ -30,21 +27,17 @@ import {
 } from "@/components/ui/table";
 import { formatDateOnly } from "@/lib/date-time";
 import type {
-  LotteryCashTransactionRow,
-  LotteryCashTransactionType,
   LotteryDashboardSummary,
   LotteryInventorySummary,
   LotteryScratchLedgerItem,
 } from "@/lib/lottery/dashboard";
 
 type LotteryDashboardProps = {
-  cashTransactions: LotteryCashTransactionRow[];
   errorMessage?: string;
   inventorySummary: LotteryInventorySummary;
   scratchLedger: LotteryScratchLedgerItem[];
   source: "database" | "error" | "unconfigured";
   summary: LotteryDashboardSummary;
-  timeZone: string;
 };
 
 type ScratchLedgerSortKey =
@@ -71,14 +64,6 @@ function formatCurrency(value: number) {
   return currencyFormatter.format(value);
 }
 
-function formatSignedCurrency(value: number) {
-  if (value === 0) {
-    return formatCurrency(0);
-  }
-
-  return `${value > 0 ? "+" : "-"}${formatCurrency(Math.abs(value))}`;
-}
-
 function formatDate(value: string | null) {
   if (!value) {
     return "Not recorded";
@@ -87,8 +72,16 @@ function formatDate(value: string | null) {
   return formatDateOnly(value, undefined, "Not recorded");
 }
 
-function getShortOverCopy(summary: LotteryDashboardSummary) {
-  if (summary.countedDays === 0) {
+function getShortOverCopy({
+  countedDays,
+  shortOver,
+  status,
+}: {
+  countedDays: number;
+  shortOver: number;
+  status: LotteryDashboardSummary["status"];
+}) {
+  if (countedDays === 0) {
     return {
       label: "Pending",
       tone: "amber" as const,
@@ -96,19 +89,19 @@ function getShortOverCopy(summary: LotteryDashboardSummary) {
     };
   }
 
-  if (summary.status === "short") {
+  if (status === "short") {
     return {
       label: "Short",
       tone: "red" as const,
-      value: formatCurrency(Math.abs(summary.shortOver)),
+      value: formatCurrency(Math.abs(shortOver)),
     };
   }
 
-  if (summary.status === "over") {
+  if (status === "over") {
     return {
       label: "Over",
       tone: "green" as const,
-      value: formatCurrency(Math.abs(summary.shortOver)),
+      value: formatCurrency(Math.abs(shortOver)),
     };
   }
 
@@ -250,19 +243,6 @@ function ScratchLedgerSortButton({
 }
 
 type MetricTone = "amber" | "emerald" | "red" | "sky" | "slate" | "violet";
-type CashFlowFilter = "all" | "inbound" | "outbound";
-
-const INPUT_CLASSNAME = "app-input";
-const LOTTERY_CASH_TRANSACTION_TYPE_ORDER: LotteryCashTransactionType[] = [
-  "Daily Lottery Cash",
-  "EOD Cash Count",
-  "Pending Expected Cash",
-  "Cash Payback",
-  "Cash Advance",
-  "Lottery Deposit",
-  "Paid EFT",
-];
-
 const metricToneClasses: Record<MetricTone, { icon: string; value: string }> = {
   amber: {
     icon: "bg-amber-50 text-amber-700 ring-amber-200",
@@ -311,309 +291,12 @@ function BreakdownRow({
   );
 }
 
-function formatRecordedAt(value: string | null, timeZone: string) {
-  if (!value) {
-    return "Not recorded";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Not recorded";
-  }
-
-  try {
-    const parts = new Intl.DateTimeFormat("en-US", {
-      day: "numeric",
-      hour: "numeric",
-      hour12: true,
-      minute: "2-digit",
-      month: "short",
-      timeZone,
-      year: "numeric",
-    }).formatToParts(date);
-    const getPart = (type: Intl.DateTimeFormatPartTypes) =>
-      parts.find((part) => part.type === type)?.value ?? "";
-    const month = getPart("month");
-    const day = getPart("day");
-    const year = getPart("year");
-    const hour = getPart("hour");
-    const minute = getPart("minute");
-    const dayPeriod = getPart("dayPeriod");
-
-    if (!month || !day || !year || !hour || !minute || !dayPeriod) {
-      return "Not recorded";
-    }
-
-    return `${month} ${Number(day)}, ${year}, ${Number(hour)}:${minute} ${dayPeriod}`;
-  } catch {
-    return "Not recorded";
-  }
-}
-
-function getTransactionTypeTone(type: LotteryCashTransactionType) {
-  if (
-    type === "Daily Lottery Cash" ||
-    type === "EOD Cash Count" ||
-    type === "Cash Payback"
-  ) {
-    return "green" as const;
-  }
-
-  if (type === "Pending Expected Cash") {
-    return "amber" as const;
-  }
-
-  if (type === "Cash Advance" || type === "Lottery Deposit") {
-    return "red" as const;
-  }
-
-  return "blue" as const;
-}
-
-function LotteryCashTransactionLedger({
-  timeZone,
-  transactions,
-}: {
-  timeZone: string;
-  transactions: LotteryCashTransactionRow[];
-}) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState<
-    LotteryCashTransactionType | "all"
-  >("all");
-  const [flowFilter, setFlowFilter] = useState<CashFlowFilter>("all");
-  const deferredSearch = useDeferredValue(searchTerm.trim().toLowerCase());
-  const availableTypes = useMemo(
-    () =>
-      LOTTERY_CASH_TRANSACTION_TYPE_ORDER.filter((type) =>
-        transactions.some((transaction) => transaction.type === type),
-      ),
-    [transactions],
-  );
-  const filteredTransactions = useMemo(
-    () =>
-      transactions.filter((transaction) => {
-        const recordedAtLabel = formatRecordedAt(
-          transaction.recordedAt,
-          timeZone,
-        );
-        const matchesType =
-          typeFilter === "all" || transaction.type === typeFilter;
-        const matchesFlow =
-          flowFilter === "all" ||
-          (flowFilter === "inbound"
-            ? transaction.amount >= 0
-            : transaction.amount < 0);
-        const matchesSearch =
-          deferredSearch.length === 0 ||
-          formatDate(transaction.businessDate)
-            .toLowerCase()
-            .includes(deferredSearch) ||
-          transaction.businessDate.toLowerCase().includes(deferredSearch) ||
-          transaction.type.toLowerCase().includes(deferredSearch) ||
-          transaction.details.toLowerCase().includes(deferredSearch) ||
-          recordedAtLabel.toLowerCase().includes(deferredSearch) ||
-          formatCurrency(Math.abs(transaction.amount))
-            .toLowerCase()
-            .includes(deferredSearch) ||
-          formatCurrency(transaction.balanceAfter)
-            .toLowerCase()
-            .includes(deferredSearch);
-
-        return matchesType && matchesFlow && matchesSearch;
-      }),
-    [deferredSearch, flowFilter, timeZone, transactions, typeFilter],
-  );
-  const hasActiveFilters =
-    searchTerm.length > 0 || typeFilter !== "all" || flowFilter !== "all";
-  const inflowTotal = transactions.reduce(
-    (total, transaction) =>
-      transaction.amount > 0 ? total + transaction.amount : total,
-    0,
-  );
-  const outflowTotal = transactions.reduce(
-    (total, transaction) =>
-      transaction.amount < 0 ? total + Math.abs(transaction.amount) : total,
-    0,
-  );
-  const latestBalance = transactions[0]?.balanceAfter ?? 0;
-
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Current ledger balance
-          </p>
-          <p
-            className={`mt-2 text-2xl font-black ${
-              latestBalance >= 0 ? "text-emerald-700" : "text-red-700"
-            }`}
-          >
-            {formatCurrency(latestBalance)}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-            Inflows
-          </p>
-          <p className="mt-2 text-2xl font-black text-emerald-700">
-            {formatCurrency(inflowTotal)}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-red-700">
-            Outflows
-          </p>
-          <p className="mt-2 text-2xl font-black text-red-700">
-            {formatCurrency(outflowTotal)}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid gap-3 lg:grid-cols-[1.2fr_220px_220px_auto]">
-        <label className="relative block">
-          <Search className="pointer-events-none absolute left-4 top-3.5 h-4 w-4 text-dark-5 dark:text-dark-6" />
-          <input
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            className={`${INPUT_CLASSNAME} pl-10`}
-            placeholder="Search date, type, details, recorded time, or amount"
-          />
-        </label>
-
-        <select
-          value={typeFilter}
-          onChange={(event) =>
-            setTypeFilter(
-              event.target.value as LotteryCashTransactionType | "all",
-            )
-          }
-          className={INPUT_CLASSNAME}
-        >
-          <option value="all">All types</option>
-          {availableTypes.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={flowFilter}
-          onChange={(event) =>
-            setFlowFilter(event.target.value as CashFlowFilter)
-          }
-          className={INPUT_CLASSNAME}
-        >
-          <option value="all">All movement</option>
-          <option value="inbound">Inflows only</option>
-          <option value="outbound">Outflows only</option>
-        </select>
-
-        <button
-          type="button"
-          onClick={() => {
-            setSearchTerm("");
-            setTypeFilter("all");
-            setFlowFilter("all");
-          }}
-          disabled={!hasActiveFilters}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-stroke bg-gray-2 px-4 py-2 text-sm font-medium text-dark transition hover:bg-stroke disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-3 dark:text-white dark:hover:bg-dark-4"
-        >
-          <RotateCcw className="h-4 w-4" />
-          Reset
-        </button>
-      </div>
-
-      <div className="text-sm text-dark-5 dark:text-dark-6">
-        Showing {filteredTransactions.length} of {transactions.length} lottery
-        cash transactions
-      </div>
-
-      <div className="overflow-x-auto">
-        <Table totalRows={filteredTransactions.length}>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Business date</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Details</TableHead>
-              <TableHead>Recorded</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Balance after</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredTransactions.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="py-10 text-center text-dark-5 dark:text-dark-6"
-                >
-                  {transactions.length === 0
-                    ? "No lottery cash transactions recorded yet."
-                    : "No lottery cash transactions match the current filters."}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredTransactions.map((transaction) => {
-                const isInbound = transaction.amount >= 0;
-
-                return (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="font-medium text-dark dark:text-white">
-                      {formatDate(transaction.businessDate)}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge
-                        tone={getTransactionTypeTone(transaction.type)}
-                      >
-                        {transaction.type}
-                      </StatusBadge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="max-w-[420px] text-sm text-dark-5 dark:text-dark-6">
-                        {transaction.details}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-dark-5 dark:text-dark-6">
-                      {formatRecordedAt(transaction.recordedAt, timeZone)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span
-                        className={`font-bold ${
-                          isInbound
-                            ? "text-emerald-600"
-                            : "text-red-600 dark:text-red-400"
-                        }`}
-                      >
-                        {isInbound ? "+" : "-"}
-                        {formatCurrency(Math.abs(transaction.amount))}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold text-dark dark:text-white">
-                      {formatCurrency(transaction.balanceAfter)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-  );
-}
-
 export function LotteryDashboard({
-  cashTransactions,
   errorMessage,
   inventorySummary,
   scratchLedger,
   source,
   summary,
-  timeZone,
 }: LotteryDashboardProps) {
   const [scratchLedgerSort, setScratchLedgerSort] = useState<ScratchLedgerSort>(
     {
@@ -621,24 +304,17 @@ export function LotteryDashboard({
       key: "received",
     },
   );
-  const shortOver = getShortOverCopy(summary);
+  const monthToDate = summary.monthToDate;
+  const monthToDateLabel = `${formatDate(monthToDate.startDate)} to ${formatDate(monthToDate.endDate)}`;
+  const shortOver = getShortOverCopy(monthToDate);
   const sweepStatusLabel =
     summary.eftPaymentStatus === "paid" ? "Paid" : "Unpaid";
-  const paidEftDetail =
-    summary.paidEftWeeks > 0
-      ? `${formatCurrency(summary.paidEftTotal)} paid EFT applied across ${summary.paidEftWeeks} sweep${
-          summary.paidEftWeeks === 1 ? "" : "s"
-        }`
-      : "No paid EFT sweeps applied";
-  const cashBalanceDetail = `Through ${formatDate(
-    summary.cashInHandCutoffDate,
-  )}; excludes ${formatDate(summary.businessDate)} sales; ${paidEftDetail}`;
   const recentEftDetail = `${formatDate(summary.weekStartDate)} to ${formatDate(summary.weekEndDate)}; sweep ${formatDate(summary.sweepDate)}; ${formatCurrency(summary.settledPackSales)} settled packs`;
   const currentWeekEftDetail = `${formatDate(summary.currentWeekStartDate)} to ${formatDate(summary.currentWeekEndDate)}`;
   const shortOverDetail =
-    summary.countedDays > 0
-      ? `${summary.countedDays}/${summary.windowDays} days counted`
-      : "No EOD cash counts saved";
+    monthToDate.countedDays > 0
+      ? `${monthToDate.countedDays}/${monthToDate.windowDays} MTD days counted`
+      : "No MTD EOD cash counts saved";
   const ledgerCounts = {
     active: inventorySummary.activePacks,
     backstock: inventorySummary.backstockPacks,
@@ -698,11 +374,18 @@ export function LotteryDashboard({
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          detail={cashBalanceDetail}
-          icon={<WalletCards className="h-5 w-5" />}
-          label="Cash in hand"
-          tone={summary.cashAfterEft >= 0 ? "green" : "red"}
-          value={formatCurrency(summary.cashAfterEft)}
+          change={
+            summary.currentWeekEftDue > 0
+              ? "Due"
+              : summary.currentWeekEftDue < 0
+                ? "Credit"
+                : "Zero"
+          }
+          detail={currentWeekEftDetail}
+          icon={<CircleDollarSign className="h-5 w-5" />}
+          label="Current week EFT"
+          tone={summary.currentWeekEftDue > 0 ? "red" : "green"}
+          value={formatCurrency(summary.currentWeekEftDue)}
         />
         <StatCard
           change={sweepStatusLabel}
@@ -722,7 +405,7 @@ export function LotteryDashboard({
           change={shortOver.label}
           detail={shortOverDetail}
           icon={
-            summary.status === "balanced" ? (
+            monthToDate.status === "balanced" ? (
               <CheckCircle2 className="h-5 w-5" />
             ) : (
               <Calculator className="h-5 w-5" />
@@ -739,106 +422,22 @@ export function LotteryDashboard({
           value={shortOver.value}
         />
         <StatCard
-          change={
-            summary.currentWeekEftDue > 0
-              ? "Due"
-              : summary.currentWeekEftDue < 0
-                ? "Credit"
-                : "Zero"
-          }
-          detail={currentWeekEftDetail}
-          icon={<CircleDollarSign className="h-5 w-5" />}
-          label="Current week EFT"
-          tone={summary.currentWeekEftDue > 0 ? "red" : "green"}
-          value={formatCurrency(summary.currentWeekEftDue)}
+          change={`Net ${formatCurrency(monthToDate.netSales)}`}
+          detail={`${formatCurrency(monthToDate.drawSales)} online + ${formatCurrency(monthToDate.scratchSales)} scratch MTD`}
+          icon={<Ticket className="h-5 w-5" />}
+          label="Gross sales"
+          tone="blue"
+          value={formatCurrency(monthToDate.grossSales)}
         />
       </div>
-
-      <SectionCard
-        title="Cash in hand calculation"
-        description={`Expected by total lottery statistics through ${formatDate(
-          summary.cashInHandCutoffDate,
-        )}. Today's sales are excluded from this balance.`}
-        action={
-          <StatusBadge tone={summary.cashAfterEft >= 0 ? "green" : "red"}>
-            Cash {formatCurrency(summary.cashAfterEft)}
-          </StatusBadge>
-        }
-        className="rounded-lg sm:rounded-lg"
-        headerClassName="px-4 py-3 sm:px-4"
-        contentClassName="px-4 pb-4 pt-2"
-      >
-        <div className="divide-y divide-slate-100">
-          <BreakdownRow
-            label="Scratch sales total"
-            value={formatCurrency(summary.cashInHandScratchSales)}
-          />
-          <BreakdownRow
-            label="Online sales total"
-            value={formatCurrency(summary.cashInHandOnlineSales)}
-          />
-          <BreakdownRow
-            label="Payouts total"
-            tone={summary.cashInHandPayouts > 0 ? "red" : "slate"}
-            value={`-${formatCurrency(summary.cashInHandPayouts)}`}
-          />
-          <BreakdownRow
-            label="Cancels total"
-            tone={summary.cashInHandCancels > 0 ? "red" : "slate"}
-            value={`-${formatCurrency(summary.cashInHandCancels)}`}
-          />
-          <BreakdownRow
-            label="Net lottery sales"
-            tone="emerald"
-            value={formatCurrency(summary.cashInHandNetLotterySales)}
-          />
-          <BreakdownRow
-            label="Paid EFT"
-            tone={summary.paidEftTotal > 0 ? "red" : "slate"}
-            value={`-${formatCurrency(summary.paidEftTotal)}`}
-          />
-          <BreakdownRow
-            label="Cash advance"
-            tone={
-              summary.cashInHandCashAdvanceImpact < 0
-                ? "red"
-                : summary.cashInHandCashAdvanceImpact > 0
-                  ? "emerald"
-                  : "slate"
-            }
-            value={formatSignedCurrency(summary.cashInHandCashAdvanceImpact)}
-          />
-          <BreakdownRow
-            label="Lottery deposits"
-            tone={
-              summary.cashInHandLotteryDepositImpact < 0
-                ? "red"
-                : summary.cashInHandLotteryDepositImpact > 0
-                  ? "emerald"
-                  : "slate"
-            }
-            value={formatSignedCurrency(summary.cashInHandLotteryDepositImpact)}
-          />
-          <BreakdownRow
-            label="Expected by total stats"
-            tone={summary.cashInHandExpectedByStats >= 0 ? "emerald" : "red"}
-            value={formatCurrency(summary.cashInHandExpectedByStats)}
-          />
-          <BreakdownRow
-            label="Cash in hand"
-            tone={summary.cashAfterEft >= 0 ? "emerald" : "red"}
-            value={formatCurrency(summary.cashAfterEft)}
-          />
-        </div>
-      </SectionCard>
 
       <div className="grid gap-5 xl:grid-cols-3">
         <SectionCard
           title="Sales and cancels"
-          description="Current EFT window lottery sales."
+          description={`Month-to-date lottery sales from ${monthToDateLabel}.`}
           action={
             <StatusBadge tone="blue">
-              Net {formatCurrency(summary.netSales)}
+              Net {formatCurrency(monthToDate.netSales)}
             </StatusBadge>
           }
           className="rounded-lg sm:rounded-lg"
@@ -848,40 +447,40 @@ export function LotteryDashboard({
           <div className="divide-y divide-slate-100">
             <BreakdownRow
               label="Online sales"
-              value={formatCurrency(summary.drawSales)}
+              value={formatCurrency(monthToDate.drawSales)}
             />
             <BreakdownRow
               label="Scratch sales"
-              value={formatCurrency(summary.scratchSales)}
+              value={formatCurrency(monthToDate.scratchSales)}
             />
             <BreakdownRow
               label="Settled pack EFT value"
-              value={formatCurrency(summary.settledPackSales)}
+              value={formatCurrency(monthToDate.settledPackSales)}
             />
             <BreakdownRow
               label="Gross sales"
               tone="violet"
-              value={formatCurrency(summary.grossSales)}
+              value={formatCurrency(monthToDate.grossSales)}
             />
             <BreakdownRow
               label="Ticket cancels"
-              tone={summary.ticketCancels > 0 ? "amber" : "slate"}
-              value={`-${formatCurrency(summary.ticketCancels)}`}
+              tone={monthToDate.ticketCancels > 0 ? "amber" : "slate"}
+              value={`-${formatCurrency(monthToDate.ticketCancels)}`}
             />
             <BreakdownRow
               label="Net sales"
               tone="emerald"
-              value={formatCurrency(summary.netSales)}
+              value={formatCurrency(monthToDate.netSales)}
             />
           </div>
         </SectionCard>
 
         <SectionCard
           title="Payouts and credits"
-          description="Current EFT window cash paid out and terminal credits."
+          description="Month-to-date prize payouts, cancels, PROMO, and EFT credits."
           action={
             <StatusBadge tone="slate">
-              Total {formatCurrency(summary.payouts)}
+              Credits {formatCurrency(monthToDate.totalCredits)}
             </StatusBadge>
           }
           className="rounded-lg sm:rounded-lg"
@@ -891,30 +490,40 @@ export function LotteryDashboard({
           <div className="divide-y divide-slate-100">
             <BreakdownRow
               label="Online payouts"
-              value={formatCurrency(summary.drawPayouts)}
+              value={formatCurrency(monthToDate.drawPayouts)}
             />
             <BreakdownRow
               label="Scratch payouts"
-              value={formatCurrency(summary.scratchPayouts)}
+              value={formatCurrency(monthToDate.scratchPayouts)}
             />
             <BreakdownRow
               label="PROMO"
-              value={formatCurrency(summary.cashingBonus)}
+              value={formatCurrency(monthToDate.cashingBonus)}
             />
             <BreakdownRow
-              label="Total payouts and credits"
+              label="Ticket cancels credit"
+              tone={monthToDate.ticketCancels > 0 ? "amber" : "slate"}
+              value={formatCurrency(monthToDate.ticketCancels)}
+            />
+            <BreakdownRow
+              label="Total prize payouts"
               tone="sky"
-              value={formatCurrency(summary.payouts)}
+              value={formatCurrency(monthToDate.totalPayouts)}
+            />
+            <BreakdownRow
+              label="Total EFT credits"
+              tone="sky"
+              value={formatCurrency(monthToDate.totalCredits)}
             />
           </div>
         </SectionCard>
 
         <SectionCard
-          title="Commissions and EFT"
-          description="Commission credits and Thursday sweep due."
+          title="Commissions"
+          description="Month-to-date commission credits."
           action={
-            <StatusBadge tone={summary.netEftDue > 0 ? "red" : "green"}>
-              {formatCurrency(summary.totalCommissions)} commission
+            <StatusBadge tone="green">
+              {formatCurrency(monthToDate.totalCommissions)} commission
             </StatusBadge>
           }
           className="rounded-lg sm:rounded-lg"
@@ -924,66 +533,26 @@ export function LotteryDashboard({
           <div className="divide-y divide-slate-100">
             <BreakdownRow
               label="EFT net ticket sales"
-              value={formatCurrency(summary.netTicketSales)}
+              value={formatCurrency(monthToDate.netTicketSales)}
             />
             <BreakdownRow
               label={`Retailer commission (${summary.retailerCommissionRate}%)`}
               tone="emerald"
-              value={formatCurrency(summary.retailerCommissionCredit)}
+              value={formatCurrency(monthToDate.retailerCommissionCredit)}
             />
             <BreakdownRow
               label={`Payout commission (${summary.cashingBonusRate}%)`}
               tone="emerald"
-              value={formatCurrency(summary.cashingBonusCredit)}
+              value={formatCurrency(monthToDate.cashingBonusCredit)}
             />
             <BreakdownRow
               label="Total commissions"
               tone="emerald"
-              value={formatCurrency(summary.totalCommissions)}
-            />
-            <BreakdownRow
-              label="PROMO deduction"
-              tone="emerald"
-              value={formatCurrency(summary.cashingBonus)}
-            />
-            <BreakdownRow
-              label="Bond fee"
-              tone={summary.bondingFee > 0 ? "amber" : "slate"}
-              value={formatCurrency(summary.bondingFee)}
-            />
-            <BreakdownRow
-              label="Net EFT due"
-              tone={summary.netEftDue > 0 ? "red" : "emerald"}
-              value={formatCurrency(summary.netEftDue)}
-            />
-            <BreakdownRow
-              label="Current cash in hand"
-              tone={summary.cashAfterEft >= 0 ? "emerald" : "red"}
-              value={formatCurrency(summary.cashAfterEft)}
+              value={formatCurrency(monthToDate.totalCommissions)}
             />
           </div>
         </SectionCard>
       </div>
-
-      <SectionCard
-        title="Lottery cash transaction ledger"
-        description={`Running lottery cash flow through ${formatDate(
-          summary.cashInHandCutoffDate,
-        )}. Today's sales are excluded. Recorded times are shown in ${timeZone}.`}
-        action={
-          <StatusBadge tone={summary.cashAfterEft >= 0 ? "green" : "red"}>
-            Balance {formatCurrency(summary.cashAfterEft)}
-          </StatusBadge>
-        }
-        className="rounded-lg sm:rounded-lg"
-        headerClassName="px-4 py-3 sm:px-4"
-        contentClassName="px-4 pb-4 pt-2"
-      >
-        <LotteryCashTransactionLedger
-          timeZone={timeZone}
-          transactions={cashTransactions}
-        />
-      </SectionCard>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <StatCard

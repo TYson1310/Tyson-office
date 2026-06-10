@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { appendAuditEvent } from "@/lib/audit/events";
 import {
-  includeSoldOutPackInLotteryEft,
+  includeScratchPackInLotteryEft,
+  includeScratchPacksInLotteryEft,
   LotteryEftWorkflowError,
   reverseSoldOutPackLotteryEft,
 } from "@/lib/lottery/eft";
@@ -19,6 +20,7 @@ export const runtime = "nodejs";
 
 type IncludeEftPackBody = {
   inventoryId?: unknown;
+  inventoryIds?: unknown;
   sweepDate?: unknown;
 };
 
@@ -54,7 +56,32 @@ export async function POST(request: NextRequest) {
       return periodLock;
     }
 
-    const result = await includeSoldOutPackInLotteryEft(access, {
+    if (Array.isArray(body.inventoryIds)) {
+      const result = await includeScratchPacksInLotteryEft(access, {
+        inventoryIds: body.inventoryIds,
+        sweepDate: body.sweepDate,
+      });
+
+      await appendAuditEvent({
+        supabase: access.supabase,
+        storeKey: access.activeStoreKey,
+        entityType: "lottery_eft_pack_inclusion",
+        entityId: sweepDate,
+        action: "lottery.eft_pack_bulk_settled",
+        summary: `${result.settled.length} scratch pack settlement${result.settled.length === 1 ? "" : "s"} approved for EFT sweep ${sweepDate}`,
+        actorId: access.currentUser.id,
+        actorName:
+          access.currentUser.user_metadata?.full_name ??
+          access.currentUser.email ??
+          "User",
+        actorRole: access.currentUserRole,
+        metadata: result,
+      });
+
+      return NextResponse.json(result);
+    }
+
+    const result = await includeScratchPackInLotteryEft(access, {
       inventoryId: body.inventoryId,
       sweepDate: body.sweepDate,
     });
@@ -65,7 +92,7 @@ export async function POST(request: NextRequest) {
       entityType: "lottery_eft_pack_inclusion",
       entityId: result.auditId,
       action: "lottery.eft_pack_settled",
-      summary: `Sold-out pack ${result.packNumber} settled to EFT sweep ${result.sweepDate}`,
+      summary: `Scratch pack ${result.packNumber} settled to EFT sweep ${result.sweepDate}`,
       actorId: access.currentUser.id,
       actorName:
         access.currentUser.user_metadata?.full_name ??
@@ -86,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     return scratchCardErrorResponse(
       error,
-      "Failed to settle sold-out pack to EFT",
+      "Failed to settle scratch pack to EFT",
     );
   }
 }
@@ -114,7 +141,7 @@ export async function DELETE(request: NextRequest) {
       entityType: "lottery_eft_pack_inclusion",
       entityId: result.auditId,
       action: "lottery.eft_pack_reversed",
-      summary: `Sold-out pack ${result.packNumber} reversed from EFT sweep ${result.sweepDate}`,
+      summary: `Scratch pack ${result.packNumber} reversed from EFT sweep ${result.sweepDate}`,
       actorId: access.currentUser.id,
       actorName:
         access.currentUser.user_metadata?.full_name ??
@@ -135,7 +162,7 @@ export async function DELETE(request: NextRequest) {
 
     return scratchCardErrorResponse(
       error,
-      "Failed to reverse sold-out pack EFT settlement",
+      "Failed to reverse scratch pack EFT settlement",
     );
   }
 }

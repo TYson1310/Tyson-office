@@ -150,13 +150,6 @@ export const NAV_DATA: NavSection[] = [
         roles: ["admin", "manager", "employee"],
       },
       {
-        title: "Cash Advances",
-        url: "/lottery/cash-advances",
-        icon: Icons.Wallet,
-        items: [],
-        roles: ["admin", "manager"],
-      },
-      {
         title: "Reports",
         url: "/lottery/reports",
         icon: Icons.PieChart,

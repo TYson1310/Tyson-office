@@ -27,6 +27,8 @@ export type ScratchPackSettlementSale = {
 };
 
 export const SCRATCH_EFT_SETTLEMENT_AUDIT_TYPE = "bin_load_retirement";
+export const SCRATCH_EFT_ACTIVE_29_DAY_SETTLEMENT_AUDIT_TYPE =
+  "active_29_day_settlement";
 export const SCRATCH_EFT_SETTLEMENT_REVERSAL_AUDIT_TYPE =
   "eft_settlement_reversal";
 
@@ -59,6 +61,12 @@ export function isScratchEftSettlementAudit(
   auditType: string | null | undefined,
 ) {
   return auditType === SCRATCH_EFT_SETTLEMENT_AUDIT_TYPE;
+}
+
+export function isScratchEftActive29DaySettlementAudit(
+  auditType: string | null | undefined,
+) {
+  return auditType === SCRATCH_EFT_ACTIVE_29_DAY_SETTLEMENT_AUDIT_TYPE;
 }
 
 export function isScratchEftSettlementReversalAudit(
@@ -101,10 +109,16 @@ export function buildScratchPackSettlementSales({
       continue;
     }
 
-    if (
-      settlementByInventory.has(audit.inventory_id) ||
-      !isScratchEftSettlementAudit(audit.audit_type)
-    ) {
+    if (settlementByInventory.has(audit.inventory_id)) {
+      continue;
+    }
+
+    const isSoldOutSettlement = isScratchEftSettlementAudit(audit.audit_type);
+    const isActive29DaySettlement = isScratchEftActive29DaySettlementAudit(
+      audit.audit_type,
+    );
+
+    if (!isSoldOutSettlement && !isActive29DaySettlement) {
       continue;
     }
 
@@ -115,14 +129,20 @@ export function buildScratchPackSettlementSales({
     );
     const endTicketNumber = normalizeTicketNumber(audit.end_ticket_no);
 
-    if (!inventory || !game || !ticketCount || !endTicketNumber) {
+    if (!inventory || !game || !ticketCount) {
       continue;
     }
 
-    const finalTicketValue = ticketCount - 1;
+    if (isSoldOutSettlement) {
+      if (!endTicketNumber) {
+        continue;
+      }
 
-    if (Number(endTicketNumber) < finalTicketValue) {
-      continue;
+      const finalTicketValue = ticketCount - 1;
+
+      if (Number(endTicketNumber) < finalTicketValue) {
+        continue;
+      }
     }
 
     settlementByInventory.set(audit.inventory_id, {

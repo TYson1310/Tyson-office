@@ -252,7 +252,7 @@ async function assertPaymentDatesEditable(
 async function requireLotteryCashAdvanceAccess() {
   return requireScratchCardAccess(
     ["admin", "manager"],
-    "/lottery/cash-advances",
+    "/admin/bank-deposits",
   );
 }
 

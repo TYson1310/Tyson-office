@@ -195,7 +195,10 @@ export type OperationsBankDeposit = BankDeposit;
 export type OperationsCashVaultTransaction = CashVaultTransaction;
 
 export type SalesSeriesPoint = {
+  currentDateLabel?: string;
   label: string;
+  previousDateLabel?: string;
+  previousValue?: number;
   value: number;
 };
 
@@ -931,15 +934,40 @@ export function buildSalesSeries(
   timeZone = "UTC",
 ) {
   const todayKey = getTodayIsoDateInTimeZone(timeZone);
+  const salesByDate = new Map<string, number>();
+
+  summaries.forEach((summary) => {
+    const dateKey = toIsoDateKey(summary.date);
+
+    if (!dateKey) {
+      return;
+    }
+
+    salesByDate.set(
+      dateKey,
+      (salesByDate.get(dateKey) ?? 0) + summary.grossSales,
+    );
+  });
+
+  const getSalesForDate = (dateKey: string) => salesByDate.get(dateKey) ?? 0;
   const daily = Array.from({ length: 7 }, (_, index) => {
     const dateKey = addDaysToIsoDateKey(todayKey, -(6 - index));
-    const value = summaries
-      .filter((summary) => toIsoDateKey(summary.date) === dateKey)
-      .reduce((sum, summary) => sum + summary.grossSales, 0);
+    const previousDateKey = addDaysToIsoDateKey(dateKey, -7);
 
     return {
+      currentDateLabel: formatDateOnly(
+        dateKey,
+        { day: "numeric", month: "short", weekday: "short" },
+        dateKey,
+      ),
       label: formatDateOnly(dateKey, { weekday: "short" }, dateKey),
-      value,
+      previousDateLabel: formatDateOnly(
+        previousDateKey,
+        { day: "numeric", month: "short", weekday: "short" },
+        previousDateKey,
+      ),
+      previousValue: getSalesForDate(previousDateKey),
+      value: getSalesForDate(dateKey),
     };
   });
 

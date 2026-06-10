@@ -37,6 +37,195 @@ This app is currently configured as a private internal system, not a public mark
 - Inventory movement history records approved supplier return postings and reversals.
 - The app is no-indexed by default through `robots.txt` and metadata.
 
+## Mathematical And Statistical Logic
+
+The app contains business math across sales, cash control, inventory, vendors, payroll, expenses, reports, and lottery operations. Financial amounts are generally rounded to cents with `Math.round(value * 100) / 100`; invoice piece quantities round to three decimals. Percent and rate inputs are clamped to valid ranges, commonly `0` to `100`, and target product margins are capped below `95%` to avoid impossible price calculations.
+
+### Shared Numeric Rules
+
+- Sales closeout matching uses a `0.01` tolerance between payment totals and product totals.
+- Vendor invoice reconciliation uses a `0.05` tolerance for line, subtotal, tax, and total mismatches.
+- Lottery report day ranges are clamped to safe windows, such as `1` to `90` days for reports and `1` to `52` weeks for EFT history.
+- Negative or invalid numeric inputs are normalized before calculations so dashboards and reports do not show `NaN` or infinite values.
+
+### Sales, Cash, And Deposits
+
+- Daily sales payment totals are grouped by enabled payment method, and product totals are grouped by enabled sales detail type.
+- `totalByPayment = sum(payment line amounts)`.
+- `totalByProduct = sum(product line amounts)`.
+- `cashSales = sum(payment methods where store settings mark the method as cash-counted)`.
+- `cashlessSales = totalByPayment - cashSales`.
+- Sales closeout unlocks only when payment lines and product lines both exist and `abs(totalByPayment - totalByProduct) <= 0.01`.
+- Gross sales use the payment total when it is materially non-zero; otherwise the product total is used.
+- Daily expected cash is `openingFloat + cashSales - totalPayouts`.
+- Daily cash variance is `expectedCash - actualCashCounted`.
+- Daily variance percent is `(expectedCash - actualCashCounted) / (expectedCash || 1) * 100`.
+- Bank deposit preview is `cashCounted - closingFloat`.
+- Product breakdown percentages are `productAmount / totalProductAmount * 100`.
+- Cash vault activity records cash sales as positive movement, payouts as negative movement, bank deposits as negative movement, and voided deposits as excluded movement.
+- Sales cash variance is inverted when posted to the cash vault so shortages reduce cash on hand and overages increase cash on hand.
+- Fallback cash on hand equals cash sales minus approved sales payouts, approved sales variance, approved cash expenses, posted cash vendor payments, cash payroll payments, and non-voided bank deposits.
+
+### Vendors, Invoices, And Product Costs
+
+- Invoice net balance is `invoiceAmount - postedPayments - approvedAdjustments`, rounded to cents.
+- Invoice status is paid when net balance is `<= 0.005`, overdue when the due date has passed and balance is positive, pending when still open, and cancelled when explicitly cancelled.
+- Supplier net payable is `sum(invoice net balances) - unallocated approved adjustments`.
+- Supplier open balance is `max(netPayable, 0)`.
+- Supplier available credit is `max(-netPayable, 0)`.
+- Vendor ledger running balance adds invoice debits and subtracts posted payment or approved adjustment credits.
+- Supplier adjustment item amount is `quantity * unitCost` when both values are positive; otherwise the normalized amount is used.
+- Adjustment inventory impact aggregates by product and recomputes weighted unit cost as `totalAmount / totalQuantity`.
+- Invoice line total is `sum(invoice item amounts)`.
+- Expected invoice total from subtotal is `subtotal + tax`.
+- Invoice mismatch flags trigger when line totals, subtotal, tax, or total differ by more than `0.05`.
+- Invoice item unit count is `quantity * itemsPerPack`.
+- Invoice cost per piece is `itemAmount / unitCount`.
+- Product catalog cost falls back through item amount per inventory quantity, unit price per pack, and unit price when detailed pack information is missing.
+- Selling price for a target gross margin is `cost / (1 - clampedMarginRatio)`.
+- Product cost review compares latest and previous receipt costs with `increaseAmount = latestCost - previousCost`.
+- Product cost increase percent is `increaseAmount / previousCost * 100`.
+- Default cost review warning threshold is `5%`, with same-vendor and cross-vendor comparisons sorted by increase percent and receipt date.
+
+### Expenses, Budgets, And Recurring Costs
+
+- Expense subtotal is `totalAmount - taxAmount`, rounded to cents.
+- Expense validation requires total amount greater than zero, tax amount at least zero, and tax amount no greater than total.
+- Duplicate expense detection compares rounded amount, normalized category, vendor or supplier, normalized description, non-void status, and dates within `7` days.
+- Monthly budget actuals are approved expense sums grouped by normalized category.
+- Budget variance is `budgetAmount - actualAmount`.
+- Budget status is `unbudgeted` when budget is zero and actual is positive, `over_budget` when variance is negative, `under_budget` when variance is positive, and `on_target` when variance is zero.
+- Budget summaries total budget, actual, and variance, then count categories by status.
+- Recurring expense due day is clamped from `1` to `31` and then clamped again to the number of days in the target month.
+
+### Payroll, Shifts, And Staff Metrics
+
+- Pay statement regular hours combine regular input hours and legacy overtime hours.
+- Current generated overtime pay is `0`, and generated overtime multiplier is `1`.
+- If hourly rate is positive and explicit gross pay is not supplied, `regularPay = regularHours * hourlyRate` and `grossPay = regularPay + bonus`.
+- If explicit gross pay is supplied, `regularPay = max(grossPay - bonus, 0)`.
+- Net pay is explicit net pay when supplied; otherwise `max(grossPay - deductions, 0)`.
+- Payroll editor base pay before bonus is `max(initialGrossPay - initialBonusAmount, 0)`.
+- Projected gross payroll is `basePayBeforeBonus + newBonusAmount`.
+- Projected net payroll is `max(projectedGross - totalDeductions, 0)`.
+- Payroll period analysis groups pay statements by period, then sums gross pay, deductions, and net pay while counting employees.
+- Employee year-to-date metrics sum paid gross, deductions, net pay, and bonuses.
+- Employee average net pay is `yearToDateNetPay / paidPayCycles`.
+- Employee deduction rate is `yearToDateDeductions / yearToDateGrossPay`.
+- Shift duration is calculated from local start and end times, supports overnight shifts, converts milliseconds to hours, and rounds to two decimals.
+- Scheduled shift hours are `max(durationHours - unpaidBreakMinutes / 60, 0)`.
+- Open shift hours are calculated from clock-in time to the current reference time.
+- Attendance flags use thresholds of `10` minutes late, `15` minutes missed clock-out after scheduled end, `10` minutes early finish, and overtime above scheduled hours by more than `0.25` hours.
+- Finalized payroll shift hours sum verified closed shifts by date.
+- Staff dashboard averages include active staff count, average hourly rate, and average permission count per staff member.
+
+### Inventory, Margins, And Product Risk
+
+- Product margin percent is `(price - cost) / price * 100`, with `0` margin when price is not positive.
+- Inventory value is `sum(productCost * quantityOnHand)`.
+- Inventory status is `Backorder` when quantity is `<= 0`, `Critical` when quantity is `<= max(1, floor(reorderLevel / 2))`, `Reorder` when quantity is `<= reorderLevel`, and `Healthy` otherwise.
+- Replenishment need is `max(reorderLevel * 2 - quantityOnHand, 0)`.
+- Product days of cover is `quantityOnHand / dailyVelocity` when daily velocity is positive.
+- Category coverage average is the average of `quantityOnHand / max(dailyVelocity, 1)`.
+- Coverage progress percent is `min(round(daysCover / 14 * 100), 100)`.
+- Inventory priority score is `stockStatusPriority * 100 + max(targetMargin - currentMargin, 0)` plus vendor cost-risk boosts.
+- Vendor cost-risk boosts add `50` for same-vendor cost increases and `35` for cross-vendor cost differences.
+- Manual product quantity updates record movement quantity as `quantityAfter - quantityBefore`.
+- Manual product movement total amount is `quantityDelta * unitCost`, rounded to cents.
+
+### Reports, Dashboards, And Financial Analytics
+
+- Sales series aggregate gross sales daily for `7` days, monthly for `12` months, and yearly for `4` years.
+- Recent sales trends sum gross sales and sales line count by day.
+- Payment breakdown percent is `paymentMethodAmount / totalPayments * 100`.
+- Monthly financial revenue is `sum(order totals)`.
+- Monthly cost of goods sold is `sum(productCost * quantity)` across order items.
+- Monthly operating expense is approved expense total for the period.
+- Monthly profit is `revenue - costOfGoodsSold - operatingExpense`.
+- Monthly profit margin is `profit / revenue * 100`.
+- Month-to-date gross profit is `revenue - costOfGoodsSold`.
+- Month-to-date gross margin is `grossProfit / revenue * 100`.
+- Month-to-date net profit is `grossProfit - approvedExpenses`.
+- Month-to-date net margin is `netProfit / revenue * 100`.
+- Expense category share is `categoryTotal / totalExpenseAmount * 100`.
+- Expense category average is `categoryTotal / entryCount`.
+- Margin reports calculate average margin, products below target, and low-margin products below `20%`.
+- Vendor analysis uses posted payment spend, approved adjustment totals, average invoice amount, supplier reliability percent, open balance, and available credit.
+- Top product reports group order items by product, then sum units and revenue.
+- Product break-even profit per unit is `price - cost`.
+- Product break-even inventory investment is `cost * max(quantityOnHand, 0)`.
+- Product break-even units are `inventoryInvestment / profitPerUnit` when profit per unit is positive.
+- Product break-even revenue is `breakEvenUnits * price`.
+- Product current sales volume is units sold in the last `30` days.
+- Product daily velocity is `currentSalesVolume / 30`.
+- Product days to break even is `breakEvenUnits / dailyVelocity` when daily velocity is positive.
+- Cost alert margin gap is `currentMargin - targetMargin`.
+- Cost alert recommended price is `cost / (1 - targetMarginRatio)`.
+- Cost alert severity is critical when current margin is `<= 0` or margin gap is `<= -10`; otherwise it is warning.
+- Executive alerts count and sum overdue payables, supplier credits, low-margin products, delayed purchase orders, unreconciled sales, and draft expenses.
+- Sales report average transaction is `totalSales / totalTransactions`.
+- Profit report average margin averages period margins, best period chooses maximum margin, and year-to-date profit sums period profit.
+- Payroll report average per employee is `totalGrossPay / employeeCount`.
+- Payroll deduction rate is `totalDeductions / totalGrossPay * 100`.
+- Vendor report average on-time score is the average supplier reliability percent.
+- Report exports round numeric financial values to two decimals.
+
+### Lottery, Scratch Cards, And EFT
+
+- Lottery money values are normalized to cents, and commission rates are clamped to `0` through `100`.
+- Scratch tickets sold are `endTicket - startTicket`.
+- If a ticket reset is allowed, scratch ticket start becomes `000` and tickets sold use the ending ticket value.
+- Scratch expected sales are `ticketsSold * ticketPrice`.
+- Scratch short or over amount is `expectedSales - posSales`.
+- Scratch status is short when the amount is positive, over when negative, and balanced when zero.
+- End-of-day scratch audits use the prior ending ticket as the next starting ticket, except newly activated packs may reset when no previous sold audit exists.
+- Final scratch ticket number is `ticketCount - 1`.
+- Sold-out pack remaining tickets are `ticketLimit - startTicket`.
+- Sold-out expected sales are `remainingTickets * ticketPrice`.
+- Lottery expected cash is `max(openingCashFloat + scratchSales + terminalSales - ticketCancels - drawPayouts - scratchPayouts - cashingBonus, 0)`.
+- Lottery short or over is `expectedCash - tillCash`.
+- Lottery cash movement excluding float is `scratchSales + terminalSales - drawPayouts - scratchPayouts - cashingBonus - ticketCancels`.
+- Lottery EFT net ticket sales are `grossSales - ticketCancels`.
+- EFT retailer commission credit is `netTicketSales * retailerCommissionRate / 100`.
+- EFT payout commission credit is `totalPayouts * payoutCommissionRate / 100`.
+- EFT total commission is retailer commission plus payout commission.
+- EFT total credits are `ticketCancels + totalPayouts + totalCommissions + promoCredits`.
+- EFT net due is `netTicketSales - totalCommissions - totalPayouts - promoCredits + bondingFee + administrativeFees`.
+- Dashboard scratch EFT sales include retired fully settled packs at `ticketCount * ticketPrice`, with reversal audits removing settlements.
+- Gross lottery sales are `scratchSales + drawSales`.
+- Lottery net sales are `max(grossLotterySales - ticketCancels, 0)`.
+- Lottery payouts are `drawPayouts + scratchPayouts + cashingBonus`.
+- Paid EFT amount uses explicit paid amount when non-negative; otherwise it uses calculated net EFT due.
+- Lottery cash-in-hand timeline combines expected daily movement, cash advances, paybacks, lottery deposits, and paid EFT withdrawals in chronological order.
+- Cash after EFT includes paid EFT withdrawals; available cash before EFT excludes paid EFT withdrawals.
+- Cash advance impact is `paybacksReceived - advancesTaken`.
+- Open cash advance balance is `max(advanceAmount - postedPaybacks, 0)`.
+- Lottery report daily rows sum scratch sales, draw sales, gross sales, payouts, cancels, expected cash, counted cash, short/over amount, and tickets sold.
+- Lottery report summary sums daily values and counts balanced, short, over, and pending days.
+- Average daily lottery gross is `grossSales / numberOfDays`.
+- Lottery game performance groups by game, sums calculated scratch revenue, estimates tickets sold as `round(scratchSales / ticketPrice)` when needed, and sorts by scratch sales.
+- Lottery inventory pack value is `ticketCount * ticketPrice`.
+- Returned lottery pack value is explicit returned value or `returnedTicketCount * ticketPrice`.
+
+### Loss Prevention And Owner Controls
+
+- Loss-prevention cash gap is `cashSales - sameDayDeposits`.
+- Loss-prevention cash gap rows appear when `abs(cashGap) >= 1`.
+- High-severity loss-prevention cash gaps use `abs(cashGap) >= 100`.
+- Sales reconciliation variance rows appear when `abs(variance) >= 1`.
+- High-severity sales variance uses `abs(variance) >= 100`.
+- Owner command center today cash gap is `todayCashSales - todayDeposits`.
+- Owner command center month metrics sum net sales, cash sales, and deposits from the start of the month.
+- Owner total money due is `vendorDue + payrollDue + max(unpaidEftDue, 0)`.
+- Owner attention items sort by severity score, then date.
+- Deposit matching treats `abs(cashGap) < 1` as matched and gaps `>= 100` as red risk.
+
+### Admin Utility Metrics
+
+- Store health backup age is calculated from the latest backup timestamp in hours, floored at zero.
+- Backup age display switches from hours to days and hours when age exceeds one day.
+- Store health warning counts are derived from backup manifest warnings.
+
 ## Stack
 
 - Next.js 16
