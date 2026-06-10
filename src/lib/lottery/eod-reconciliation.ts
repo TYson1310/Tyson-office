@@ -12,7 +12,10 @@ import {
   loadLotteryCashAdvanceSummary,
   type LotteryCashAdvanceRecord,
 } from "@/lib/lottery/cash-advances";
-import { calculateLotteryEodScratchSales } from "@/lib/lottery/cash";
+import {
+  calculateLotteryCashMovementScratchSales,
+  calculateLotteryEodExpectedCash,
+} from "@/lib/lottery/cash";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveStoreContext } from "@/lib/stores/server";
@@ -27,9 +30,12 @@ type TerminalReportRow = {
 };
 
 type EodReconciliationRow = {
+  closing_cash_float: number | string | null;
   manager_notes: string | null;
-  opening_cash_float: number | string;
+  opening_cash_float: number | string | null;
   pos_register_total: number | string;
+  short_over_amount: number | string;
+  total_expected_cash: number | string;
 };
 
 type LotteryEodSubmissionState = {
@@ -46,7 +52,6 @@ type SaveLotteryEodRow = {
   online_payout_total: number | string;
   scratch_payout_total: number | string;
   cashing_bonus_total: number | string;
-  opening_cash_float?: number | string | null;
   total_expected_cash: number | string;
   till_cash_total: number | string;
   short_over_amount: number | string;
@@ -120,6 +125,8 @@ export type LotteryEodReconciliationData = {
   ticketCancels: number;
   cashingBonus: number;
   lotteryBondFee: number;
+  openingCashFloat: number;
+  closingCashFloat: number;
   lotteryCashAdvanceNetImpact: number;
   lotteryCashAdvancesAvailable: boolean;
   lotteryCashAdvancesWarning?: string;
@@ -130,8 +137,9 @@ export type LotteryEodReconciliationData = {
   onlineTotalPayout: number;
   scratchCardTotalPayout: number;
   scratchSalesToDate: number;
-  startingFloat: number;
+  shortOverAmount: number;
   tillCash: number;
+  totalExpectedCash: number;
   managerNotes: string;
   errorMessage?: string;
 };
@@ -141,10 +149,11 @@ export type LotteryEodReconciliationPayload = {
   date?: unknown;
   managerNotes?: unknown;
   cashingBonus?: unknown;
+  closingCashFloat?: unknown;
   lotteryBondFee?: unknown;
   onlineTotalPayout?: unknown;
+  openingCashFloat?: unknown;
   scratchCardTotalPayout?: unknown;
-  startingFloat?: unknown;
   terminalSales?: unknown;
   ticketCancels?: unknown;
   tillCash?: unknown;
@@ -254,11 +263,7 @@ function normalizeStoredTicketValue(value: string | null | undefined) {
 function normalizeStoredTicketCount(value: number | string | null | undefined) {
   const normalized = typeof value === "number" ? value : Number(value);
 
-  if (
-    !Number.isInteger(normalized) ||
-    normalized <= 0 ||
-    normalized > 1000
-  ) {
+  if (!Number.isInteger(normalized) || normalized <= 0 || normalized > 1000) {
     return null;
   }
 
@@ -415,6 +420,8 @@ export async function loadLotteryEodReconciliationData(input?: {
       isReconciled: false,
       managerNotes: "",
       onlineTotalPayout: 0,
+      openingCashFloat: 0,
+      closingCashFloat: 0,
       cashingBonus: 0,
       lotteryBondFee: 0,
       lotteryCashAdvanceNetImpact: 0,
@@ -425,10 +432,11 @@ export async function loadLotteryEodReconciliationData(input?: {
       lotteryCashPaybacksReceived: 0,
       scratchCardTotalPayout: 0,
       scratchSalesToDate: 0,
-      startingFloat: 0,
+      shortOverAmount: 0,
       terminalSales: 0,
       ticketCancels: 0,
       tillCash: 0,
+      totalExpectedCash: 0,
     };
   }
 
@@ -436,6 +444,7 @@ export async function loadLotteryEodReconciliationData(input?: {
   const [
     terminalReportResult,
     reconciliationResult,
+    previousClosingFloatResult,
     auditResult,
     cashAdvanceSummary,
   ] = await Promise.all([
@@ -448,11 +457,12 @@ export async function loadLotteryEodReconciliationData(input?: {
       .eq("report_date", businessDate)
       .maybeSingle<TerminalReportRow>(),
     loadEodReconciliationRow(supabase, auditData.storeKey, businessDate),
+    loadPreviousClosingCashFloat(supabase, auditData.storeKey, businessDate),
     supabase
       .from("daily_audits")
       .select("audit_type,calculated_revenue")
       .eq("store_key", auditData.storeKey)
-      .eq("audit_type", "eod")
+      .in("audit_type", ["eod", "shift", "bin_load_retirement"])
       .eq("audit_date", businessDate)
       .returns<
         Array<{
@@ -470,6 +480,7 @@ export async function loadLotteryEodReconciliationData(input?: {
   const error =
     terminalReportResult.error ??
     reconciliationResult.error ??
+    previousClosingFloatResult.error ??
     auditResult.error;
 
   if (error) {
@@ -481,6 +492,8 @@ export async function loadLotteryEodReconciliationData(input?: {
       isReconciled: false,
       managerNotes: "",
       onlineTotalPayout: 0,
+      openingCashFloat: 0,
+      closingCashFloat: 0,
       cashingBonus: 0,
       lotteryBondFee: 0,
       lotteryCashAdvanceNetImpact: 0,
@@ -493,14 +506,21 @@ export async function loadLotteryEodReconciliationData(input?: {
       lotteryCashPaybacksReceived: 0,
       scratchCardTotalPayout: 0,
       scratchSalesToDate: 0,
-      startingFloat: 0,
+      shortOverAmount: 0,
       terminalSales: 0,
       ticketCancels: 0,
       tillCash: 0,
+      totalExpectedCash: 0,
     };
   }
 
   const existingReconciliation = reconciliationResult.data;
+  const openingCashFloat = existingReconciliation
+    ? normalizeStoredMoney(existingReconciliation.opening_cash_float)
+    : previousClosingFloatResult.data;
+  const closingCashFloat = normalizeStoredMoney(
+    existingReconciliation?.closing_cash_float,
+  );
 
   return {
     source: "database",
@@ -508,6 +528,8 @@ export async function loadLotteryEodReconciliationData(input?: {
     bins: auditData.bins,
     isReconciled: Boolean(terminalReportResult.data),
     managerNotes: existingReconciliation?.manager_notes ?? "",
+    openingCashFloat,
+    closingCashFloat,
     onlineTotalPayout: normalizeStoredMoney(
       terminalReportResult.data?.draw_payouts,
     ),
@@ -527,15 +549,20 @@ export async function loadLotteryEodReconciliationData(input?: {
     scratchCardTotalPayout: normalizeStoredMoney(
       terminalReportResult.data?.scratch_payouts,
     ),
-    scratchSalesToDate: calculateLotteryEodScratchSales(auditResult.data ?? []),
-    startingFloat: normalizeStoredMoney(
-      existingReconciliation?.opening_cash_float,
+    scratchSalesToDate: calculateLotteryCashMovementScratchSales(
+      auditResult.data ?? [],
+    ),
+    shortOverAmount: normalizeStoredMoney(
+      existingReconciliation?.short_over_amount,
     ),
     terminalSales: normalizeStoredMoney(terminalReportResult.data?.draw_sales),
     ticketCancels: normalizeStoredMoney(
       terminalReportResult.data?.total_cancels,
     ),
     tillCash: normalizeStoredMoney(existingReconciliation?.pos_register_total),
+    totalExpectedCash: normalizeStoredMoney(
+      existingReconciliation?.total_expected_cash,
+    ),
   };
 }
 
@@ -549,11 +576,24 @@ function mapSaveLotteryEodRow(row: SaveLotteryEodRow) {
     onlineTotalPayout: normalizeStoredMoney(row.online_payout_total),
     cashingBonus: normalizeStoredMoney(row.cashing_bonus_total),
     scratchCardTotalPayout: normalizeStoredMoney(row.scratch_payout_total),
-    startingFloat: normalizeStoredMoney(row.opening_cash_float),
     totalExpectedCash: normalizeStoredMoney(row.total_expected_cash),
     tillCash: normalizeStoredMoney(row.till_cash_total),
     shortOverAmount: normalizeStoredMoney(row.short_over_amount),
     discrepancyStatus: row.discrepancy_status,
+  };
+}
+
+function attachSavedLotteryFloatTotals<T>(
+  result: T,
+  input: {
+    closingCashFloat: number;
+    openingCashFloat: number;
+  },
+) {
+  return {
+    ...result,
+    closingCashFloat: roundMoney(input.closingCashFloat),
+    openingCashFloat: roundMoney(input.openingCashFloat),
   };
 }
 
@@ -576,34 +616,31 @@ function getDiscrepancyStatus(shortOverAmount: number) {
 function calculateExpectedLotteryCash(input: {
   cashingBonus: number;
   onlineTotalPayout: number;
+  openingCashFloat: number;
   scratchCardTotalPayout: number;
   scratchSalesTotal: number;
-  startingFloat: number;
   terminalSales: number;
   ticketCancels: number;
 }) {
   const {
     cashingBonus,
     onlineTotalPayout,
+    openingCashFloat,
     scratchCardTotalPayout,
     scratchSalesTotal,
-    startingFloat,
     terminalSales,
     ticketCancels,
   } = input;
 
-  return roundMoney(
-    Math.max(
-      startingFloat +
-        scratchSalesTotal +
-        terminalSales -
-        ticketCancels -
-        onlineTotalPayout -
-        scratchCardTotalPayout -
-        cashingBonus,
-      0,
-    ),
-  );
+  return calculateLotteryEodExpectedCash({
+    cashingBonus,
+    onlineTotalPayout,
+    openingCashFloat,
+    scratchCardTotalPayout,
+    scratchSalesTotal,
+    terminalSales,
+    ticketCancels,
+  });
 }
 
 async function loadEodReconciliationRow(
@@ -616,10 +653,36 @@ async function loadEodReconciliationRow(
 }> {
   return supabase
     .from("eod_reconciliation")
-    .select("pos_register_total,manager_notes,opening_cash_float")
+    .select(
+      "opening_cash_float,closing_cash_float,pos_register_total,total_expected_cash,short_over_amount,manager_notes",
+    )
     .eq("store_key", storeKey)
     .eq("report_date", businessDate)
     .maybeSingle<EodReconciliationRow>();
+}
+
+async function loadPreviousClosingCashFloat(
+  supabase: SupabaseServerClient,
+  storeKey: string,
+  businessDate: string,
+) {
+  const { data, error } = await supabase
+    .from("eod_reconciliation")
+    .select("closing_cash_float")
+    .eq("store_key", storeKey)
+    .lt("report_date", businessDate)
+    .order("report_date", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ closing_cash_float: number | string | null }>();
+
+  if (error) {
+    return { data: 0, error };
+  }
+
+  return {
+    data: normalizeStoredMoney(data?.closing_cash_float),
+    error: null,
+  };
 }
 
 async function loadTerminalReportMarker(
@@ -915,9 +978,7 @@ async function getLotteryEodBinRequirement(
   }
 
   const activeInventory = (inventoryRows ?? []).filter(
-    (
-      row,
-    ): row is ActiveBinRequirementInventoryRow & { bin_number: number } =>
+    (row): row is ActiveBinRequirementInventoryRow & { bin_number: number } =>
       row.bin_number !== null,
   );
 
@@ -971,7 +1032,10 @@ async function getLotteryEodBinRequirement(
   }
 
   const gameById = new Map(gameRows.map((game) => [game.game_id, game]));
-  const latestAuditByInventory = new Map<string, ActiveBinRequirementAuditRow>();
+  const latestAuditByInventory = new Map<
+    string,
+    ActiveBinRequirementAuditRow
+  >();
 
   for (const audit of auditRows) {
     if (!audit.inventory_id) {
@@ -1322,7 +1386,7 @@ async function calculateScratchSalesTotal(
     .from("daily_audits")
     .select("audit_type,calculated_revenue")
     .eq("store_key", storeKey)
-    .eq("audit_type", "eod")
+    .in("audit_type", ["eod", "shift", "bin_load_retirement"])
     .eq("audit_date", reportDate)
     .returns<
       Array<{
@@ -1335,7 +1399,7 @@ async function calculateScratchSalesTotal(
     throwDatabaseError("Failed to calculate scratch sales", error);
   }
 
-  return roundMoney(calculateLotteryEodScratchSales(data ?? []));
+  return roundMoney(calculateLotteryCashMovementScratchSales(data ?? []));
 }
 
 function isMissingLotteryBondingFeeColumnError(error: {
@@ -1383,10 +1447,11 @@ async function saveLotteryEodWithClientFallback(input: {
   terminalSales: number;
   ticketCancels: number;
   lotteryBondFee: number;
+  openingCashFloat: number;
+  closingCashFloat: number;
   onlineTotalPayout: number;
   scratchCardTotalPayout: number;
   cashingBonus: number;
-  startingFloat: number;
   tillCash: number;
   managerNotes: string;
 }) {
@@ -1397,10 +1462,11 @@ async function saveLotteryEodWithClientFallback(input: {
     terminalSales,
     ticketCancels,
     lotteryBondFee,
+    openingCashFloat,
+    closingCashFloat,
     onlineTotalPayout,
     scratchCardTotalPayout,
     cashingBonus,
-    startingFloat,
     tillCash,
     managerNotes,
   } = input;
@@ -1557,9 +1623,9 @@ async function saveLotteryEodWithClientFallback(input: {
   const expectedCashTotal = calculateExpectedLotteryCash({
     cashingBonus,
     onlineTotalPayout,
+    openingCashFloat,
     scratchCardTotalPayout,
     scratchSalesTotal,
-    startingFloat,
     terminalSales,
     ticketCancels,
   });
@@ -1589,8 +1655,8 @@ async function saveLotteryEodWithClientFallback(input: {
   const reconciliationPayload = {
     store_key: access.activeStoreKey,
     report_date: reportDate,
-    opening_cash_float: roundMoney(startingFloat),
-    closing_cash_float: 0,
+    opening_cash_float: roundMoney(openingCashFloat),
+    closing_cash_float: roundMoney(closingCashFloat),
     total_expected_cash: expectedCashTotal,
     pos_register_total: roundMoney(tillCash),
     manager_notes: notes,
@@ -1616,14 +1682,16 @@ async function saveLotteryEodWithClientFallback(input: {
     online_payout_total: roundMoney(onlineTotalPayout),
     scratch_payout_total: roundMoney(scratchCardTotalPayout),
     cashing_bonus_total: roundMoney(cashingBonus),
-    opening_cash_float: roundMoney(startingFloat),
     total_expected_cash: expectedCashTotal,
     till_cash_total: roundMoney(tillCash),
     short_over_amount: shortOverTotal,
     discrepancy_status: discrepancyStatus,
   });
   return {
-    ...savedResult,
+    ...attachSavedLotteryFloatTotals(savedResult, {
+      closingCashFloat,
+      openingCashFloat,
+    }),
     lotteryBondFee: roundMoney(lotteryBondFee),
     lotteryCashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
     lotteryCashAdvancesTaken: cashAdvanceSummary.dailyAdvanceTotal,
@@ -1667,13 +1735,17 @@ export async function submitLotteryEodReconciliation(
     payload.lotteryBondFee ?? 0,
     "Lottery bond fee",
   );
+  const openingCashFloat = normalizeMoney(
+    payload.openingCashFloat ?? 0,
+    "Opening float",
+  );
+  const closingCashFloat = normalizeMoney(
+    payload.closingCashFloat ?? 0,
+    "Closing float",
+  );
   const scratchCardTotalPayout = normalizeMoney(
     payload.scratchCardTotalPayout,
     "Scratch card total payout",
-  );
-  const startingFloat = normalizeMoney(
-    payload.startingFloat ?? 0,
-    "Starting float",
   );
   const tillCash = normalizeMoney(payload.tillCash, "Lottery cash counted");
   const managerNotes = normalizeString(payload.managerNotes);
@@ -1691,10 +1763,11 @@ export async function submitLotteryEodReconciliation(
       terminalSales,
       ticketCancels,
       lotteryBondFee,
+      openingCashFloat,
+      closingCashFloat,
       onlineTotalPayout,
       scratchCardTotalPayout,
       cashingBonus,
-      startingFloat,
       tillCash,
       managerNotes,
     });
@@ -1727,10 +1800,11 @@ export async function submitLotteryEodReconciliation(
         terminalSales,
         ticketCancels,
         lotteryBondFee,
+        openingCashFloat,
+        closingCashFloat,
         onlineTotalPayout,
         scratchCardTotalPayout,
         cashingBonus,
-        startingFloat,
         tillCash,
         managerNotes,
       });
@@ -1754,9 +1828,9 @@ export async function submitLotteryEodReconciliation(
   const totalExpectedCash = calculateExpectedLotteryCash({
     cashingBonus,
     onlineTotalPayout,
+    openingCashFloat,
     scratchCardTotalPayout,
     scratchSalesTotal: savedResult.scratchSales,
-    startingFloat,
     terminalSales,
     ticketCancels,
   });
@@ -1767,8 +1841,8 @@ export async function submitLotteryEodReconciliation(
       {
         store_key: access.activeStoreKey,
         report_date: reportDate,
-        opening_cash_float: roundMoney(startingFloat),
-        closing_cash_float: 0,
+        opening_cash_float: roundMoney(openingCashFloat),
+        closing_cash_float: roundMoney(closingCashFloat),
         total_expected_cash: totalExpectedCash,
         pos_register_total: roundMoney(tillCash),
         manager_notes: managerNotes.trim() || null,
@@ -1779,20 +1853,22 @@ export async function submitLotteryEodReconciliation(
 
   if (reconciliation.error) {
     throwDatabaseError(
-      "Failed to save lottery starting float",
+      "Failed to save lottery reconciliation",
       reconciliation.error,
     );
   }
 
   return {
-    ...savedResult,
+    ...attachSavedLotteryFloatTotals(savedResult, {
+      closingCashFloat,
+      openingCashFloat,
+    }),
     discrepancyStatus: getDiscrepancyStatus(shortOverAmount),
     lotteryBondFee,
     lotteryCashAdvanceNetImpact: cashAdvanceSummary.dailyNetCashImpact,
     lotteryCashAdvancesTaken: cashAdvanceSummary.dailyAdvanceTotal,
     lotteryCashPaybacksReceived: cashAdvanceSummary.dailyPaybackTotal,
     shortOverAmount,
-    startingFloat: roundMoney(startingFloat),
     totalExpectedCash,
   };
 }

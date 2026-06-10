@@ -12,6 +12,16 @@ export function isLotteryEodAuditType(auditType: string | null | undefined) {
   return auditType === "eod";
 }
 
+export function isLotteryCashMovementAuditType(
+  auditType: string | null | undefined,
+) {
+  return (
+    auditType === "eod" ||
+    auditType === "shift" ||
+    auditType === "bin_load_retirement"
+  );
+}
+
 export function calculateLotteryEodScratchSales(
   auditRows: LotteryAuditRevenueRow[],
 ) {
@@ -26,17 +36,24 @@ export function calculateLotteryEodScratchSales(
   );
 }
 
-export function calculateLotteryCashInHandFromReconciliation(input: {
-  openingCashFloat?: number | string | null;
-  posRegisterTotal?: number | string | null;
-}) {
+export function calculateLotteryCashMovementScratchSales(
+  auditRows: LotteryAuditRevenueRow[],
+) {
   return normalizeMoney(
-    Math.max(
-      normalizeMoney(input.posRegisterTotal) -
-        normalizeMoney(input.openingCashFloat),
+    auditRows.reduce(
+      (total, audit) =>
+        isLotteryCashMovementAuditType(audit.audit_type)
+          ? total + normalizeMoney(audit.calculated_revenue)
+          : total,
       0,
     ),
   );
+}
+
+export function calculateLotteryCashInHandFromReconciliation(input: {
+  posRegisterTotal?: number | string | null;
+}) {
+  return normalizeMoney(input.posRegisterTotal);
 }
 
 export function applyLotteryCashAdvanceImpact(input: {
@@ -49,13 +66,47 @@ export function applyLotteryCashAdvanceImpact(input: {
 }
 
 export function calculateLotteryExpectedCashInHandFromReconciliation(input: {
-  openingCashFloat?: number | string | null;
   totalExpectedCash?: number | string | null;
+}) {
+  return normalizeMoney(input.totalExpectedCash);
+}
+
+export function calculateLotteryCashStatsMovement(input: {
+  cashingBonus?: number | string | null;
+  onlineTotalPayout?: number | string | null;
+  scratchCardTotalPayout?: number | string | null;
+  scratchSalesTotal?: number | string | null;
+  terminalSales?: number | string | null;
+  ticketCancels?: number | string | null;
+}) {
+  return normalizeMoney(
+    normalizeMoney(input.scratchSalesTotal) +
+      normalizeMoney(input.terminalSales) -
+      normalizeMoney(input.onlineTotalPayout) -
+      normalizeMoney(input.scratchCardTotalPayout) -
+      normalizeMoney(input.cashingBonus) -
+      normalizeMoney(input.ticketCancels),
+  );
+}
+
+export function calculateLotteryEodExpectedCash(input: {
+  cashingBonus?: number | string | null;
+  onlineTotalPayout?: number | string | null;
+  openingCashFloat?: number | string | null;
+  scratchCardTotalPayout?: number | string | null;
+  scratchSalesTotal?: number | string | null;
+  terminalSales?: number | string | null;
+  ticketCancels?: number | string | null;
 }) {
   return normalizeMoney(
     Math.max(
-      normalizeMoney(input.totalExpectedCash) -
-        normalizeMoney(input.openingCashFloat),
+      normalizeMoney(input.openingCashFloat) +
+        normalizeMoney(input.scratchSalesTotal) +
+        normalizeMoney(input.terminalSales) -
+        normalizeMoney(input.ticketCancels) -
+        normalizeMoney(input.onlineTotalPayout) -
+        normalizeMoney(input.scratchCardTotalPayout) -
+        normalizeMoney(input.cashingBonus),
       0,
     ),
   );

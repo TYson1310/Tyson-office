@@ -28,7 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDateOnly, formatDateTime } from "@/lib/date-time";
+import { formatDateOnly } from "@/lib/date-time";
 import type {
   LotteryCashTransactionRow,
   LotteryCashTransactionType,
@@ -69,6 +69,14 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 function formatCurrency(value: number) {
   return currencyFormatter.format(value);
+}
+
+function formatSignedCurrency(value: number) {
+  if (value === 0) {
+    return formatCurrency(0);
+  }
+
+  return `${value > 0 ? "+" : "-"}${formatCurrency(Math.abs(value))}`;
 }
 
 function formatDate(value: string | null) {
@@ -246,6 +254,7 @@ type CashFlowFilter = "all" | "inbound" | "outbound";
 
 const INPUT_CLASSNAME = "app-input";
 const LOTTERY_CASH_TRANSACTION_TYPE_ORDER: LotteryCashTransactionType[] = [
+  "Daily Lottery Cash",
   "EOD Cash Count",
   "Pending Expected Cash",
   "Cash Payback",
@@ -307,17 +316,47 @@ function formatRecordedAt(value: string | null, timeZone: string) {
     return "Not recorded";
   }
 
-  return (
-    formatDateTime(value, {
-      dateStyle: "medium",
-      timeStyle: "short",
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not recorded";
+  }
+
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      day: "numeric",
+      hour: "numeric",
+      hour12: true,
+      minute: "2-digit",
+      month: "short",
       timeZone,
-    }) || "Not recorded"
-  );
+      year: "numeric",
+    }).formatToParts(date);
+    const getPart = (type: Intl.DateTimeFormatPartTypes) =>
+      parts.find((part) => part.type === type)?.value ?? "";
+    const month = getPart("month");
+    const day = getPart("day");
+    const year = getPart("year");
+    const hour = getPart("hour");
+    const minute = getPart("minute");
+    const dayPeriod = getPart("dayPeriod");
+
+    if (!month || !day || !year || !hour || !minute || !dayPeriod) {
+      return "Not recorded";
+    }
+
+    return `${month} ${Number(day)}, ${year}, ${Number(hour)}:${minute} ${dayPeriod}`;
+  } catch {
+    return "Not recorded";
+  }
 }
 
 function getTransactionTypeTone(type: LotteryCashTransactionType) {
-  if (type === "EOD Cash Count" || type === "Cash Payback") {
+  if (
+    type === "Daily Lottery Cash" ||
+    type === "EOD Cash Count" ||
+    type === "Cash Payback"
+  ) {
     return "green" as const;
   }
 
@@ -447,7 +486,9 @@ function LotteryCashTransactionLedger({
         <select
           value={typeFilter}
           onChange={(event) =>
-            setTypeFilter(event.target.value as LotteryCashTransactionType | "all")
+            setTypeFilter(
+              event.target.value as LotteryCashTransactionType | "all",
+            )
           }
           className={INPUT_CLASSNAME}
         >
@@ -525,7 +566,9 @@ function LotteryCashTransactionLedger({
                       {formatDate(transaction.businessDate)}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge tone={getTransactionTypeTone(transaction.type)}>
+                      <StatusBadge
+                        tone={getTransactionTypeTone(transaction.type)}
+                      >
                         {transaction.type}
                       </StatusBadge>
                     </TableCell>
@@ -587,9 +630,9 @@ export function LotteryDashboard({
           summary.paidEftWeeks === 1 ? "" : "s"
         }`
       : "No paid EFT sweeps applied";
-  const cashBalanceDetail = `${summary.cashInHandRecordedDays} recorded day${
-    summary.cashInHandRecordedDays === 1 ? "" : "s"
-  }; ${formatCurrency(summary.cashInHandBeforePaidEft)} total before paid EFT; ${paidEftDetail}`;
+  const cashBalanceDetail = `Through ${formatDate(
+    summary.cashInHandCutoffDate,
+  )}; excludes ${formatDate(summary.businessDate)} sales; ${paidEftDetail}`;
   const recentEftDetail = `${formatDate(summary.weekStartDate)} to ${formatDate(summary.weekEndDate)}; sweep ${formatDate(summary.sweepDate)}; ${formatCurrency(summary.settledPackSales)} settled packs`;
   const currentWeekEftDetail = `${formatDate(summary.currentWeekStartDate)} to ${formatDate(summary.currentWeekEndDate)}`;
   const shortOverDetail =
@@ -710,6 +753,84 @@ export function LotteryDashboard({
           value={formatCurrency(summary.currentWeekEftDue)}
         />
       </div>
+
+      <SectionCard
+        title="Cash in hand calculation"
+        description={`Expected by total lottery statistics through ${formatDate(
+          summary.cashInHandCutoffDate,
+        )}. Today's sales are excluded from this balance.`}
+        action={
+          <StatusBadge tone={summary.cashAfterEft >= 0 ? "green" : "red"}>
+            Cash {formatCurrency(summary.cashAfterEft)}
+          </StatusBadge>
+        }
+        className="rounded-lg sm:rounded-lg"
+        headerClassName="px-4 py-3 sm:px-4"
+        contentClassName="px-4 pb-4 pt-2"
+      >
+        <div className="divide-y divide-slate-100">
+          <BreakdownRow
+            label="Scratch sales total"
+            value={formatCurrency(summary.cashInHandScratchSales)}
+          />
+          <BreakdownRow
+            label="Online sales total"
+            value={formatCurrency(summary.cashInHandOnlineSales)}
+          />
+          <BreakdownRow
+            label="Payouts total"
+            tone={summary.cashInHandPayouts > 0 ? "red" : "slate"}
+            value={`-${formatCurrency(summary.cashInHandPayouts)}`}
+          />
+          <BreakdownRow
+            label="Cancels total"
+            tone={summary.cashInHandCancels > 0 ? "red" : "slate"}
+            value={`-${formatCurrency(summary.cashInHandCancels)}`}
+          />
+          <BreakdownRow
+            label="Net lottery sales"
+            tone="emerald"
+            value={formatCurrency(summary.cashInHandNetLotterySales)}
+          />
+          <BreakdownRow
+            label="Paid EFT"
+            tone={summary.paidEftTotal > 0 ? "red" : "slate"}
+            value={`-${formatCurrency(summary.paidEftTotal)}`}
+          />
+          <BreakdownRow
+            label="Cash advance"
+            tone={
+              summary.cashInHandCashAdvanceImpact < 0
+                ? "red"
+                : summary.cashInHandCashAdvanceImpact > 0
+                  ? "emerald"
+                  : "slate"
+            }
+            value={formatSignedCurrency(summary.cashInHandCashAdvanceImpact)}
+          />
+          <BreakdownRow
+            label="Lottery deposits"
+            tone={
+              summary.cashInHandLotteryDepositImpact < 0
+                ? "red"
+                : summary.cashInHandLotteryDepositImpact > 0
+                  ? "emerald"
+                  : "slate"
+            }
+            value={formatSignedCurrency(summary.cashInHandLotteryDepositImpact)}
+          />
+          <BreakdownRow
+            label="Expected by total stats"
+            tone={summary.cashInHandExpectedByStats >= 0 ? "emerald" : "red"}
+            value={formatCurrency(summary.cashInHandExpectedByStats)}
+          />
+          <BreakdownRow
+            label="Cash in hand"
+            tone={summary.cashAfterEft >= 0 ? "emerald" : "red"}
+            value={formatCurrency(summary.cashAfterEft)}
+          />
+        </div>
+      </SectionCard>
 
       <div className="grid gap-5 xl:grid-cols-3">
         <SectionCard
@@ -836,7 +957,7 @@ export function LotteryDashboard({
               value={formatCurrency(summary.netEftDue)}
             />
             <BreakdownRow
-              label="Total cash in hand"
+              label="Current cash in hand"
               tone={summary.cashAfterEft >= 0 ? "emerald" : "red"}
               value={formatCurrency(summary.cashAfterEft)}
             />
@@ -846,7 +967,9 @@ export function LotteryDashboard({
 
       <SectionCard
         title="Lottery cash transaction ledger"
-        description={`Running lottery cash flow from EOD counts, pending estimates, cash advances, paybacks, lottery deposits, and paid EFT. Recorded times are shown in ${timeZone}.`}
+        description={`Running lottery cash flow through ${formatDate(
+          summary.cashInHandCutoffDate,
+        )}. Today's sales are excluded. Recorded times are shown in ${timeZone}.`}
         action={
           <StatusBadge tone={summary.cashAfterEft >= 0 ? "green" : "red"}>
             Balance {formatCurrency(summary.cashAfterEft)}

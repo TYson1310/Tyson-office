@@ -1,5 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import {
+  addDaysToIsoDateKey,
   enumerateIsoDateRange,
   getTodayIsoDateInTimeZone,
 } from "@/lib/date-time";
@@ -8,14 +9,14 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveStoreContext } from "@/lib/stores/server";
 import {
-  applyLotteryCashAdvanceImpact,
+  calculateLotteryCashMovementScratchSales,
+  calculateLotteryCashStatsMovement,
   calculateLotteryCashInHandFromReconciliation,
-  calculateLotteryEodScratchSales,
+  calculateLotteryEodExpectedCash,
   calculateLotteryExpectedCashInHandFromReconciliation,
 } from "./cash";
 import { isMissingLotteryCashAdvanceMigration } from "./cash-advances";
 import { calculateLotteryEftFormula } from "./eft-calculation";
-import { calculateAppliedLotteryEftPayment } from "./eft-paid-amount";
 import {
   getLatestLotteryEftSweepDate,
   getLotteryEftSweepPeriod,
@@ -45,7 +46,6 @@ type TerminalReportRow = {
 
 type EodReconciliationRow = {
   created_at?: string | null;
-  opening_cash_float: number | string | null;
   report_date: string;
   pos_register_total: number | string;
   short_over_amount: number | string;
@@ -133,6 +133,7 @@ type LotteryDepositTransactionSourceRow = {
 
 export type LotteryCashTransactionType =
   | "EOD Cash Count"
+  | "Daily Lottery Cash"
   | "Pending Expected Cash"
   | "Cash Advance"
   | "Cash Payback"
@@ -158,8 +159,17 @@ export type LotteryDashboardSummary = {
   cashingBonusCredit: number;
   cashingBonusRate: number;
   cashCounted: number;
+  cashInHandCancels: number;
+  cashInHandCashAdvanceImpact: number;
   cashInHandBeforePaidEft: number;
+  cashInHandCutoffDate: string;
+  cashInHandExpectedByStats: number;
+  cashInHandLotteryDepositImpact: number;
+  cashInHandNetLotterySales: number;
+  cashInHandOnlineSales: number;
+  cashInHandPayouts: number;
   cashInHandRecordedDays: number;
+  cashInHandScratchSales: number;
   countedDays: number;
   currentWeekEftDue: number;
   currentWeekEndDate: string;
@@ -327,6 +337,7 @@ function buildEmptyInventorySummary(): LotteryInventorySummary {
 
 function buildEmptySummary({
   businessDate,
+  cashInHandCutoffDate,
   currentWeekEndDate,
   currentWeekStartDate,
   sweepDate,
@@ -334,6 +345,7 @@ function buildEmptySummary({
   weekStartDate,
 }: {
   businessDate: string;
+  cashInHandCutoffDate: string;
   currentWeekEndDate: string;
   currentWeekStartDate: string;
   sweepDate: string;
@@ -349,8 +361,17 @@ function buildEmptySummary({
     cashingBonusCredit: 0,
     cashingBonusRate: 0,
     cashCounted: 0,
+    cashInHandCancels: 0,
+    cashInHandCashAdvanceImpact: 0,
     cashInHandBeforePaidEft: 0,
+    cashInHandCutoffDate,
+    cashInHandExpectedByStats: 0,
+    cashInHandLotteryDepositImpact: 0,
+    cashInHandNetLotterySales: 0,
+    cashInHandOnlineSales: 0,
+    cashInHandPayouts: 0,
     cashInHandRecordedDays: 0,
+    cashInHandScratchSales: 0,
     countedDays: 0,
     currentWeekEftDue: 0,
     currentWeekEndDate,
@@ -392,6 +413,14 @@ function buildEmptyCashInHandSummary() {
   return {
     cashAfterEft: 0,
     cashAvailableBeforePaidEft: 0,
+    cashInHandCancels: 0,
+    cashInHandCashAdvanceImpact: 0,
+    cashInHandExpectedByStats: 0,
+    cashInHandLotteryDepositImpact: 0,
+    cashInHandNetLotterySales: 0,
+    cashInHandOnlineSales: 0,
+    cashInHandPayouts: 0,
+    cashInHandScratchSales: 0,
     paidEftTotal: 0,
     paidEftWeeks: 0,
     recordedDays: 0,
@@ -455,7 +484,7 @@ async function loadAuditRowsThroughDate(
       .from("daily_audits")
       .select("audit_date,audit_type,calculated_revenue")
       .eq("store_key", storeKey)
-      .eq("audit_type", "eod")
+      .in("audit_type", ["eod", "shift", "bin_load_retirement"])
       .lte("audit_date", endDate)
       .order("audit_date", { ascending: true })
       .range(from, to)
@@ -474,7 +503,7 @@ async function loadAuditRowsForDateRange(
       .from("daily_audits")
       .select("audit_date,audit_type,calculated_revenue")
       .eq("store_key", storeKey)
-      .eq("audit_type", "eod")
+      .in("audit_type", ["eod", "shift", "bin_load_retirement"])
       .gte("audit_date", startDate)
       .lte("audit_date", endDate)
       .order("audit_date", { ascending: true })
@@ -532,7 +561,7 @@ async function loadEodReconciliationRowsThroughDate(
     supabase
       .from("eod_reconciliation")
       .select(
-        "report_date,total_expected_cash,pos_register_total,short_over_amount,opening_cash_float,created_at,updated_at",
+        "report_date,total_expected_cash,pos_register_total,short_over_amount,created_at,updated_at",
       )
       .eq("store_key", storeKey)
       .lte("report_date", endDate)
@@ -552,7 +581,7 @@ async function loadEodReconciliationRowsForDateRange(
     supabase
       .from("eod_reconciliation")
       .select(
-        "report_date,total_expected_cash,pos_register_total,short_over_amount,opening_cash_float,created_at,updated_at",
+        "report_date,total_expected_cash,pos_register_total,short_over_amount,created_at,updated_at",
       )
       .eq("store_key", storeKey)
       .gte("report_date", startDate)
@@ -720,7 +749,8 @@ async function loadLotteryCashTransactionSources(
     isMissingLotteryCashAdvanceMigration(paybackResult.error)
       ? null
       : (advanceResult.error ?? paybackResult.error);
-  const error = cashAdvanceError ?? depositResult.error ?? eftStatusResult.error;
+  const error =
+    cashAdvanceError ?? depositResult.error ?? eftStatusResult.error;
 
   if (error) {
     return {
@@ -833,7 +863,7 @@ async function loadEftWeeklyStatusRowsThroughSweepDate(
 
 async function loadCashInHandSummary({
   cashAdvanceImpactByDate,
-  businessDate,
+  cutoffDate,
   cashingBonusRate,
   retailerCommissionRate,
   settlementRows,
@@ -842,7 +872,7 @@ async function loadCashInHandSummary({
   sweepDate,
 }: {
   cashAdvanceImpactByDate: Map<string, number>;
-  businessDate: string;
+  cutoffDate: string;
   cashingBonusRate: number;
   retailerCommissionRate: number;
   settlementRows: ScratchPackSettlementSale[];
@@ -853,7 +883,7 @@ async function loadCashInHandSummary({
   const lotteryDepositImpactResult = await loadLotteryDepositImpactByDate(
     supabase,
     storeKey,
-    businessDate,
+    cutoffDate,
   );
 
   if (lotteryDepositImpactResult.error) {
@@ -869,9 +899,9 @@ async function loadCashInHandSummary({
     reconciliationRowsResult,
     eftStatusRowsResult,
   ] = await Promise.all([
-    loadAuditRowsThroughDate(supabase, storeKey, businessDate),
-    loadTerminalRowsThroughDate(supabase, storeKey, businessDate),
-    loadEodReconciliationRowsThroughDate(supabase, storeKey, businessDate),
+    loadAuditRowsThroughDate(supabase, storeKey, cutoffDate),
+    loadTerminalRowsThroughDate(supabase, storeKey, cutoffDate),
+    loadEodReconciliationRowsThroughDate(supabase, storeKey, cutoffDate),
     loadEftWeeklyStatusRowsThroughSweepDate(supabase, storeKey, sweepDate),
   ]);
   const fallbackError =
@@ -1054,7 +1084,7 @@ function buildEftWindowSummary({
     (summary, reportDate) => {
       const terminal = terminalsByDate.get(reportDate);
       const reconciliation = reconciliationsByDate.get(reportDate);
-      const scratchSales = calculateLotteryEodScratchSales(
+      const scratchSales = calculateLotteryCashMovementScratchSales(
         auditsByDate.get(reportDate) ?? [],
       );
       const drawSales = normalizeMoney(terminal?.draw_sales);
@@ -1072,12 +1102,16 @@ function buildEftWindowSummary({
       const payouts = normalizeMoney(
         drawPayouts + scratchPayouts + cashingBonus,
       );
-      const calculatedExpectedCash = normalizeMoney(
-        Math.max(netSales - payouts, 0),
-      );
+      const calculatedExpectedCash = calculateLotteryEodExpectedCash({
+        cashingBonus,
+        onlineTotalPayout: drawPayouts,
+        scratchCardTotalPayout: scratchPayouts,
+        scratchSalesTotal: scratchSales,
+        terminalSales: drawSales,
+        ticketCancels,
+      });
       const expectedCash = reconciliation
         ? calculateLotteryExpectedCashInHandFromReconciliation({
-            openingCashFloat: reconciliation.opening_cash_float,
             totalExpectedCash: reconciliation.total_expected_cash,
           })
         : calculatedExpectedCash;
@@ -1143,7 +1177,6 @@ function buildEftWindowSummary({
 
       if (reconciliation) {
         const cashCounted = calculateLotteryCashInHandFromReconciliation({
-          openingCashFloat: reconciliation.opening_cash_float,
           posRegisterTotal: reconciliation.pos_register_total,
         });
 
@@ -1174,6 +1207,7 @@ function buildEftWindowSummary({
     {
       ...buildEmptySummary({
         businessDate,
+        cashInHandCutoffDate: businessDate,
         currentWeekEndDate: businessDate,
         currentWeekStartDate: sweepDate,
         sweepDate,
@@ -1198,7 +1232,7 @@ function calculateDailyExpectedCash({
   reportDate: string;
   terminal: TerminalReportRow | undefined;
 }) {
-  const scratchSales = calculateLotteryEodScratchSales(
+  const scratchSales = calculateLotteryCashMovementScratchSales(
     auditsByDate.get(reportDate) ?? [],
   );
   const drawSales = normalizeMoney(terminal?.draw_sales);
@@ -1206,11 +1240,15 @@ function calculateDailyExpectedCash({
   const scratchPayouts = normalizeMoney(terminal?.scratch_payouts);
   const cashingBonus = normalizeMoney(terminal?.total_cashing_bonus);
   const ticketCancels = normalizeMoney(terminal?.total_cancels);
-  const grossSales = normalizeMoney(scratchSales + drawSales);
-  const netSales = normalizeMoney(Math.max(grossSales - ticketCancels, 0));
-  const payouts = normalizeMoney(drawPayouts + scratchPayouts + cashingBonus);
 
-  return normalizeMoney(Math.max(netSales - payouts, 0));
+  return calculateLotteryCashStatsMovement({
+    cashingBonus,
+    onlineTotalPayout: drawPayouts,
+    scratchCardTotalPayout: scratchPayouts,
+    scratchSalesTotal: scratchSales,
+    terminalSales: drawSales,
+    ticketCancels,
+  });
 }
 
 function calculateNetEftDueForPeriod({
@@ -1279,7 +1317,6 @@ function buildCashInHandSummary({
 }) {
   const auditsByDate = groupAuditRowsByDate(auditRows);
   const terminalsByDate = mapTerminalRowsByDate(terminalRows);
-  const reconciliationsByDate = mapReconciliationRowsByDate(reconciliationRows);
   const reportDates = Array.from(
     new Set([
       ...auditRows.map((row) => row.audit_date),
@@ -1290,78 +1327,160 @@ function buildCashInHandSummary({
       ...lotteryDepositImpactByDate.keys(),
     ]),
   ).sort();
-  const cashAvailableBeforePaidEft = normalizeMoney(
-    reportDates.reduce((total, reportDate) => {
-      const reconciliation = reconciliationsByDate.get(reportDate);
-      const cashAdvanceImpact = cashAdvanceImpactByDate.get(reportDate) ?? 0;
-      const lotteryDepositImpact =
-        lotteryDepositImpactByDate.get(reportDate) ?? 0;
-      const cashMovementImpact = normalizeMoney(
-        cashAdvanceImpact + lotteryDepositImpact,
-      );
-
-      if (reconciliation) {
-        return (
-          total +
-          applyLotteryCashAdvanceImpact({
-            cashAdvanceImpact: cashMovementImpact,
-            cashInHand: calculateLotteryCashInHandFromReconciliation({
-              openingCashFloat: reconciliation.opening_cash_float,
-              posRegisterTotal: reconciliation.pos_register_total,
-            }),
-          })
-        );
-      }
-
-      return (
-        total +
-        calculateDailyExpectedCash({
-          auditsByDate,
-          reportDate,
-          terminal: terminalsByDate.get(reportDate),
-        }) +
-        cashMovementImpact
-      );
-    }, 0),
-  );
   const paidStatusRows = eftStatusRows.filter((row) => row.status === "paid");
-  const paidEftTotal = normalizeMoney(
-    paidStatusRows.reduce((total, statusRow) => {
-      const fallbackPeriod = getLotteryEftSweepPeriod(statusRow.sweep_date);
-      const period = {
-        sweepDate: statusRow.sweep_date,
-        weekEndDate: statusRow.week_end_date ?? fallbackPeriod.weekEndDate,
-        weekStartDate:
-          statusRow.week_start_date ?? fallbackPeriod.weekStartDate,
-      };
+  const scratchSalesTotal = calculateLotteryCashMovementScratchSales(auditRows);
+  const onlineSalesTotal = normalizeMoney(
+    terminalRows.reduce(
+      (total, row) => total + normalizeMoney(row.draw_sales),
+      0,
+    ),
+  );
+  const payoutsTotal = normalizeMoney(
+    terminalRows.reduce(
+      (total, row) =>
+        total +
+        normalizeMoney(row.draw_payouts) +
+        normalizeMoney(row.scratch_payouts) +
+        normalizeMoney(row.total_cashing_bonus),
+      0,
+    ),
+  );
+  const cancelsTotal = normalizeMoney(
+    terminalRows.reduce(
+      (total, row) => total + normalizeMoney(row.total_cancels),
+      0,
+    ),
+  );
+  const netLotterySalesTotal = normalizeMoney(
+    scratchSalesTotal + onlineSalesTotal - payoutsTotal - cancelsTotal,
+  );
+  const cashAdvanceImpactTotal = normalizeMoney(
+    Array.from(cashAdvanceImpactByDate.values()).reduce(
+      (total, impact) => total + impact,
+      0,
+    ),
+  );
+  const lotteryDepositImpactTotal = normalizeMoney(
+    Array.from(lotteryDepositImpactByDate.values()).reduce(
+      (total, impact) => total + impact,
+      0,
+    ),
+  );
+  const cashTimelineEntries: Array<{
+    amount: number;
+    businessDate: string;
+    order: number;
+    type: "eft" | "movement";
+  }> = [];
 
-      const netEftDue = calculateNetEftDueForPeriod({
-        cashingBonusRate,
-        period,
-        retailerCommissionRate,
-        settlementRows,
-        terminalRows: filterTerminalRowsByDateRange(
-          terminalRows,
-          period.weekStartDate,
-          period.weekEndDate,
-        ),
+  reportDates.forEach((reportDate) => {
+    const cashAdvanceImpact = cashAdvanceImpactByDate.get(reportDate) ?? 0;
+    const lotteryDepositImpact =
+      lotteryDepositImpactByDate.get(reportDate) ?? 0;
+    const cashMovementImpact = normalizeMoney(
+      cashAdvanceImpact + lotteryDepositImpact,
+    );
+
+    const dailyExpectedCash = calculateDailyExpectedCash({
+      auditsByDate,
+      reportDate,
+      terminal: terminalsByDate.get(reportDate),
+    });
+
+    if (dailyExpectedCash !== 0) {
+      cashTimelineEntries.push({
+        amount: dailyExpectedCash,
+        businessDate: reportDate,
+        order: 20,
+        type: "movement",
+      });
+    }
+
+    if (cashMovementImpact !== 0) {
+      cashTimelineEntries.push({
+        amount: cashMovementImpact,
+        businessDate: reportDate,
+        order: 50,
+        type: "movement",
+      });
+    }
+  });
+
+  let paidEftTotal = 0;
+  let paidEftWeeks = 0;
+
+  paidStatusRows.forEach((statusRow) => {
+    const fallbackPeriod = getLotteryEftSweepPeriod(statusRow.sweep_date);
+    const period = {
+      sweepDate: statusRow.sweep_date,
+      weekEndDate: statusRow.week_end_date ?? fallbackPeriod.weekEndDate,
+      weekStartDate: statusRow.week_start_date ?? fallbackPeriod.weekStartDate,
+    };
+
+    const netEftDue = calculateNetEftDueForPeriod({
+      cashingBonusRate,
+      period,
+      retailerCommissionRate,
+      settlementRows,
+      terminalRows: filterTerminalRowsByDateRange(
+        terminalRows,
+        period.weekStartDate,
+        period.weekEndDate,
+      ),
+    });
+    const paidEftAmount = normalizeMoney(netEftDue);
+
+    if (paidEftAmount === 0) {
+      return;
+    }
+
+    paidEftTotal = normalizeMoney(paidEftTotal + paidEftAmount);
+    paidEftWeeks += 1;
+    cashTimelineEntries.push({
+      amount: -paidEftAmount,
+      businessDate: statusRow.sweep_date,
+      order: 60,
+      type: "eft",
+    });
+  });
+
+  const calculateTimelineBalance = (includePaidEft: boolean) => {
+    let balance = 0;
+
+    cashTimelineEntries
+      .filter((entry) => includePaidEft || entry.type !== "eft")
+      .sort((left, right) => {
+        const dateCompare = left.businessDate.localeCompare(right.businessDate);
+
+        if (dateCompare !== 0) {
+          return dateCompare;
+        }
+
+        return left.order - right.order;
+      })
+      .forEach((entry) => {
+        balance = normalizeMoney(balance + entry.amount);
       });
 
-      return (
-        total +
-        calculateAppliedLotteryEftPayment({
-          netEftDue,
-          paidAmount: statusRow.paid_amount,
-        })
-      );
-    }, 0),
-  );
+    return normalizeMoney(balance);
+  };
+  const cashExpectedByStats = calculateTimelineBalance(true);
+  const cashAfterEft = cashExpectedByStats;
+  const cashAvailableBeforePaidEft = calculateTimelineBalance(false);
 
   return {
-    cashAfterEft: normalizeMoney(cashAvailableBeforePaidEft - paidEftTotal),
+    cashAfterEft,
     cashAvailableBeforePaidEft,
-    paidEftTotal,
-    paidEftWeeks: paidStatusRows.length,
+    cashInHandCancels: cancelsTotal,
+    cashInHandCashAdvanceImpact: cashAdvanceImpactTotal,
+    cashInHandExpectedByStats: cashExpectedByStats,
+    cashInHandLotteryDepositImpact: lotteryDepositImpactTotal,
+    cashInHandNetLotterySales: netLotterySalesTotal,
+    cashInHandOnlineSales: onlineSalesTotal,
+    cashInHandPayouts: payoutsTotal,
+    cashInHandScratchSales: scratchSalesTotal,
+    paidEftTotal: normalizeMoney(paidEftTotal),
+    paidEftWeeks,
     recordedDays: reportDates.length,
   };
 }
@@ -1422,44 +1541,41 @@ function buildLotteryCashTransactionRows({
 
   for (const reportDate of reportDates) {
     const reconciliation = reconciliationsByDate.get(reportDate);
-
-    if (reconciliation) {
-      const cashCounted = calculateLotteryCashInHandFromReconciliation({
-        openingCashFloat: reconciliation.opening_cash_float,
-        posRegisterTotal: reconciliation.pos_register_total,
-      });
-      const expectedCash = calculateLotteryExpectedCashInHandFromReconciliation({
-        openingCashFloat: reconciliation.opening_cash_float,
-        totalExpectedCash: reconciliation.total_expected_cash,
-      });
-      const shortOver = normalizeMoney(expectedCash - cashCounted);
-
-      rows.push({
-        amount: cashCounted,
-        businessDate: reportDate,
-        details: `Counted lottery cash after removing opening float. Expected ${formatMoneyForDetails(
-          expectedCash,
-        )}; ${getShortOverDetail(shortOver)}.`,
-        id: `eod-cash-${reportDate}`,
-        order: 10,
-        recordedAt: reconciliation.updated_at ?? reconciliation.created_at ?? null,
-        type: "EOD Cash Count",
-      });
-      continue;
-    }
-
-    const expectedCash = calculateDailyExpectedCash({
+    const dailyExpectedCash = calculateDailyExpectedCash({
       auditsByDate,
       reportDate,
       terminal: terminalsByDate.get(reportDate),
     });
 
-    if (expectedCash !== 0) {
+    if (reconciliation) {
+      const cashCounted = calculateLotteryCashInHandFromReconciliation({
+        posRegisterTotal: reconciliation.pos_register_total,
+      });
+      const shortOver = normalizeMoney(reconciliation.short_over_amount);
+
+      if (dailyExpectedCash !== 0) {
+        rows.push({
+          amount: dailyExpectedCash,
+          businessDate: reportDate,
+          details: `Lottery cash movement from scratch sales, terminal sales, payouts, cancels, and PROMO. EOD counted ${formatMoneyForDetails(
+            cashCounted,
+          )}; ${getShortOverDetail(shortOver)}.`,
+          id: `daily-cash-${reportDate}`,
+          order: 20,
+          recordedAt:
+            reconciliation.updated_at ?? reconciliation.created_at ?? null,
+          type: "Daily Lottery Cash",
+        });
+      }
+      continue;
+    }
+
+    if (dailyExpectedCash !== 0) {
       rows.push({
-        amount: expectedCash,
+        amount: dailyExpectedCash,
         businessDate: reportDate,
         details:
-          "Estimated lottery cash from EOD scratch sales, terminal sales, payouts, cancels, and PROMO. Save EOD to replace this estimate with counted cash.",
+          "Estimated lottery cash from scratch sales, terminal sales, payouts, cancels, and PROMO.",
         id: `pending-cash-${reportDate}`,
         order: 20,
         recordedAt: null,
@@ -1529,10 +1645,7 @@ function buildLotteryCashTransactionRows({
           period.weekEndDate,
         ),
       });
-      const appliedEftPaid = calculateAppliedLotteryEftPayment({
-        netEftDue,
-        paidAmount: statusRow.paid_amount,
-      });
+      const appliedEftPaid = normalizeMoney(netEftDue);
 
       if (appliedEftPaid === 0) {
         return;
@@ -1586,6 +1699,10 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
 
   const { activeStore, activeStoreKey } = await requireActiveStoreContext();
   const businessDate = getTodayIsoDateInTimeZone(activeStore.timeZone);
+  const cashInHandCutoffDate = addDaysToIsoDateKey(businessDate, -1);
+  const cashInHandSweepDate = getLatestLotteryEftSweepDate(
+    cashInHandCutoffDate,
+  );
   const sweepDate = getLatestLotteryEftSweepDate(businessDate);
   const { weekEndDate, weekStartDate } = getLotteryEftSweepPeriod(sweepDate);
   const currentWeekStartDate = sweepDate;
@@ -1593,6 +1710,7 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
   const dateKeys = enumerateIsoDateRange(weekStartDate, weekEndDate);
   const emptySummary = buildEmptySummary({
     businessDate,
+    cashInHandCutoffDate,
     currentWeekEndDate,
     currentWeekStartDate,
     sweepDate,
@@ -1685,15 +1803,23 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
       .not("end_ticket_no", "is", null)
       .lte("audit_date", businessDate)
       .returns<ScratchSettlementAuditRow[]>(),
-    loadLotteryCashAdvanceImpactByDate(supabase, activeStoreKey, businessDate),
-    loadAuditRowsThroughDate(supabase, activeStoreKey, businessDate),
-    loadTerminalRowsThroughDate(supabase, activeStoreKey, businessDate),
+    loadLotteryCashAdvanceImpactByDate(
+      supabase,
+      activeStoreKey,
+      cashInHandCutoffDate,
+    ),
+    loadAuditRowsThroughDate(supabase, activeStoreKey, cashInHandCutoffDate),
+    loadTerminalRowsThroughDate(supabase, activeStoreKey, cashInHandCutoffDate),
     loadEodReconciliationRowsThroughDate(
       supabase,
       activeStoreKey,
-      businessDate,
+      cashInHandCutoffDate,
     ),
-    loadLotteryCashTransactionSources(supabase, activeStoreKey, businessDate),
+    loadLotteryCashTransactionSources(
+      supabase,
+      activeStoreKey,
+      cashInHandCutoffDate,
+    ),
   ]);
 
   const eftStatusError =
@@ -1762,14 +1888,14 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
     startDate: MIN_REPORT_DATE,
   });
   const cashInHandSummaryResult = await loadCashInHandSummary({
-    businessDate,
     cashAdvanceImpactByDate: cashAdvanceImpactResult.data,
+    cutoffDate: cashInHandCutoffDate,
     cashingBonusRate,
     retailerCommissionRate,
     settlementRows,
     storeKey: activeStoreKey,
     supabase,
-    sweepDate,
+    sweepDate: cashInHandSweepDate,
   });
 
   if (cashInHandSummaryResult.error) {
@@ -1821,8 +1947,19 @@ export async function loadLotteryDashboardData(): Promise<LotteryDashboardData> 
   const summary = {
     ...windowSummary,
     cashAfterEft: cashInHandSummary.cashAfterEft,
+    cashInHandCancels: cashInHandSummary.cashInHandCancels,
+    cashInHandCashAdvanceImpact:
+      cashInHandSummary.cashInHandCashAdvanceImpact,
     cashInHandBeforePaidEft: cashInHandSummary.cashAvailableBeforePaidEft,
+    cashInHandCutoffDate,
+    cashInHandExpectedByStats: cashInHandSummary.cashInHandExpectedByStats,
+    cashInHandLotteryDepositImpact:
+      cashInHandSummary.cashInHandLotteryDepositImpact,
+    cashInHandNetLotterySales: cashInHandSummary.cashInHandNetLotterySales,
+    cashInHandOnlineSales: cashInHandSummary.cashInHandOnlineSales,
+    cashInHandPayouts: cashInHandSummary.cashInHandPayouts,
     cashInHandRecordedDays: cashInHandSummary.recordedDays,
+    cashInHandScratchSales: cashInHandSummary.cashInHandScratchSales,
     currentWeekEftDue,
     currentWeekEndDate,
     currentWeekStartDate,

@@ -3,28 +3,47 @@ import test from "node:test";
 import {
   applyLotteryCashAdvanceImpact,
   calculateLotteryCashInHandFromReconciliation,
+  calculateLotteryCashMovementScratchSales,
+  calculateLotteryCashStatsMovement,
+  calculateLotteryEodExpectedCash,
   calculateLotteryEodScratchSales,
   calculateLotteryExpectedCashInHandFromReconciliation,
 } from "./cash.ts";
 import { calculateLotteryCashAdvanceImpact } from "./cash-advance-calculation.ts";
 
-test("lottery cash in hand excludes the starting float", () => {
+test("lottery cash in hand uses the full counted cash amount", () => {
   assert.equal(
     calculateLotteryCashInHandFromReconciliation({
-      openingCashFloat: 443.07,
       posRegisterTotal: 1094.07,
     }),
-    651,
+    1094.07,
   );
 });
 
-test("lottery expected cash in hand excludes the starting float", () => {
+test("lottery cash in hand keeps the physical count as entered", () => {
+  assert.equal(
+    calculateLotteryCashInHandFromReconciliation({
+      posRegisterTotal: 130,
+    }),
+    130,
+  );
+});
+
+test("lottery expected cash in hand uses the full expected cash amount", () => {
   assert.equal(
     calculateLotteryExpectedCashInHandFromReconciliation({
-      openingCashFloat: 200,
       totalExpectedCash: 851,
     }),
-    651,
+    851,
+  );
+});
+
+test("lottery expected cash keeps the expected count as entered", () => {
+  assert.equal(
+    calculateLotteryExpectedCashInHandFromReconciliation({
+      totalExpectedCash: 130,
+    }),
+    130,
   );
 });
 
@@ -40,16 +59,83 @@ test("lottery scratch sales include only EOD audit revenue", () => {
   );
 });
 
+test("lottery cash movement scratch sales include sold-out and bin retirement revenue", () => {
+  assert.equal(
+    calculateLotteryCashMovementScratchSales([
+      { audit_type: "shift", calculated_revenue: 40 },
+      { audit_type: "eod", calculated_revenue: 125.12 },
+      { audit_type: "bin_load_retirement", calculated_revenue: 75 },
+      { audit_type: "eft_settlement_reversal", calculated_revenue: 20 },
+      { audit_type: "opening", calculated_revenue: 100 },
+      { audit_type: "eod", calculated_revenue: "24.88" },
+    ]),
+    265,
+  );
+});
+
+test("lottery EOD expected cash uses lottery sales and deductions without float by default", () => {
+  assert.equal(
+    calculateLotteryEodExpectedCash({
+      cashingBonus: 5,
+      onlineTotalPayout: 40,
+      scratchCardTotalPayout: 30,
+      scratchSalesTotal: 150,
+      terminalSales: 225,
+      ticketCancels: 12.5,
+    }),
+    287.5,
+  );
+});
+
+test("lottery EOD expected cash includes opening float", () => {
+  assert.equal(
+    calculateLotteryEodExpectedCash({
+      cashingBonus: 5,
+      onlineTotalPayout: 40,
+      openingCashFloat: 125,
+      scratchCardTotalPayout: 30,
+      scratchSalesTotal: 150,
+      terminalSales: 225,
+      ticketCancels: 12.5,
+    }),
+    412.5,
+  );
+});
+
+test("lottery cash stats movement allows payout-heavy days to reduce the balance", () => {
+  assert.equal(
+    calculateLotteryCashStatsMovement({
+      cashingBonus: 2,
+      onlineTotalPayout: 150,
+      scratchCardTotalPayout: 75,
+      scratchSalesTotal: 80,
+      terminalSales: 25,
+      ticketCancels: 4.5,
+    }),
+    -126.5,
+  );
+});
+
+test("lottery EOD expected cash does not go below zero", () => {
+  assert.equal(
+    calculateLotteryEodExpectedCash({
+      onlineTotalPayout: 500,
+      scratchSalesTotal: 20,
+      terminalSales: 25,
+    }),
+    0,
+  );
+});
+
 test("lottery cash in hand applies cash advance impact after reconciliation", () => {
   assert.equal(
     applyLotteryCashAdvanceImpact({
       cashAdvanceImpact: -22.75,
       cashInHand: calculateLotteryCashInHandFromReconciliation({
-        openingCashFloat: 443.07,
         posRegisterTotal: 632.82,
       }),
     }),
-    167,
+    610.07,
   );
 });
 

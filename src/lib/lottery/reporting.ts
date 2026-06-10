@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import {
   enumerateIsoDateRange,
   getIsoDateRangeEndingTodayInTimeZone,
@@ -5,7 +6,12 @@ import {
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveStoreContext } from "@/lib/stores/server";
-import { calculateLotteryEodScratchSales } from "./cash";
+import { calculateLotteryCashMovementScratchSales } from "./cash";
+import {
+  buildGameRows,
+  SCRATCH_GAME_PERFORMANCE_AUDIT_TYPES,
+  type ScratchGamePerformanceRow,
+} from "./reporting-game-performance";
 
 type DailyAuditRow = {
   audit_date: string;
@@ -70,17 +76,7 @@ export type LotteryReportDailyRow = {
   ticketsSold: number;
 };
 
-export type LotteryReportGameRow = {
-  auditCount: number;
-  binCount: number;
-  gameId: string;
-  gameName: string;
-  imageUrl: string | null;
-  packCount: number;
-  scratchSales: number;
-  ticketPrice: number;
-  ticketsSold: number;
-};
+export type LotteryReportGameRow = ScratchGamePerformanceRow;
 
 export type LotteryReportSummary = {
   averageDailyGrossSales: number;
@@ -117,7 +113,6 @@ type LoadLotteryReportingOptions = {
 };
 
 const DEFAULT_REPORT_DAYS = 14;
-
 function normalizeMoney(value: number | string | null | undefined) {
   const normalized = typeof value === "number" ? value : Number(value);
   return Number.isFinite(normalized) ? Math.round(normalized * 100) / 100 : 0;
@@ -202,7 +197,7 @@ function buildDailyRows({
       const dateAudits = auditsByDate.get(reportDate) ?? [];
       const terminal = terminalsByDate.get(reportDate);
       const reconciliation = reconciliationsByDate.get(reportDate);
-      const scratchSales = calculateLotteryEodScratchSales(dateAudits);
+      const scratchSales = calculateLotteryCashMovementScratchSales(dateAudits);
       const ticketsSold = dateAudits.reduce(
         (total, row) => total + normalizeInteger(row.tickets_sold),
         0,
@@ -252,78 +247,6 @@ function buildDailyRows({
     .reverse();
 }
 
-function buildGameRows({
-  auditRows,
-  gameById,
-  inventoryById,
-}: {
-  auditRows: DailyAuditRow[];
-  gameById: Map<string, GameCatalogRow>;
-  inventoryById: Map<string, InventoryRow>;
-}) {
-  type GameAccumulator = {
-    auditCount: number;
-    bins: Set<number>;
-    gameId: string;
-    gameName: string;
-    imageUrl: string | null;
-    packs: Set<string>;
-    scratchSales: number;
-    ticketPrice: number;
-    ticketsSold: number;
-  };
-
-  const gameMap = new Map<string, GameAccumulator>();
-
-  auditRows.forEach((audit) => {
-    const inventory = audit.inventory_id
-      ? inventoryById.get(audit.inventory_id)
-      : undefined;
-    const gameId = inventory?.game_id ?? "unknown";
-    const game = gameById.get(gameId);
-    const accumulator =
-      gameMap.get(gameId) ??
-      ({
-        auditCount: 0,
-        bins: new Set<number>(),
-        gameId,
-        gameName: game?.game_name ?? "Unknown game",
-        imageUrl: game?.image_url ?? null,
-        packs: new Set<string>(),
-        scratchSales: 0,
-        ticketPrice: normalizeMoney(game?.ticket_price),
-        ticketsSold: 0,
-      } satisfies GameAccumulator);
-
-    accumulator.auditCount += 1;
-    accumulator.bins.add(audit.bin_number);
-    accumulator.scratchSales = normalizeMoney(
-      accumulator.scratchSales + normalizeMoney(audit.calculated_revenue),
-    );
-    accumulator.ticketsSold += normalizeInteger(audit.tickets_sold);
-
-    if (inventory?.pack_number) {
-      accumulator.packs.add(inventory.pack_number);
-    }
-
-    gameMap.set(gameId, accumulator);
-  });
-
-  return Array.from(gameMap.values())
-    .map((row) => ({
-      auditCount: row.auditCount,
-      binCount: row.bins.size,
-      gameId: row.gameId,
-      gameName: row.gameName,
-      imageUrl: row.imageUrl,
-      packCount: row.packs.size,
-      scratchSales: row.scratchSales,
-      ticketPrice: row.ticketPrice,
-      ticketsSold: row.ticketsSold,
-    }))
-    .sort((left, right) => right.scratchSales - left.scratchSales);
-}
-
 function buildSummary(dailyRows: LotteryReportDailyRow[]) {
   const grossSales = normalizeMoney(
     dailyRows.reduce((total, row) => total + row.grossSales, 0),
@@ -369,6 +292,8 @@ function buildSummary(dailyRows: LotteryReportDailyRow[]) {
 export async function loadLotteryReportingData(
   options: LoadLotteryReportingOptions = {},
 ): Promise<LotteryReportingData> {
+  noStore();
+
   const { activeStore, activeStoreKey } = await requireActiveStoreContext();
   const days = normalizeReportDays(options.days);
   const { endDate, startDate } = getIsoDateRangeEndingTodayInTimeZone(
@@ -400,7 +325,7 @@ export async function loadLotteryReportingData(
           "audit_date,audit_type,bin_number,calculated_revenue,end_ticket_no,inventory_id,start_ticket_no,tickets_sold",
         )
         .eq("store_key", activeStoreKey)
-        .eq("audit_type", "eod")
+        .in("audit_type", Array.from(SCRATCH_GAME_PERFORMANCE_AUDIT_TYPES))
         .gte("audit_date", startDate)
         .lte("audit_date", endDate)
         .order("audit_date", { ascending: false })

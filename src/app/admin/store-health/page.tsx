@@ -6,6 +6,7 @@ import { OperationsCompatibilityNotice } from "@/components/erp/operations-compa
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
 import { StatusBadge } from "@/components/erp/status-badge";
+import { StoreHealthBackupButton } from "@/components/erp/store-health-backup-button";
 import {
   Table,
   TableBody,
@@ -507,6 +508,7 @@ export default async function StoreHealthPage() {
         <SectionCard
           title="Backup restore drill"
           description="Backup creation is not enough; the documented restore must be tested into a separate Supabase project."
+          action={<StoreHealthBackupButton />}
         >
           <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
@@ -532,6 +534,11 @@ export default async function StoreHealthPage() {
                   <StatusBadge tone="amber">Storage skipped</StatusBadge>
                 ) : null}
               </div>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Run backup creates a full local Supabase backup with
+                `scripts/backup-supabase.mjs`. Database dumps require
+                `SUPABASE_DB_URL` or `DATABASE_URL` in the local environment.
+              </p>
             </div>
 
             <div className="rounded-2xl border border-slate-200/80 bg-white p-4">

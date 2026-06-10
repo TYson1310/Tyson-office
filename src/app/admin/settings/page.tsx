@@ -263,6 +263,18 @@ export default function AdminSettingsPage() {
     }));
   }
 
+  function updateLotteryField<
+    K extends keyof StoreManagementSettings["lottery"],
+  >(key: K, value: StoreManagementSettings["lottery"][K]) {
+    setSettings((current) => ({
+      ...current,
+      lottery: {
+        ...current.lottery,
+        [key]: value,
+      },
+    }));
+  }
+
   function startPaymentEdit(id: string) {
     const method = settings.paymentMethods.find((item) => item.id === id);
 
@@ -834,6 +846,53 @@ export default function AdminSettingsPage() {
             />
           </label>
         </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Lottery Defaults"
+        description="Set lottery EFT commission rates used for weekly lottery settlement calculations."
+      >
+        <div className="grid gap-4 md:grid-cols-2 xl:max-w-3xl">
+          <label className="block">
+            <span className={FIELD_LABEL_CLASSNAME}>Retailer commission %</span>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={settings.lottery.retailerCommissionRate}
+              onChange={(event) =>
+                updateLotteryField(
+                  "retailerCommissionRate",
+                  Math.min(100, Math.max(0, Number(event.target.value) || 0)),
+                )
+              }
+              className={INPUT_CLASSNAME}
+            />
+          </label>
+
+          <label className="block">
+            <span className={FIELD_LABEL_CLASSNAME}>Payout commission %</span>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={settings.lottery.cashingBonusRate}
+              onChange={(event) =>
+                updateLotteryField(
+                  "cashingBonusRate",
+                  Math.min(100, Math.max(0, Number(event.target.value) || 0)),
+                )
+              }
+              className={INPUT_CLASSNAME}
+            />
+          </label>
+        </div>
+        <p className="mt-3 text-sm text-dark-5 dark:text-dark-6">
+          Lottery EOD still counts the full physical drawer. Cash in hand uses
+          counted cash minus this held-back float.
+        </p>
       </SectionCard>
 
       <SectionCard

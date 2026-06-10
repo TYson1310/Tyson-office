@@ -194,7 +194,13 @@ type GameLedgerSortKey =
   | "price"
   | "source"
   | "status";
-type StoreSortKey = "bins" | "eft" | "status" | "store" | "timezone" | "updated";
+type StoreSortKey =
+  | "bins"
+  | "eft"
+  | "status"
+  | "store"
+  | "timezone"
+  | "updated";
 
 const EMPTY_FORM: AdminFormState = {
   fullName: "",
@@ -278,7 +284,8 @@ function getNextSortState<T extends string>(
   key: T,
 ): SortState<T> {
   return {
-    direction: current.key === key ? flipSortDirection(current.direction) : "asc",
+    direction:
+      current.key === key ? flipSortDirection(current.direction) : "asc",
     key,
   };
 }

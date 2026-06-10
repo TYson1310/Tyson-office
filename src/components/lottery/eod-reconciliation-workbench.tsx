@@ -45,6 +45,7 @@ import {
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { useAppNotifications } from "@/contexts/NotificationContext";
+import { calculateLotteryEodExpectedCash } from "@/lib/lottery/cash";
 import type { LotteryEodReconciliationData } from "@/lib/lottery/eod-reconciliation";
 import type { ScratchAuditBin } from "@/lib/scratch-cards/data";
 
@@ -111,7 +112,6 @@ type CashEntryKey =
   | "lotteryBondFee"
   | "onlineTotalPayout"
   | "scratchCardTotalPayout"
-  | "startingFloat"
   | "terminalSales"
   | "ticketCancels"
   | "tillCash";
@@ -298,7 +298,9 @@ function getShortOverStatus(shortOver: number) {
 }
 
 function getPackTicketCount(bin: ScratchAuditBin) {
-  return bin.currentPack?.packTicketCount ?? bin.currentPack?.gameTicketCount ?? null;
+  return (
+    bin.currentPack?.packTicketCount ?? bin.currentPack?.gameTicketCount ?? null
+  );
 }
 
 function getFinalTicketValue(ticketCount: number | null) {
@@ -502,6 +504,8 @@ export function EodReconciliationWorkbench({
     [data.bins, localSoldOutInventoryIds],
   );
   const shouldLockSavedReconciliation = data.isReconciled && !canSelectDate;
+  const canEditSavedReconciliation =
+    data.source === "database" && data.isReconciled && canSelectDate;
   const [binInputs, setBinInputs] = useState<Record<number, string>>(() =>
     buildInitialBinInputs(activeBins),
   );
@@ -526,13 +530,16 @@ export function EodReconciliationWorkbench({
   const [scratchCardTotalPayout, setScratchCardTotalPayout] = useState(
     String(data.scratchCardTotalPayout || ""),
   );
-  const [startingFloat, setStartingFloat] = useState(
-    String(data.startingFloat || ""),
+  const [openingCashFloat, setOpeningCashFloat] = useState(
+    String(data.openingCashFloat || ""),
+  );
+  const [closingCashFloat, setClosingCashFloat] = useState(
+    String(data.closingCashFloat || ""),
   );
   const [tillCash, setTillCash] = useState(String(data.tillCash || ""));
   const [activeTab, setActiveTab] = useState<"closeout" | "log">("log");
   const [cashEntryType, setCashEntryType] =
-    useState<CashEntryKey>("startingFloat");
+    useState<CashEntryKey>("terminalSales");
   const [cashEntryAmount, setCashEntryAmount] = useState("");
   const [managerNotes, setManagerNotes] = useState(data.managerNotes);
   const [saveState, setSaveState] = useState<SaveState>(() =>
@@ -581,6 +588,7 @@ export function EodReconciliationWorkbench({
   );
   const binTicketsSubmitted =
     reconciliationLocked ||
+    canEditSavedReconciliation ||
     activeBins.length === 0 ||
     (binsReady && submittedBinSignature === binSubmissionSignature);
   const scratchSales = normalizeMoney(
@@ -592,7 +600,8 @@ export function EodReconciliationWorkbench({
   const lotteryBondFeeTotal = moneyInputToNumber(lotteryBondFee);
   const onlinePayoutTotal = moneyInputToNumber(onlineTotalPayout);
   const scratchPayoutTotal = moneyInputToNumber(scratchCardTotalPayout);
-  const startingFloatTotal = moneyInputToNumber(startingFloat);
+  const openingCashFloatTotal = moneyInputToNumber(openingCashFloat);
+  const closingCashFloatTotal = moneyInputToNumber(closingCashFloat);
   const tillCashTotal = moneyInputToNumber(tillCash);
   const lotteryCashAdvanceNetImpact = normalizeMoney(
     data.lotteryCashAdvanceNetImpact,
@@ -606,100 +615,86 @@ export function EodReconciliationWorkbench({
       onlinePayoutTotal +
       scratchPayoutTotal,
   );
-  const totalExpectedCash = normalizeMoney(
-    Math.max(
-      startingFloatTotal +
-        scratchSalesTotal +
-        terminalSalesTotal -
-        totalDeductions,
-      0,
-    ),
+  const dailyNetCash = normalizeMoney(
+    scratchSalesTotal + terminalSalesTotal - totalDeductions,
   );
-  const shortOver = normalizeMoney(totalExpectedCash - tillCashTotal);
+  const calculatedTotalExpectedCash = calculateLotteryEodExpectedCash({
+    cashingBonus: cashingBonusTotal,
+    onlineTotalPayout: onlinePayoutTotal,
+    openingCashFloat: openingCashFloatTotal,
+    scratchCardTotalPayout: scratchPayoutTotal,
+    scratchSalesTotal,
+    terminalSales: terminalSalesTotal,
+    ticketCancels: ticketCancelsTotal,
+  });
+  const calculatedShortOver = normalizeMoney(
+    calculatedTotalExpectedCash - tillCashTotal,
+  );
+  const useSavedReconciliationSnapshot =
+    data.isReconciled && !canEditSavedReconciliation;
+  const totalExpectedCash = useSavedReconciliationSnapshot
+    ? normalizeMoney(data.totalExpectedCash)
+    : calculatedTotalExpectedCash;
+  const shortOver = useSavedReconciliationSnapshot
+    ? normalizeMoney(data.shortOverAmount)
+    : calculatedShortOver;
   const shortOverStatus = getShortOverStatus(shortOver);
   const canSave =
     data.source === "database" &&
     binTicketsSubmitted &&
     !reconciliationLocked &&
     saveState.status !== "saving";
-  const cashEntryFields = useMemo<CashEntryField[]>(
-    () => [
-      {
-        amount: startingFloatTotal,
-        description: "Cash bank placed in the lottery drawer at start of day",
-        key: "startingFloat",
-        label: "Starting float",
-        value: startingFloat,
-      },
-      {
-        amount: terminalSalesTotal,
-        description: "Online lottery sales from terminal report",
-        key: "terminalSales",
-        label: "Terminal sales",
-        value: terminalSales,
-      },
-      {
-        amount: ticketCancelsTotal,
-        description: "Cancelled online tickets",
-        key: "ticketCancels",
-        label: "Ticket cancels",
-        value: ticketCancels,
-      },
-      {
-        amount: cashingBonusTotal,
-        description: "PROMO credit deducted from cash and EFT",
-        key: "cashingBonus",
-        label: "PROMO",
-        value: cashingBonus,
-      },
-      {
-        amount: lotteryBondFeeTotal,
-        description: "EFT only; does not change cash variance",
-        key: "lotteryBondFee",
-        label: "Lottery bond fee",
-        value: lotteryBondFee,
-      },
-      {
-        amount: onlinePayoutTotal,
-        description: "Online lottery prize payouts",
-        key: "onlineTotalPayout",
-        label: "Online total payout",
-        value: onlineTotalPayout,
-      },
-      {
-        amount: scratchPayoutTotal,
-        description: "Scratch card prize payouts",
-        key: "scratchCardTotalPayout",
-        label: "Scratch card payout",
-        value: scratchCardTotalPayout,
-      },
-      {
-        amount: tillCashTotal,
-        description: "Actual cash counted in the lottery drawer",
-        key: "tillCash",
-        label: "Cash counted in lottery drawer",
-        value: tillCash,
-      },
-    ],
-    [
-      cashingBonus,
-      cashingBonusTotal,
-      lotteryBondFee,
-      lotteryBondFeeTotal,
-      onlinePayoutTotal,
-      onlineTotalPayout,
-      scratchCardTotalPayout,
-      scratchPayoutTotal,
-      startingFloat,
-      startingFloatTotal,
-      terminalSales,
-      terminalSalesTotal,
-      ticketCancels,
-      ticketCancelsTotal,
-      tillCash,
-      tillCashTotal,
-    ],
-  );
+  const cashEntryFields: CashEntryField[] = [
+    {
+      amount: terminalSalesTotal,
+      description: "Online lottery sales from terminal report",
+      key: "terminalSales",
+      label: "Terminal sales",
+      value: terminalSales,
+    },
+    {
+      amount: ticketCancelsTotal,
+      description: "Cancelled online tickets",
+      key: "ticketCancels",
+      label: "Ticket cancels",
+      value: ticketCancels,
+    },
+    {
+      amount: cashingBonusTotal,
+      description: "PROMO credit deducted from cash and EFT",
+      key: "cashingBonus",
+      label: "PROMO",
+      value: cashingBonus,
+    },
+    {
+      amount: lotteryBondFeeTotal,
+      description: "EFT only; does not change cash variance",
+      key: "lotteryBondFee",
+      label: "Lottery bond fee",
+      value: lotteryBondFee,
+    },
+    {
+      amount: onlinePayoutTotal,
+      description: "Online lottery prize payouts",
+      key: "onlineTotalPayout",
+      label: "Online total payout",
+      value: onlineTotalPayout,
+    },
+    {
+      amount: scratchPayoutTotal,
+      description: "Scratch card prize payouts",
+      key: "scratchCardTotalPayout",
+      label: "Scratch card payout",
+      value: scratchCardTotalPayout,
+    },
+    {
+      amount: tillCashTotal,
+      description: "Actual cash counted in the lottery drawer",
+      key: "tillCash",
+      label: "Cash counted in lottery drawer",
+      value: tillCash,
+    },
+  ];
   const selectedCashEntry =
     cashEntryFields.find((field) => field.key === cashEntryType) ??
     cashEntryFields[0];
@@ -717,9 +712,7 @@ export function EodReconciliationWorkbench({
   );
 
   function setCashEntryValue(type: CashEntryKey, value: string) {
-    if (type === "startingFloat") {
-      setStartingFloat(value);
-    } else if (type === "terminalSales") {
+    if (type === "terminalSales") {
       setTerminalSales(value);
     } else if (type === "ticketCancels") {
       setTicketCancels(value);
@@ -780,6 +773,12 @@ export function EodReconciliationWorkbench({
       return;
     }
 
+    if (canEditSavedReconciliation) {
+      setActiveTab("closeout");
+      setSaveState({ status: "idle" });
+      return;
+    }
+
     if (reconciliationLocked) {
       notifyError(SAVED_RECONCILIATION_MESSAGE);
       return;
@@ -796,7 +795,7 @@ export function EodReconciliationWorkbench({
     setActiveTab("closeout");
     setSaveState({ status: "idle" });
     success(
-      "Bin end tickets submitted. Starting float, terminal totals, and lottery cash unlocked.",
+      "Bin end tickets submitted. Terminal totals and lottery cash unlocked.",
     );
   }
 
@@ -1103,10 +1102,11 @@ export function EodReconciliationWorkbench({
     setLotteryBondFee(String(data.lotteryBondFee || ""));
     setOnlineTotalPayout(String(data.onlineTotalPayout || ""));
     setScratchCardTotalPayout(String(data.scratchCardTotalPayout || ""));
-    setStartingFloat(String(data.startingFloat || ""));
+    setOpeningCashFloat(String(data.openingCashFloat || ""));
+    setClosingCashFloat(String(data.closingCashFloat || ""));
     setTillCash(String(data.tillCash || ""));
     setActiveTab("log");
-    setCashEntryType("startingFloat");
+    setCashEntryType("terminalSales");
     setCashEntryAmount("");
     setManagerNotes(data.managerNotes);
     setLocalSoldOutInventoryIds(new Set());
@@ -1121,12 +1121,13 @@ export function EodReconciliationWorkbench({
     canSelectDate,
     data.businessDate,
     data.cashingBonus,
+    data.closingCashFloat,
     data.isReconciled,
     data.lotteryBondFee,
     data.managerNotes,
     data.onlineTotalPayout,
+    data.openingCashFloat,
     data.scratchCardTotalPayout,
-    data.startingFloat,
     data.terminalSales,
     data.ticketCancels,
     data.tillCash,
@@ -1188,12 +1189,13 @@ export function EodReconciliationWorkbench({
             endTicketNumber: calculation.endTicketNumber,
           })),
           cashingBonus,
+          closingCashFloat,
           date: data.businessDate,
           lotteryBondFee,
           managerNotes,
           onlineTotalPayout,
+          openingCashFloat,
           scratchCardTotalPayout,
-          startingFloat,
           terminalSales,
           ticketCancels,
           tillCash,
@@ -1359,8 +1361,7 @@ export function EodReconciliationWorkbench({
             Lottery EOD Desk
           </h1>
           <p className="font-satoshi mt-2 text-gray-6">
-            Reconcile scratch bins, starting float, terminal totals, payouts,
-            and lottery cash
+            Reconcile scratch bins, terminal totals, payouts, and lottery cash
           </p>
         </div>
         <div className="flex flex-col gap-1">
@@ -1525,6 +1526,16 @@ export function EodReconciliationWorkbench({
         </div>
       ) : null}
 
+      {canEditSavedReconciliation ? (
+        <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+          <CheckCircle2 className="h-5 w-5 shrink-0" />
+          <span>
+            Admin edit mode: this lottery EOD is already reconciled. Daily
+            Closeout is unlocked, and saving will update the saved totals.
+          </span>
+        </div>
+      ) : null}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Scratch sales"
@@ -1545,9 +1556,13 @@ export function EodReconciliationWorkbench({
           tone="blue"
         />
         <SummaryCard
-          label="Expected cash"
+          label={data.isReconciled ? "Saved EOD cash" : "Expected cash"}
           value={formatCurrency(totalExpectedCash)}
-          detail="Advances excluded"
+          detail={
+            useSavedReconciliationSnapshot
+              ? `Stored snapshot; opening ${formatCurrency(data.openingCashFloat)}`
+              : `Opening float ${formatCurrency(openingCashFloatTotal)} + daily net ${formatCurrency(dailyNetCash)}`
+          }
           icon={<Calculator className="h-5 w-5" />}
           tone="slate"
         />
@@ -1902,6 +1917,52 @@ export function EodReconciliationWorkbench({
 
             {binTicketsSubmitted ? (
               <div className="space-y-8">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-bold uppercase tracking-wider text-dark-5 dark:text-dark-6">
+                      Opening Float ($)
+                    </span>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-green" />
+                      <CurrencyInput
+                        value={openingCashFloat}
+                        showSymbol={false}
+                        disabled={reconciliationLocked}
+                        onValueChange={(decimalValue) => {
+                          setOpeningCashFloat(decimalValue);
+                          setSaveState({ status: "idle" });
+                        }}
+                        className="w-full rounded-xl border-2 border-stroke bg-transparent py-3 pl-10 pr-4 text-xl font-bold text-dark outline-none transition-all focus:border-primary dark:border-dark-3 dark:text-white"
+                      />
+                    </div>
+                    <p className="mt-1 text-[10px] text-dark-6">
+                      Lottery cash in drawer before today&apos;s closeout
+                    </p>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-bold uppercase tracking-wider text-dark-5 dark:text-dark-6">
+                      Closing Float ($)
+                    </span>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-blue" />
+                      <CurrencyInput
+                        value={closingCashFloat}
+                        showSymbol={false}
+                        disabled={reconciliationLocked}
+                        onValueChange={(decimalValue) => {
+                          setClosingCashFloat(decimalValue);
+                          setSaveState({ status: "idle" });
+                        }}
+                        className="w-full rounded-xl border-2 border-stroke bg-transparent py-3 pl-10 pr-4 text-xl font-bold text-dark outline-none transition-all focus:border-primary dark:border-dark-3 dark:text-white"
+                      />
+                    </div>
+                    <p className="mt-1 text-[10px] text-dark-6">
+                      Saved as the next lottery EOD opening float
+                    </p>
+                  </label>
+                </div>
+
                 <form
                   onSubmit={submitCashEntry}
                   className="rounded-2xl border border-primary/10 bg-primary/5 p-6"
@@ -1986,7 +2047,6 @@ export function EodReconciliationWorkbench({
                           onClick={() => editCashEntry(field)}
                           disabled={reconciliationLocked}
                           className={`flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition hover:bg-gray-1 dark:hover:bg-dark-2 ${
-                            field.key === "startingFloat" ||
                             field.key === "tillCash"
                               ? "bg-primary/5"
                               : ""
@@ -2032,9 +2092,8 @@ export function EodReconciliationWorkbench({
                       Bin end tickets required
                     </p>
                     <p className="text-xs opacity-80">
-                      Submit bin end tickets before starting float, terminal
-                      totals, payouts, PROMO, bond fee, and cash counted are
-                      available.
+                      Submit bin end tickets before terminal totals, payouts,
+                      PROMO, bond fee, and cash counted are available.
                     </p>
                   </div>
                 </div>
@@ -2075,9 +2134,9 @@ export function EodReconciliationWorkbench({
               </h2>
               <div className="space-y-6">
                 <div className="flex items-center justify-between gap-4 text-sm">
-                  <span className="text-dark-5">Starting float</span>
+                  <span className="text-dark-5">Opening float</span>
                   <span className="font-bold text-green">
-                    +{formatCurrency(startingFloatTotal)}
+                    +{formatCurrency(openingCashFloatTotal)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4 text-sm">
@@ -2124,17 +2183,49 @@ export function EodReconciliationWorkbench({
                 <div className="border-t-2 border-dashed border-stroke pt-4 dark:border-dark-3">
                   <div className="flex items-center justify-between gap-4">
                     <span className="font-bold uppercase tracking-wider text-dark dark:text-white">
-                      Expected cash
+                      Daily net from totals
                     </span>
                     <span className="text-2xl font-black text-dark dark:text-white">
-                      {formatCurrency(totalExpectedCash)}
+                      {dailyNetCash > 0 ? "+" : ""}
+                      {formatCurrency(dailyNetCash)}
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-4 text-sm">
+                  <span className="font-bold text-dark dark:text-white">
+                    Expected cash
+                  </span>
+                  <span className="font-black text-dark dark:text-white">
+                    {formatCurrency(calculatedTotalExpectedCash)}
+                  </span>
+                </div>
+                {useSavedReconciliationSnapshot ? (
+                  <div className="rounded-xl border border-green/15 bg-green/5 p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm font-bold text-green">
+                        Saved EOD expected cash
+                      </span>
+                      <span className="text-lg font-black text-green">
+                        {formatCurrency(totalExpectedCash)}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs leading-relaxed text-dark-5 dark:text-dark-6">
+                      This reconciled date uses the saved EOD cash snapshot for
+                      variance. Live opening-float math is shown above for
+                      review only.
+                    </p>
+                  </div>
+                ) : null}
+                <div className="flex items-center justify-between gap-4 text-sm">
                   <span className="text-dark-5">Cash counted in drawer</span>
                   <span className="font-bold text-dark dark:text-white">
                     {formatCurrency(tillCashTotal)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4 text-sm">
+                  <span className="text-dark-5">Closing float for next day</span>
+                  <span className="font-bold text-dark dark:text-white">
+                    {formatCurrency(closingCashFloatTotal)}
                   </span>
                 </div>
               </div>
@@ -2165,8 +2256,9 @@ export function EodReconciliationWorkbench({
                       : "Lottery Cash Variance Detected"}
                   </h3>
                   <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-                    Difference between counted lottery drawer cash and system
-                    expectation.
+                    {data.isReconciled
+                      ? "Saved variance from the reconciled EOD record."
+                      : "Difference between counted lottery drawer cash and system expectation."}
                   </p>
                 </div>
                 {shortOver === 0 ? (
@@ -2199,9 +2291,9 @@ export function EodReconciliationWorkbench({
                     Action Required:
                   </p>
                   <p className="text-xs leading-relaxed text-dark-5 dark:text-dark-6">
-                    Double-check starting float, terminal totals, payouts,
-                    PROMO, and counted lottery cash. If the variance remains,
-                    leave a note before saving.
+                    Double-check terminal totals, payouts, PROMO, and counted
+                    lottery cash. If the variance remains, leave a note before
+                    saving.
                   </p>
                 </div>
               ) : null}
@@ -2233,7 +2325,9 @@ export function EodReconciliationWorkbench({
                 )}
                 {reconciliationLocked
                   ? "Reconciliation saved"
-                  : "Save reconciliation"}
+                  : canEditSavedReconciliation
+                    ? "Update reconciliation"
+                    : "Save reconciliation"}
               </button>
             </div>
           </div>
