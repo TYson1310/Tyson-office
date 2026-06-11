@@ -10,6 +10,7 @@ import {
   calculateLotteryExpectedCashInHandFromReconciliation,
 } from "./cash.ts";
 import { calculateLotteryCashAdvanceImpact } from "./cash-advance-calculation.ts";
+import { getLotteryCashInHandPaidEftSweepDate } from "./cash-in-hand-cutoff.ts";
 
 test("lottery cash in hand uses the full counted cash amount", () => {
   assert.equal(
@@ -136,6 +137,24 @@ test("lottery cash in hand applies cash advance impact after reconciliation", ()
       }),
     }),
     610.07,
+  );
+});
+
+test("lottery cash in hand includes today's payable EFT sweep", () => {
+  assert.equal(
+    getLotteryCashInHandPaidEftSweepDate({
+      businessDate: "2026-06-11",
+      cashInHandCutoffDate: "2026-06-10",
+    }),
+    "2026-06-11",
+  );
+
+  assert.equal(
+    getLotteryCashInHandPaidEftSweepDate({
+      businessDate: "2026-06-10",
+      cashInHandCutoffDate: "2026-06-09",
+    }),
+    "2026-06-04",
   );
 });
 
