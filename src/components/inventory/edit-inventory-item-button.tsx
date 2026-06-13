@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { Loader2, Pencil, X } from "lucide-react";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import {
+  calculateSellingPriceForMargin,
+  calculateUnitAmountForPackSizeChange,
+} from "@/lib/products/pricing";
 
 export type EditableInventoryRecord = {
   id: string;
@@ -54,6 +58,10 @@ type EditInventoryItemButtonProps = {
 
 const INPUT_CLASSNAME = "app-input";
 
+function formatCurrencyDraft(value: number) {
+  return value.toFixed(2);
+}
+
 function getInitialFormState(
   product: EditableInventoryRecord,
 ): InventoryFormState {
@@ -70,9 +78,48 @@ function getInitialFormState(
     itemsPerPack: `${product.itemsPerPack}`,
     reorderLevel: `${product.reorderLevel}`,
     dailyVelocity: product.dailyVelocity.toFixed(1),
-    cost: product.cost.toFixed(2),
-    price: product.price.toFixed(2),
+    cost: formatCurrencyDraft(product.cost),
+    price: formatCurrencyDraft(product.price),
     targetMarginPercent: product.targetMarginPercent.toFixed(1),
+  };
+}
+
+function applyItemsPerPackChange(
+  current: InventoryFormState,
+  nextItemsPerPack: string,
+): InventoryFormState {
+  const nextCost = calculateUnitAmountForPackSizeChange(
+    current.cost,
+    current.itemsPerPack,
+    nextItemsPerPack,
+  );
+  const nextPrice = calculateUnitAmountForPackSizeChange(
+    current.price,
+    current.itemsPerPack,
+    nextItemsPerPack,
+  );
+
+  return {
+    ...current,
+    itemsPerPack: nextItemsPerPack,
+    cost: nextCost === null ? current.cost : formatCurrencyDraft(nextCost),
+    price: nextPrice === null ? current.price : formatCurrencyDraft(nextPrice),
+  };
+}
+
+function applyTargetMarginChange(
+  current: InventoryFormState,
+  nextTargetMarginPercent: string,
+): InventoryFormState {
+  const nextPrice = calculateSellingPriceForMargin(
+    current.cost,
+    nextTargetMarginPercent,
+  );
+
+  return {
+    ...current,
+    targetMarginPercent: nextTargetMarginPercent,
+    price: nextPrice === null ? current.price : formatCurrencyDraft(nextPrice),
   };
 }
 
@@ -401,10 +448,12 @@ export function EditInventoryItemButton({
                       step="1"
                       value={formState.itemsPerPack}
                       onChange={(event) =>
-                        setFormState((current) => ({
-                          ...current,
-                          itemsPerPack: event.target.value,
-                        }))
+                        setFormState((current) =>
+                          applyItemsPerPackChange(
+                            current,
+                            event.target.value,
+                          ),
+                        )
                       }
                       className={INPUT_CLASSNAME}
                       placeholder="1"
@@ -455,7 +504,7 @@ export function EditInventoryItemButton({
 
                   <div>
                     <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                      Cost
+                      Cost per item
                     </label>
                     <CurrencyInput
                       required
@@ -473,7 +522,7 @@ export function EditInventoryItemButton({
 
                   <div>
                     <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-                      Sell price
+                      Sell price per item
                     </label>
                     <CurrencyInput
                       required
@@ -501,10 +550,12 @@ export function EditInventoryItemButton({
                       step="0.1"
                       value={formState.targetMarginPercent}
                       onChange={(event) =>
-                        setFormState((current) => ({
-                          ...current,
-                          targetMarginPercent: event.target.value,
-                        }))
+                        setFormState((current) =>
+                          applyTargetMarginChange(
+                            current,
+                            event.target.value,
+                          ),
+                        )
                       }
                       className={INPUT_CLASSNAME}
                       placeholder="0.0"

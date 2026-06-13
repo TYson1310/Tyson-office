@@ -9,6 +9,11 @@ import {
   canDeleteProductRecords,
   requireProductManagerAccess,
 } from "@/lib/products/api";
+import {
+  calculateSellingPriceForMargin,
+  calculateUnitAmountForPackSizeChange,
+  normalizeNonNegativeCurrency,
+} from "@/lib/products/pricing";
 
 export const runtime = "nodejs";
 
@@ -192,6 +197,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updates: Record<string, string | number | null> = {};
+    const costProvided = body.cost !== undefined;
+    const priceProvided = body.price !== undefined;
     const quantityAdjustmentReason = normalizeOptionalEvidence(
       body.quantityAdjustmentReason,
     );
@@ -379,6 +386,63 @@ export async function PATCH(request: NextRequest) {
 
     if (!currentProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    const itemsPerPackChanged =
+      updates.items_per_pack !== undefined &&
+      Number(updates.items_per_pack) !== Number(currentProduct.items_per_pack);
+
+    if (itemsPerPackChanged) {
+      const nextItemsPerPack = updates.items_per_pack;
+      const submittedCost = normalizeNonNegativeCurrency(body.cost);
+      const submittedPrice = normalizeNonNegativeCurrency(body.price);
+      const currentCost = normalizeNonNegativeCurrency(currentProduct.cost);
+      const currentPrice = normalizeNonNegativeCurrency(currentProduct.price);
+
+      if (!costProvided || submittedCost === currentCost) {
+        const adjustedCost = calculateUnitAmountForPackSizeChange(
+          currentProduct.cost,
+          currentProduct.items_per_pack,
+          nextItemsPerPack,
+        );
+
+        if (adjustedCost !== null) {
+          updates.cost = adjustedCost;
+        }
+      }
+
+      if (!priceProvided || submittedPrice === currentPrice) {
+        const adjustedPrice = calculateUnitAmountForPackSizeChange(
+          currentProduct.price,
+          currentProduct.items_per_pack,
+          nextItemsPerPack,
+        );
+
+        if (adjustedPrice !== null) {
+          updates.price = adjustedPrice;
+        }
+      }
+    }
+
+    const targetMarginChanged =
+      updates.target_margin_percent !== undefined &&
+      Number(updates.target_margin_percent) !==
+        Number(currentProduct.target_margin_percent);
+
+    if (
+      targetMarginChanged &&
+      (!priceProvided ||
+        normalizeNonNegativeCurrency(body.price) ===
+          normalizeNonNegativeCurrency(currentProduct.price))
+    ) {
+      const priceFromTargetMargin = calculateSellingPriceForMargin(
+        updates.cost ?? currentProduct.cost,
+        updates.target_margin_percent,
+      );
+
+      if (priceFromTargetMargin !== null) {
+        updates.price = priceFromTargetMargin;
+      }
     }
 
     const quantityChanged =
