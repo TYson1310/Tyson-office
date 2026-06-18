@@ -1718,16 +1718,14 @@ export async function GET(request: NextRequest) {
           );
         }),
       );
-      {
-        const scheduleById = new Map((scheduleResult.data ?? []).map((r) => [r.id, r]));
-        const shiftById = new Map((shiftResult.data ?? []).map((r) => [r.id, r]));
+      const scheduleById = new Map((scheduleResult.data ?? []).map((r) => [r.id, r]));
+      const shiftById = new Map((shiftResult.data ?? []).map((r) => [r.id, r]));
 
-        const exceptions = sortExceptionsForDisplay(
-          (exceptionResult.data ?? []).map((row) =>
-            mapAttendanceExceptionRow(row, access.currentUserName, scheduleById, shiftById),
-          ),
-        );
-      }
+      const exceptions = sortExceptionsForDisplay(
+       (exceptionResult.data ?? []).map((row) =>
+         mapAttendanceExceptionRow(row, access.currentUserName, scheduleById, shiftById),
+       ),
+      );
       const todayHours = (todaysShiftResult.data ?? []).reduce(
         (sum, row) =>
           sum +
