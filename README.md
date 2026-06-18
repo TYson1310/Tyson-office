@@ -25,6 +25,17 @@ This app is currently configured as a private internal system, not a public mark
 - Browser smoke tests for deployment validation
 - Private admin portal protected by a secret link token and master password
 
+
+## Documentation
+
+### User Guides & Manuals
+
+- **[Lottery Management System User Manual](./docs/LOTTERY_USER_MANUAL.md)** - Comprehensive guide for daily lottery operations, including EOD reconciliation, EFT management, cash advances, scratch pack settlements, and reporting workflows.
+
+### Other Resources
+
+- See `/docs` folder for additional setup guides and technical documentation.
+
 ## Core Business Rules
 
 - Payroll runs from manual payroll entries only.
