@@ -1106,7 +1106,9 @@ async function syncAttendanceWindow(input: {
           status: "open",
           severity: candidate.severity,
           title: candidate.title,
-          details: candidate.detail,
+          // Store a null details field so human-readable, server-localized text is not persisted.
+          // The client will compose localized messages from the structured timestamps returned by the API.
+          details: null,
           resolution_notes: null,
           resolved_at: null,
           resolved_by: null,
@@ -1125,7 +1127,7 @@ async function syncAttendanceWindow(input: {
         existing.status === "open" ||
         shouldReopen ||
         existing.title !== candidate.title ||
-        existing.details !== candidate.detail ||
+        // Do not compare or update the stored details field — it previously contained server-localized text.
         existing.shift_entry_id !== (candidate.shiftEntryId ?? null) ||
         existing.schedule_id !== (candidate.scheduleId ?? null) ||
         existing.severity !== candidate.severity
@@ -1138,7 +1140,7 @@ async function syncAttendanceWindow(input: {
             status: shouldReopen ? "open" : existing.status,
             severity: candidate.severity,
             title: candidate.title,
-            details: candidate.detail,
+            // Intentionally do not update details here to avoid persisting server-localized messages.
             resolution_notes: shouldReopen ? null : existing.resolution_notes,
             resolved_at: shouldReopen ? null : existing.resolved_at,
             resolved_by: shouldReopen ? null : null,
@@ -1227,7 +1229,12 @@ async function maybeSyncAttendanceWindow(input: {
 function mapAttendanceExceptionRow(
   row: AttendanceExceptionRow,
   employeeName: string,
+  scheduleById?: Map<string, ShiftScheduleRow>,
+  shiftById?: Map<string, ShiftEntryRow>,
 ): AttendanceException {
+  const schedule = row.schedule_id ? scheduleById?.get(row.schedule_id) ?? null : null;
+  const shift = row.shift_entry_id ? shiftById?.get(row.shift_entry_id) ?? null : null;
+
   return {
     id: row.id,
     employeeId: row.employee_id,
@@ -1243,6 +1250,11 @@ function mapAttendanceExceptionRow(
     resolvedAt: row.resolved_at ?? undefined,
     resolutionNotes: row.resolution_notes ?? undefined,
     createdAt: row.created_at,
+    updatedAt: row.updated_at ?? undefined,
+    scheduleStartAt: schedule?.scheduled_start_at ?? undefined,
+    scheduleEndAt: schedule?.scheduled_end_at ?? undefined,
+    shiftStartAt: shift?.clock_in_at ?? undefined,
+    shiftEndAt: shift?.clock_out_at ?? undefined,
   };
 }
 
@@ -1706,11 +1718,16 @@ export async function GET(request: NextRequest) {
           );
         }),
       );
-      const exceptions = sortExceptionsForDisplay(
-        (exceptionResult.data ?? []).map((row) =>
-          mapAttendanceExceptionRow(row, access.currentUserName),
-        ),
-      );
+      {
+        const scheduleById = new Map((scheduleResult.data ?? []).map((r) => [r.id, r]));
+        const shiftById = new Map((shiftResult.data ?? []).map((r) => [r.id, r]));
+
+        const exceptions = sortExceptionsForDisplay(
+          (exceptionResult.data ?? []).map((row) =>
+            mapAttendanceExceptionRow(row, access.currentUserName, scheduleById, shiftById),
+          ),
+        );
+      }
       const todayHours = (todaysShiftResult.data ?? []).reduce(
         (sum, row) =>
           sum +
