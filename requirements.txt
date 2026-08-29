@@ -1,1 +1,2 @@
--r requirements-game-catalog.txt
+pymupdf>=1.26.0
+pillow>=10.0.0
