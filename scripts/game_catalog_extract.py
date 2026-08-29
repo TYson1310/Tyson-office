@@ -10,7 +10,7 @@ MISSING_DEPS_MESSAGE = (
     "Game catalog extraction dependencies are missing. Install Python packages "
     "with `python3 -m pip install -r requirements-game-catalog.txt`."
 )
-
+#TYson
 PRICE_RE = re.compile(r"\$\s*(\d{1,3}(?:\.\d{2})?)\b")
 GAME_ID_RE = re.compile(r"#\s*0?(\d{1,5})\b")
 PRIZE_RE = re.compile(r"\$?\s*([\d,]+(?:\.\d+)?(?:\*)?)\s*-\s*(\d+)")
