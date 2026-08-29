@@ -1,0 +1,1 @@
+drop index if exists public.inventory_one_active_game_per_store_idx;

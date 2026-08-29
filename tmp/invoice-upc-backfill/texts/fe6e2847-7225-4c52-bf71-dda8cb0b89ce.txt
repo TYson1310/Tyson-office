@@ -1,0 +1,72 @@
+Restaurant Depot #832
+1135 Springfield Blvd
+Union, NJ 07083
+(908) 964-5544
+Customer #7437971
+COUNTRY FARMS DELI CONVENIENCE
+958,S Springfield Ave
+Springfield, NJ 07081-3508
+Invoice: 10922 Terminal: 17 - 2026/05/23 11:10 am
+UPC
+Description
+Unit Qty Case Qty Price
+-2
+Previous Balance
+0
+0
+$0.00
+76069501074 EGGS LOOSE LRG WH 15DZ 1
+0
+$12.82
+74938421215 FOIL INTERFOLD 21215
+1
+0
+$12.41
+76069501058 BTR SALT JF TUB 5LB
+1
+0
+$15.62
+76069500013 CHZ CREAM SOFT JF 5LB.
+1
+0
+$13.08
+7550548165 PORK ROLL 3LB CASE
+1
+0
+$13.55
+3760045386 BACON 1 HORMEL 20/24
+1
+0
+$41.76
+0
+Sub-Total
+0
+0
+$109.24
+0
+Tax
+0
+0
+$0.00
+0
+Total
+0
+0
+$109.24
+0
+CASH
+0
+0
+$109.25
+0
+CASH XXXXX ADJ
+0
+0
+-$0.01
+0
+Balance
+0
+0
+$0.00
+Thank you,
+Restaurant Depot

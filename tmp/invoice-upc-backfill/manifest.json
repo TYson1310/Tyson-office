@@ -1,0 +1,1674 @@
+{
+  "backupPath": "backups/default-store-upc-backfill-before-2026-06-02T22-15-35-862Z.json",
+  "bucket": "vendor-invoices",
+  "downloaded": 98,
+  "failed": 0,
+  "manifest": [
+    {
+      "invoice": {
+        "id": "b83864f1-7222-42b6-9a21-68f628483073",
+        "store_key": "default",
+        "invoice_number": "521469417",
+        "supplier_id": "304631f0-dfd4-45e1-861c-4476ae772919",
+        "issue_date": "2026-05-18",
+        "notes": "AI extraction details\nExtracted vendor: Unknown Vendor\nSubtotal: 549.00 USD\nItems: Geek Pulse (amount 125.01, qty 3) | Lava Plus (amount 384.00, qty 8) | University THC-A Exotic Flower Pablotto 3.5Gm *HYB* (amount 40.00, qty 2)",
+        "description": "Invoice for Geek Pulse, Lava Plus, and University THC-A Exotic Flower.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-18/2772a726-329c-46f1-b78a-c82a2ead4a1a-20260519-1935-2.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260519-1935-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-18-521469417-b83864f1-7222-42b6-9a21-68f628483073.pdf",
+      "size": 82593,
+      "originalName": "20260519-1935-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "da5a005c-e813-4e8c-bc2a-e41b802bd9e2",
+        "store_key": "default",
+        "invoice_number": "521469418",
+        "supplier_id": "304631f0-dfd4-45e1-861c-4476ae772919",
+        "issue_date": "2026-05-18",
+        "notes": "AI extraction details\nExtracted vendor: Retailer\nSubtotal: 194.98 USD\nItems: Buttas Hot Grabba Chipz (amount 35.00, qty 1, 20 / pack, per item 1.75) | DM 2/1.29 Berry Fusion (amount 49.98, qty 2) | ZYN Nicotine Pouches Citrus 3MG 5ct (amount 22.00, qty 1, 5 / pack, per item 4.40) | ZYN Nicotine Pouches Cool Mint 3MG 5ct (amount 22.00, qty 1, 5 / pack, per item 4.40) | ZYN Nicotine Pouches Peppermint 6MG 5ct (amount 22.00, qty 1, 5 / pack, per item 4.40) | ZYN Nicotine Pouches Spearmint 3MG 5ct (amount 22.00, qty 1, 5 / pack, per item 4.40) | ZYN Nicotine Pouches Wintergreen 3MG 5ct (amount 22.00, qty 1, 5 / pack, per item 4.40)",
+        "description": "Invoice for various convenience store items including snacks and nicotine pouches.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-18/cf438e35-1f83-4579-88be-8829f8105b4a-20260519-1935.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260519-1935.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-18-521469418-da5a005c-e813-4e8c-bc2a-e41b802bd9e2.pdf",
+      "size": 113819,
+      "originalName": "20260519-1935.pdf"
+    },
+    {
+      "invoice": {
+        "id": "0a261270-1c55-4af5-9f73-ddeb77973908",
+        "store_key": "default",
+        "invoice_number": "ORD1275216",
+        "supplier_id": "304631f0-dfd4-45e1-861c-4476ae772919",
+        "issue_date": "2026-05-18",
+        "notes": "AI extraction details\nExtracted vendor: Centerpoint Distribution\nVendor address: 155 Helen St unit a, South Plainfield, NJ 07080, USA\nCustomer: Country Farm Deli (Springfield)\nSubtotal: 42.37 USD\nItems: Dental Floss Pick Waxed Bag (Aim) (amount 4.50, qty 3, 1 / pack, per item 1.50) | Gillette Foamy Regular/Red 11oz (amount 10.00, qty 4, 1 / pack, per item 2.50) | Listerine Cool Mint 95/100ml (amount 9.90, qty 6, 1 / pack, per item 1.65) | Listerine Coolmint 250ml (amount 10.47, qty 3, 1 / pack, per item 3.49) | Qtips Cotton Swabs 170ct (amount 7.50, qty 3, 1 / pack, per item 2.50)",
+        "description": "Dental Floss Pick Waxed Bag (Aim), Gillette Foamy Regular/Red 11oz, Listerine Cool Mint 95/100ml, +2 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-18/7a950f26-658a-42b1-875f-56432b07e59f-20260519-1934.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260519-1934.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-18-ORD1275216-0a261270-1c55-4af5-9f73-ddeb77973908.pdf",
+      "size": 198327,
+      "originalName": "20260519-1934.pdf"
+    },
+    {
+      "invoice": {
+        "id": "73dc168f-ffc3-4319-8976-d689aa373605",
+        "store_key": "default",
+        "invoice_number": "809264635",
+        "supplier_id": "2d697fd7-4bfb-4192-b7a4-76b189e69afc",
+        "issue_date": "2026-05-19",
+        "notes": "AI extraction details\nExtracted vendor: AZ METRO DISTRIBUTORS LLC\nVendor address: 60 CROSSWAYS PARK DRIVE W WOODBURY, NY11797\nCustomer: COUNTRY FARM DELI & CONVENIENT\nSubtotal: 81.75 USD\nItems: AZ 22OZ CAN LEMON 24PK (amount 15.75, qty 1) | AZ 22OZ CAN GREEN 24PK (amount 47.25, qty 3) | AZ 20 OZ TALLBOY BLUEBERRY WHITE (amount 15.75, qty 1)",
+        "description": "AZ 22OZ CAN LEMON 24PK, AZ 22OZ CAN GREEN 24PK, AZ 20 OZ TALLBOY BLUEBERRY WHITE",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-19/56d6c9e4-ce30-498e-b806-f1f8e01a5085-20260519-1933.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260519-1933.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-19-809264635-73dc168f-ffc3-4319-8976-d689aa373605.pdf",
+      "size": 191990,
+      "originalName": "20260519-1933.pdf"
+    },
+    {
+      "invoice": {
+        "id": "c6a89151-e9d9-46b2-985e-755c385f7bce",
+        "store_key": "default",
+        "invoice_number": "362758",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-04-20",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD",
+        "description": "Invoice 362758",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-20/3e844f73-b2d1-48b6-8a29-b1f1342710b0-ten.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "3e844f73-b2d1-48b6-8a29-b1f1342710b0-ten.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-20-362758-c6a89151-e9d9-46b2-985e-755c385f7bce.pdf",
+      "size": 477492,
+      "originalName": "3e844f73-b2d1-48b6-8a29-b1f1342710b0-ten.pdf"
+    },
+    {
+      "invoice": {
+        "id": "d532b33e-1cf5-471b-a6c9-a37a9ee4705e",
+        "store_key": "default",
+        "invoice_number": "30588364",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-05-16",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 9.38 USD\nItems: HERO JUMBO SOL EA (amount 5.22, qty 6) | KAISER LG SOL DZ (amount 4.16, qty 4)",
+        "description": "HERO JUMBO SOL EA, KAISER LG SOL DZ",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-16/80b509ce-d519-4b9d-b50f-3226c21c6f58-20260519-1235-new.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260519-1235-new.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-16-30588364-d532b33e-1cf5-471b-a6c9-a37a9ee4705e.pdf",
+      "size": 80069,
+      "originalName": "20260519-1235-new.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e906c26a-62c1-4a62-948c-9ca419ea6e8c",
+        "store_key": "default",
+        "invoice_number": "00003060597792",
+        "supplier_id": "55534311-e24d-4451-a95c-f696625e2ba0",
+        "issue_date": "2026-05-20",
+        "notes": "AI extraction details\nExtracted vendor: Tasty Baking Company\nVendor address: 4300 S 26TH ST\n\nBackfilled OCR extraction details\nItems: TK GLZ PIE APPLE (code 02560000972, amount 16.72, qty 8, per item 2.09) | TK GLZ PIE LEMON (code 02560000967, amount 16.72, qty 8, per item 2.09) | TK GLZ PIE CHERRY (code 02560000969, amount 16.72, qty 8, per item 2.09) | TK GLZ PIE BANANA (code 02560008611, amount 16.72, qty 8, per item 2.09) | TK SS KPT B-SCTCH (code 02560000002, amount 12.54, qty 6, per item 2.09) | TK SS CUP CF BTRCR (code 02560000132, amount 12.54, qty 6, per item 2.09) | TK SS CUP CF CHOC (code 02560000133, amount 12.54, qty 6, per item 2.09) | TK SS CUP CF KOF (code 02560000134, amount 12.54, qty 6, per item 2.09) | TK SS KK PNT BTR (code 02560000015, amount 12.54, qty 6, per item 2.09) | TK SS HB ICED (code 02560000782, amount 12.54, qty 6, per item 2.09) | TK SS HB BOST CRM (code 02560004206, amount 12.54, qty 6, per item 2.09)",
+        "description": "TK GLZ PIE APPLE, TK GLZ PIE LEMON, TK GLZ PIE CHERRY, +8 more",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-05-20/83a63b1e-3492-46a3-82ac-4884d82b9b12-1.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-20-00003060597792-e906c26a-62c1-4a62-948c-9ca419ea6e8c.pdf",
+      "size": 84153,
+      "originalName": "1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+        "store_key": "default",
+        "invoice_number": "23154",
+        "supplier_id": "5c56b110-ab3f-4670-b45c-88578f18baa0",
+        "issue_date": "2026-02-25",
+        "notes": "AI extraction details\nExtracted vendor: KRIAA WHOLESALE\nVendor address: 449 w grand Ave Rahway, NJ, USA 07065\nCustomer: Shakti Co - Springfield (-) Nehal Patel (#2868)\nSubtotal: 2426.61 USD\nItems: Hush Kratom Extract Shot Coffee Single (amount 8.25, qty 1) | Hush Kratom Ultra Shots Single (amount 8.25, qty 1) | Pixel Lab LED Display 16*192 (amount 200.00, qty 1) | Pixel Lab LED Display 16*96 Plus (amount 230.00, qty 2) | Bic 1 Razor 5ct (amount 3.98, qty 2) | Dice 48ct (amount 5.99, qty 1) | Kind Pen Variable 510 Battery Black (amount 15.00, qty 3) | ADD ALL 2pk Capsules Single (amount 12.00, qty 3) | Sharpie Fine Marker Black Single (amount 3.33, qty 3) | House stuff scissor 8in (amount 2.97, qty 3) | Gillette Black Razors 3pk (amount 3.38, qty 2) | Bic Cristal Pen 2pk Red (amount 0.79, qty 1) | Bic Cristal Pen 2pk blue (amount 0.79, qty 1) | Vaseline Lip Therapy 0.25oz Single | Creme Brulee (amount 6.00, qty 3) | Sharpie Black Marker 2ct (amount 1.69, qty 1) | Trim Emery Boards (amount 2.07, qty 3) | TRIM Slant tip Tweezer (amount 2.67, qty 3) | Trim Deluxe Fingernail Clipper Nail Care Single (amount 2.97, qty 3) | Trim Nail Clipper Big Single (amount 2.97, qty 3) | Krazy Glue (amount 2.82, qty 3) | Vaseline Lotion Pro Age Repair Lotion 100ml (amount 2.38, qty 2) | Vaseline Intensive Care Lotion 100ml (amount 2.38, qty 2) | Banana Boat Sport Ultra 1.8oz (amount 7.50, qty 3) | Elmers School Glue 4oz (amount 3.27, qty 3) | Envelop 80ct (amount 1.19, qty 1) | Envelop 50ct (amount 1.19, qty 1) | Envelop 100ct (amount 1.19, qty 1) | Colgate Classic Deep Clean Tooth Brush 12ct (amount 8.99, qty 1) | Colgate Tooth Paste Cavity Protection 4oz Single (amount 5.67, qty 3) | Aveeno Body Lotion 2.5oz (amount 9.72, qty 3) | Tape It Duct Tape Silver 10Yds (amount 2.97, qty 3) | Corton Box Packing Brown Tape 50Yds (amount 2.97, qty 3) | University THCA 2G Diamonds | Jelly Donut (amount 32.00, qty 2) | Pablo Nectar & Diamond Wax | Terp Taxi (amount 39.00, qty 3) | Big Chief Cartridge 2000mg 0.07oz | Watermelon Haze (amount 56.00, qty 4) | Gillette Mach3 1 Razor (amount 6.98, qty 2) | Gillette Good News Razors 30ct (amount 11.99, qty 1) | Muha Meds New Gen THC-P 3.5G Dispo 5ct/Box | Sour Cherry Limeade (amount 80.00, qty 1) | Muha Meds New Gen THC-A 3.5G Dispo 5ct/Box | Sugar Plum OG (amount 80.00, qty 1) | Muha Meds THC-A 3.5G Dispo 5ct/Box | Citrus Tusnami (amount 65.00, qty 1) | Muha Meds THC-A 3.5G Dispo 5ct/Box | White Raspberry (amount 65.00, qty 1) | Muha Meds THC-A 3.5G Dispo 5ct/Box | Cereal Milk (amount 65.00, qty 1) | Muha Meds New Gen THC-A 3.5G Dispo 5ct/Box | Russian Cream (amount 80.00, qty 1) | Muha Meds New Gen THC-P 3.5G Dispo 5ct/Box | White Gummy (amount 80.00, qty 1) | Muha Meds New Gen THC-A 3.5G Dispo 5ct/Box | Blue Slushie (amount 80.00, qty 1) | Blazy Susan 11/4 Size Pink Deluxe Rolling Kit 20ct (amount 34.99, qty 1) | EZ Wider 11/4 Size Papers 24ct (amount 39.49, qty 1) | EZ Wider Rolling Papers 11/2 Size 24ct (amount 39.49, qty 1) | EZ Wider Rolling Paper Double Wide 24ct (amount 39.49, qty 1) | Grabba leaf Natural 10packs (amount 39.99, qty 1) | Alien Grabba Tubes 30ct/Box (amount 60.00, qty 1) | Hot Head Grabba 30ct (amount 60.00, qty 1) | Glass Pipe LL 5ct RC (amount 55.00, qty 1) | Glass Pipe LL 5ct PD (amount 55.00, qty 1) | Havana Leaf Wraps 20ct/2pk/Box | Milk -N Cookies (amount 25.00, qty 1) | Havana Leaf Wraps 20ct/2pk/Box | Russian Cream (amount 25.00, qty 1) | Havana Leaf Wrap Strawberry Cream 5ct (amount 35.00, qty 1) | Havana Leaf Wrap Grape Soda 5ct (amount 35.00, qty 1) | Glass Pipe LL 40ct | Ruby Dream (amount 41.99, qty 1) | Blazy Susan 11/4 Size Purple Deluxe Rolling Kit 20ct (amount 34.99, qty 1) | Blazy Susan King Size Slim Purple Rolling Papers 50ct (amount 33.99, qty 1) | Blazy Susan KS Slim Papers Ultra Thin 50ct (amount 33.99, qty 1) | Glass Pipe LL 40ct | Cookies & Cream (amount 41.99, qty 1) | Raw Classic 1-1/2 Size Rolling-Papers 25ct (amount 19.99, qty 1) | Raw Pre-Rolled Tips 20ct (amount 18.00, qty 1) | Raw Pre Rolled Tips 20pk (amount 18.00, qty 1) | Raw Classic Anniversary Rolling Papers 11/4 Size 24ct/Box (amount 22.95, qty 1) | Raw Classic King Size Slim Rolling-Papers 50ct (amount 37.49, qty 1) | Raw Connoisseur King Size Slim Rolling Papers + Tips 24ct (amount 34.49, qty 1) | Raw Classic Cone King Size 3pk 32ct (amount 40.00, qty 1) | Raw Classic 11/4 Size Cones 20ct (amount 45.99, qty 1) | Raw Classic King Size Cones 20ct/Pack (amount 44.99, qty 1) | University THCA Exotic 3.5g Flower Single | Lemon Cherry Gelato (amount 108.00, qty 6)",
+        "description": "Invoice for various wholesale products.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-25/d5924220-147a-4c84-aed8-b4c2572f1b32-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "d5924220-147a-4c84-aed8-b4c2572f1b32-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-25-23154-864b4313-5d67-4f8d-bc12-54063ee516e8.pdf",
+      "size": 685524,
+      "originalName": "d5924220-147a-4c84-aed8-b4c2572f1b32-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "49a25b72-93ce-47ac-82e2-e5d274255b69",
+        "store_key": "default",
+        "invoice_number": "00109600700212605201202",
+        "supplier_id": "7fd3b93a-c33b-43a7-aef9-3f27dfb2d712",
+        "issue_date": "2026-05-20",
+        "notes": "AI extraction details\nExtracted vendor: ACME\nVendor address: 801 Kenilworth Blvd. Kenilworth NJ 07033\nSubtotal: 120.69 USD\nTax: 4.77 USD\nItems: 30 SALSA CON DP 15 OZ (amount 12.87, qty 1) | 30 DORITOS TORTILLA (amount 8.97, qty 1) | 30 DORITOS TORTILLA (amount 8.97, qty 1) | 30 2ND LAYER XXL (amount 8.97, qty 1) | 30 SMARTFOOD POPCORN (amount 8.97, qty 1) | 60 COCA COLA CLASSIC (amount 35.97, qty 1) | 20 DIET COKE (qty 1) | 20 FANTA ORANGE (amount 23.98, qty 1) | 20 SEAGRAMS GNGR ALE (amount 11.99, qty 1)",
+        "description": "Grocery receipt",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-05-20/571632ae-47d3-4a96-b96a-ddd8c754f556-2.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-20-00109600700212605201202-49a25b72-93ce-47ac-82e2-e5d274255b69.pdf",
+      "size": 403957,
+      "originalName": "2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "322189c0-7253-40c3-bde7-4764d12fca75",
+        "store_key": "default",
+        "invoice_number": "10565",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-05-21",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield BlvdUnion, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 130.93 USD\nItems: CHZ PROV SLC GL (amount 4.57, qty 1) | CHZ CHED SLC GL 6/1.5L (amount 4.43, qty 1) | CHZ CHED SLC GL 6/1.5L (amount 4.43, qty 1) | CHZ SWISS SLCD 6/1.5L (amount 5.47, qty 1) | CHZ SWISS SLCD 6/1.5L (amount 5.47, qty 1) | CHZ PEPJCK SLC GL 6/1.5L (amount 4.78, qty 1) | CHZ PEPJCK SLC GL 6/1.5L (amount 4.78, qty 1) | CHZ MOZZ WM GLB 6/5LB (amount 14.44, qty 1) | CHZ MOZZ WM GLB 6/5LB (amount 14.44, qty 1) | PD RED GRAPES 3LB (amount 8.45, qty 1) | TKY GOLDN RST BS (amount 59.67, qty 9.11)",
+        "description": "Assorted groceries and deli items",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-21/9b566d07-d650-4849-8f06-3c13e1612454-receipt-10565.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "receipt-10565.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-21-10565-322189c0-7253-40c3-bde7-4764d12fca75.pdf",
+      "size": 28237,
+      "originalName": "receipt-10565.pdf"
+    },
+    {
+      "invoice": {
+        "id": "303ef622-d728-48fb-93d5-d379d20bb0ee",
+        "store_key": "default",
+        "invoice_number": "Delivery",
+        "supplier_id": "8a65a7ba-3695-4a6f-92c7-e589a90ec92c",
+        "issue_date": "2026-05-22",
+        "notes": "AI extraction details Extracted vendor: COUNTRY FARM SPRING FIELD Vendor address: 958 S SPRINGFIELD AVE,, SPRINGFIELD, New Jersey (NJ) USA-07081 Subtotal: 518.50 USD Items: LAVA PLUS CLEAR ICE (amount 96.00, qty 2) | LAVA PLUS GUAVA ICE (amount 96.00, qty 2) | LAVA PLUS 2600 SKITTLES (amount 48.00, qty 1) | LAVA PLUS FRUIT ICE (amount 48.00, qty 1) | LAVA PLUS SOLO MINT 3% (amount 48.00, qty 1) | GEEK BAR 25K DISPOABLES 5PK/BOX: NO RETURN, EXCHANGE (amount 120.00, qty 2) | FLAIR ULTRA 2500 STRAWBERRY KIWI (amount 62.50, qty 1)",
+        "description": "Vape and e-liquid products",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-22/d69d772d-b614-438d-bcb4-636a50f57b31-20260523-1613-2.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260523-1613-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-22-Delivery-303ef622-d728-48fb-93d5-d379d20bb0ee.pdf",
+      "size": 176726,
+      "originalName": "20260523-1613-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "9beb6d75-e8a7-4e3d-b662-aaf4982a9452",
+        "store_key": "default",
+        "invoice_number": "30597915",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-05-21",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 14.60 USD\nItems: HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "HERO JUMBO SOL EA, KAISER LG SOL DZ",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-21/499707c8-9361-4d7e-add9-946e1c9cab85-20260523-1613.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260523-1613.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-21-30597915-9beb6d75-e8a7-4e3d-b662-aaf4982a9452.pdf",
+      "size": 86956,
+      "originalName": "20260523-1613.pdf"
+    },
+    {
+      "invoice": {
+        "id": "717b991d-8670-449b-84f8-020522ac0769",
+        "store_key": "default",
+        "invoice_number": "SWT4502",
+        "supplier_id": "ab7402d0-c904-40e4-b9e6-85b62999ad3f",
+        "issue_date": "2026-05-20",
+        "notes": "AI extraction details\nExtracted vendor: SWEET AND SUGAR LLC\nVendor address: 86-110 Orchard St Hackensack, NJ 07601-4833\nCustomer: Country farm Springfield 958 S Springfield Ave Springfield Nj 07081\nItems: 7 Days Vanilla Croissant 6pcs (amount 8.10, qty 1) | 7 Days Chocolate Croissant 6pcs (amount 8.10, qty 1) | BON APT DANISH BLUEBERRY 1PC 5.00Z (amount 14.40, qty 8) | BON APT DANISH APPLE 1PC 5.00Z (amount 14.40, qty 8) | BON APT DANISH BEAR CLAW 1PC 5.00Z (amount 14.40, qty 8) | BON APT DANISH CHEESE 1PC 5.00Z (amount 14.40, qty 8) | BON APT DANISH STRAWBERRY 1PC 5.00Z (amount 7.20, qty 4) | DAISY Banana Nut Muffin 12 ct 4 oz (amount 7.50, qty 0.5) | DAISY Black & Whites Cookle 12 CT 4 OZ (amount 7.50, qty 0.5) | DAISY Blueberry Muffin 12ct 5oz (amount 7.50, qty 0.5) | DAISY Carrot Pound Cake 12 CT 5 OZ (amount 7.50, qty 0.5) | DAISY Coconut Pound Cake 12 CT 5 OZ (amount 7.50, qty 0.5) | DAISY CROISSNT 12 PC (amount 15.00, qty 1) | CHEETO CRUNCHY XVL 2.25 OZ 1PC (32) (amount 18.00, qty 12) | CHEETO HOT XVL 2.25 OZ 1 PC (32) (amount 18.00, qty 12) | CHEETO JALAPENO CHEDDAR XVL 2.25 OZ 1 PC (32) (amount 18.00, qty 12) | CHEETOJUMBO PUFF XVL 2.25 OZ 1PC (24) (amount 18.00, qty 12) | DORITO XVL COOL RANCH 2.25 OZ 1 PC (24) (amount 18.00, qty 12) | DORITO XVL NACHO CHZ 2.250Z 1 PC (24) (amount 18.00, qty 12) | FRITO REGLAR 2.75 OZ XVL 1 PC (36) (amount 18.00, qty 12) | FRITOS HONEY BBQ TWISTS 1 PC (36) (amount 18.00, qty 12) | FUNYUNS XVL 2.25 OZ 1 PC (24) (amount 18.00, qty 12) | LAYS BAKED POTATO XVL 1.870Z 1 PC (27) (amount 18.00, qty 12) | LAYS LIME 2.250Z 1 PC (24) (amount 18.00, qty 12) | LAYS POTATO 2.250Z 1PC (24) (amount 18.00, qty 12) | LAYS SALT & VINGEGAR 1 PC (24) (amount 18.00, qty 12) | LAYS SOUR CREAM XVL 2.2 OZ 1 PC (24) (amount 18.00, qty 12) | POPCORNERS KETTLE CORN XVL 1 PC 1.5 OZ (24) (amount 18.00, qty 12) | POPCORNERS WHITE CHADDER 1 PC XVL 1.5 OZ (24) (amount 18.00, qty 12) | RUFFLES CHEDDAR SC 2.250Z XVL 1 PC (24) (amount 18.00, qty 12) | SMARTFOOD WHITE CHEDDAR POPCORN XVL 2.250Z 1 PC (24) (amount 18.00, qty 12) | SUNCHIPS GARDEN SALSA XVL 2.25 OZ 1 PC (24) (amount 18.00, qty 12) | SUNCHIPS WHL GRAIN HARVEST CHEDDAR XVL 2.25 OZ 1 PC (24) (amount 18.00, qty 12) | Hst Raspberry Zinger 6 pcs (amount 9.00, qty 1) | Hst Chocolate Twinkies 6pcs (amount 9.00, qty 1) | Hst Crunch Mn Dnt 10 pcs (amount 15.00, qty 1) | Hst Dnt honeydun 10 pc (amount 15.00, qty 1) | Hst Snowballs 6 pcs (amount 9.00, qty 1) | Hst Twinkle 6 pcs (amount 9.00, qty 1)",
+        "description": "Invoice for bakery and snack items",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-20/f73af998-13da-40b1-8358-6a7866ef4d9b-20260523-1616-2.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260523-1616-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-20-SWT4502-717b991d-8670-449b-84f8-020522ac0769.pdf",
+      "size": 428686,
+      "originalName": "20260523-1616-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "fe6e2847-7225-4c52-bf71-dda8cb0b89ce",
+        "store_key": "default",
+        "invoice_number": "10922",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-05-23",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield Blvd, Union, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 109.24 USD\nItems: EGGS LOOSE LRG WH 15DZ (amount 12.82, qty 1) | FOIL INTERFOLD 21215 (amount 12.41, qty 1) | BTR SALT JF TUB 5LB (amount 15.62, qty 1) | CHZ CREAM SOFT JF 5LB. (amount 13.08, qty 1) | PORK ROLL 3LB CASE (amount 13.55, qty 1) | BACON 1 HORMEL 20/24 (amount 41.76, qty 1)",
+        "description": "EGGS LOOSE LRG WH 15DZ, FOIL INTERFOLD 21215, BTR SALT JF TUB 5LB, +3 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-23/5f8b448d-c7dd-4871-901a-27b02f89b85b-receipt-10922.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "receipt-10922.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-23-10922-fe6e2847-7225-4c52-bf71-dda8cb0b89ce.pdf",
+      "size": 28126,
+      "originalName": "receipt-10922.pdf"
+    },
+    {
+      "invoice": {
+        "id": "2d31e69c-a59b-48c5-b98c-a73882a9dc07",
+        "store_key": "default",
+        "invoice_number": "364269",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-05-05",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St | Freehold, NJ 07728 | Phone 732-866-1899 | WhatsApp 732-778-5437 | Email info@mandeltobacco.com\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nSubtotal: 2462.44 USD\nTax: 6.00 USD\nItems: AMERICAN SPIRIT ORGANIC GOLD BOX (amount 134.79, qty 1) | CAMEL CRUSH MENTHOL SILVER (amount 119.25, qty 1) | MARLBORO BLEND 27 BOX (amount 121.74, qty 1) | MARLBORO GOLD BOX (amount 365.22, qty 3) | MARLBORO SILVER BOX (amount 121.74, qty 1) | NEWPORT MENTHOL BOX (amount 377.49, qty 3) | PARLIAMENT WHITE BOX (amount 412.92, qty 3) | NEWPORT MENTHOL BOX 100 (amount 251.66, qty 2) | CROWNS MENTHOL BOX (amount 65.93, qty 1) | CROWN RED 100 (amount 131.86, qty 2) | COPENHAGEN POUCH MINT (amount 57.64, qty 2) | AMOS PEELERZ GUMMY PINEAPPLE PEG BAG 6OZ 1CT (amount 9.80, qty 4) | BUGLES PEG ORIGINAL 1CT (amount 5.52, qty 3) | CHEX MIX MUDDY BUDDIES GIRL SCOUTS THIN MINTS 1CT (amount 5.10, qty 2) | CHEX MIX TRADITIONAL 4.5OZ 1CT (amount 3.94, qty 2) | COMBOS PEG BAG PIZZERIA PRETZEL 1CT (amount 5.06, qty 2) | EXTRA 35 STICK WATERMELON 6CT (amount 18.48, qty 1) | EXTRA 35 STICKS SPEARMINT 6CT (amount 18.48, qty 1) | EXTRA SLIM PACK PEPPERMINT 10CT (amount 12.30, qty 1) | FRITO LAYS'S ORIGINAL 3.25OZ 1CT (amount 5.96, qty 4) | HELLO PANDA CHOCOLATE 6CT (amount 6.19, qty 1) | HELLO PANDA STRAWBERRY 6CT (amount 6.19, qty 1) | KINDER JOY 15CT (amount 23.83, qty 1) | LAYS ORIGINAL CHIPS 2.25OZ 1CT (amount 4.29, qty 3) | LIFESAVERS GUMMIES 5 FLAVOR PEG BAG 1CT (amount 2.04, qty 1) | LIFESAVERS GUMMIES COLLISIONS PEG BAG 1CT (amount 4.08, qty 2) | LIFESAVERS HARD WINTERGREEN PEG BAG 1CT (amount 8.84, qty 4) | MENTOS GUM BIG BOTTLE PURE FRESH MINT 50PC 4CT (amount 13.42, qty 1) | OREO PEG BAG GOLDEN MINI 1CT (amount 4.29, qty 3) | PLANTERS HONEY ROASTED CASHEWS 3OZ 1CT (amount 4.08, qty 2) | PLANTERS PEANUTS DRY ROASTED 18CT (amount 6.74, qty 1) | PLANTERS SALTED CASHEWS 3OZ 1CT (amount 8.16, qty 4) | PLANTERS TRAIL MIX NUT & CHOCOLATE 1CT (amount 7.92, qty 3) | PLANTERS TRAIL MIX PEANUT BUTTER CHOCOLATE 1CT (amount 7.92, qty 3) | PLANTERS TRAIL MIX TROPICAL FRUIT & NUT 1CT (amount 7.92, qty 3) | POP TARTS FROSTED STRAWBERRY 6CT (amount 4.91, qty 1) | SKINNY POP POPCORN ORIGINAL 1CT (amount 2.74, qty 2) | SKINNY POP POPCORN WHITE CHEDDAR 1CT (amount 2.74, qty 2) | SNACK FACTORY PEG PRETZEL BUFFALO 1CT (amount 3.75, qty 3) | SNACK FACTORY PEG PRETZEL EVERYTHING 1CT (amount 6.25, qty 5) | SNACK FACTORY PEG PRETZEL ORIGINAL 1CT (amount 3.75, qty 3) | TOXIC WASTE SLIME LICKER SOUR ROLLING LIQUID 12CT (amount 18.46, qty 1) | TWIX CARAMEL 36CT (amount 43.60, qty 1) | 5 HOUR ENERGY BERRY 12CT (amount 21.45, qty 1)",
+        "description": "AMERICAN SPIRIT ORGANIC GOLD BOX, CAMEL CRUSH MENTHOL SILVER, MARLBORO BLEND 27 BOX, +41 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-05/0d8cb8f4-103d-4224-bd97-559f8df06577-20260508-1016.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "0d8cb8f4-103d-4224-bd97-559f8df06577-20260508-1016.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-05-364269-2d31e69c-a59b-48c5-b98c-a73882a9dc07.pdf",
+      "size": 669876,
+      "originalName": "0d8cb8f4-103d-4224-bd97-559f8df06577-20260508-1016.pdf"
+    },
+    {
+      "invoice": {
+        "id": "571a65da-9f79-453b-b955-3c1eb3212a03",
+        "store_key": "default",
+        "invoice_number": "26832",
+        "supplier_id": "29092a00-229e-4bc2-bc99-845cbcfa3571",
+        "issue_date": "2026-05-23",
+        "notes": "AI extraction details\nExtracted vendor: AAA WHOLESALE\nVendor address: 370 ESSEX ST LODI, NJ 07644\nCustomer: SHAKTI CO SPRINGFIELD LLC\nSubtotal: 569.28 USD\nItems: MONSTER ENERGY GREEN 24-16OZ (amount 73.98, qty 2) | COKE ZERO 24-20OZ (amount 27.99, qty 1) | RED BULL WHITE EDITION COCONUT BERRY 24- (amount 50.99, qty 1) | CELSIUS SPARKLING KIWI GUAVA 12-12OZ (amount 19.99, qty 1) | CELSIUS SPARKLING STRAWBERRY PASSIONFRUI (amount 19.99, qty 1) | CELSIUS FIZZ FREE DRAGON FRUIT LIME 12-1 (amount 19.99, qty 1) | CELSIUS SPARKLING MANGO PASSIONFRUIT 12- (amount 19.99, qty 1) | CELSIUS SPARKLING ORANGE 12-12OZ (amount 19.99, qty 1) | CELSIUS SPARKLING WATERMELON 12-12OZ (amount 19.99, qty 1) | JOE TEA CLASSIC LEMON 12-200Z (amount 19.99, qty 1) | ALOEVINE ORIGINAL 20-500ML (amount 21.99, qty 1) | MOUNTAIN DEW DIET 24-200Z (amount 27.99, qty 1) | GATORADE LEMON LIME 24-2002 (amount 22.99, qty 1) | GATORADE FRUIT PUNCH 24-2002 (amount 22.99, qty 1) | COKE DIET 24-200Z (amount 27.99, qty 1) | MOUNTAIN DEW REGULAR 24-200Z (amount 27.99, qty 1) | DR PEPPER REGULAR 24-200Z (amount 27.99, qty 1) | FANTA ORANGE 24-200Z (amount 27.99, qty 1) | CALYPSO TROPICAL MANGO LEMONADE 12-160Z (amount 18.49, qty 1) | ELECTROLIT BLUE RASPBERRY 12-2102 (amount 24.99, qty 1) | ELECTROLIT PINEAPPLE COCONUT 12-21OZ (amount 24.99, qty 1)",
+        "description": "Wholesale beverage purchase",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-23/75684463-9ea1-4073-a866-e67a014ca882-20260524-1249.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260524-1249.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-23-26832-571a65da-9f79-453b-b955-3c1eb3212a03.pdf",
+      "size": 204032,
+      "originalName": "20260524-1249.pdf"
+    },
+    {
+      "invoice": {
+        "id": "d3b1c776-73ff-4a1e-b1bd-b2ab6a6f3ad2",
+        "store_key": "default",
+        "invoice_number": "30614327",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-05-28",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nItems: DZ BAGEL PLAIN LG SOL DZ (amount 2.84, qty 0.5) | EA HERO JUMBO SOL EA (amount 10.44, qty 12) | DZ KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "DZ BAGEL PLAIN LG SOL DZ, EA HERO JUMBO SOL EA, DZ KAISER LG SOL DZ",
+        "pdf_path": "default/021cdb7d-c702-4e08-8dc1-84701bf09f6c/2026-05-28/fa42b090-5e59-4457-afbb-4e92fcadb921-20260528-1300.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260528-1300.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-28-30614327-d3b1c776-73ff-4a1e-b1bd-b2ab6a6f3ad2.pdf",
+      "size": 86655,
+      "originalName": "20260528-1300.pdf"
+    },
+    {
+      "invoice": {
+        "id": "90cf0276-ec00-4011-ba19-6a0b6f34f0a2",
+        "store_key": "default",
+        "invoice_number": "1646154",
+        "supplier_id": "cd095f3f-2047-4a95-b1c6-c1f33943769b",
+        "issue_date": "2026-03-09",
+        "notes": "AI extraction details\nExtracted vendor: INTERSTATE CATERERS, INC.\nVendor address: 2101 PARKER AVENUE SOUTH PLAINFIELD, NJ 07080 908-822-0500 FAX 908-822-9054\nCustomer: FAUSTO MONDAY\n\nBackfilled OCR extraction details\nItems: TORNADO SOUTHWEST CHICKEN 24CT (code 7004, amount 32.00, qty 1, per item 32.00) | CHICKEN EMPANADA 24 CT 4 OZ (code 8690, amount 36.00, qty 1, per item 36.00)",
+        "description": "TORNADO SOUTHWEST CHICKEN 24CT, CHICKEN EMPANADA 24 CT 4 OZ",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-09/df0e1f6a-2f2b-456f-9455-fcba3d32c899-interstate-caterers.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "df0e1f6a-2f2b-456f-9455-fcba3d32c899-interstate-caterers.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-09-1646154-90cf0276-ec00-4011-ba19-6a0b6f34f0a2.pdf",
+      "size": 134165,
+      "originalName": "df0e1f6a-2f2b-456f-9455-fcba3d32c899-interstate-caterers.pdf"
+    },
+    {
+      "invoice": {
+        "id": "5a303419-b83d-43eb-8245-e3c68def8d32",
+        "store_key": "default",
+        "invoice_number": "30608180",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-05-25",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 17.44 USD\nItems: BAGEL PLAIN LG SOL DZ (amount 2.84, qty 0.5) | HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "BAGEL PLAIN LG SOL DZ, HERO JUMBO SOL EA, KAISER LG SOL DZ",
+        "pdf_path": "default/021cdb7d-c702-4e08-8dc1-84701bf09f6c/2026-05-25/14c9904b-eb9d-4811-8742-b49b7d1464e2-20260528-1300-2.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260528-1300-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-25-30608180-5a303419-b83d-43eb-8245-e3c68def8d32.pdf",
+      "size": 91396,
+      "originalName": "20260528-1300-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e83e6ff7-44de-49fd-be94-4f1b1c2f0661",
+        "store_key": "default",
+        "invoice_number": "662595",
+        "supplier_id": "3698f6d5-b6a1-4c17-8116-0c9ff53c2b00",
+        "issue_date": "2026-05-27",
+        "notes": "AI extraction details\nExtracted vendor: Quality Express Coffee & Vending\nVendor address: 1006 Branagan Drive Tullytown, PA 19007\nCustomer: Country Farms/Fuel 4\nSubtotal: 273.00 USD\nItems: Energy Surcharge (amount 5.00, qty 1) | NE 100% Col 128*2.5oz (amount 268.00, qty 1) | Bunn 12 Cup Filters-Nest=50 pots (qty 1)",
+        "description": "Energy Surcharge, NE 100% Col 128*2.5oz, Bunn 12 Cup Filters-Nest=50 pots",
+        "pdf_path": "default/021cdb7d-c702-4e08-8dc1-84701bf09f6c/2026-05-27/91eca05b-bc12-4b1c-b6b2-26ca2c8ec2a4-20260528-1301.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260528-1301.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-27-662595-e83e6ff7-44de-49fd-be94-4f1b1c2f0661.pdf",
+      "size": 157193,
+      "originalName": "20260528-1301.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e39957da-1099-43af-ab59-fae53608f9b3",
+        "store_key": "default",
+        "invoice_number": "30572641",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-05-09",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 19.92 USD\nItems: HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 4.16, qty 1) | ROL HAMB BRIOCH SOL DZ (amount 5.32, qty 0.5)",
+        "description": "HERO JUMBO SOL EA, KAISER LG SOL DZ, ROL HAMB BRIOCH SOL DZ",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-09/31fa6049-c65b-4432-8a6d-4c011c6955cf-20260514-1601.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "31fa6049-c65b-4432-8a6d-4c011c6955cf-20260514-1601.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-09-30572641-e39957da-1099-43af-ab59-fae53608f9b3.pdf",
+      "size": 87133,
+      "originalName": "31fa6049-c65b-4432-8a6d-4c011c6955cf-20260514-1601.pdf"
+    },
+    {
+      "invoice": {
+        "id": "4c1e9290-2564-4a31-be43-175514a970dd",
+        "store_key": "default",
+        "invoice_number": "30553825",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-05-02",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 17.02 USD\nItems: KAISER POPPY LG SOL DZ (amount 2.42, qty 0.5) | HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "Bakery goods",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-02/a7c45e3f-90e6-4316-8cb0-efb1faf28f0e-20260508-1014.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "a7c45e3f-90e6-4316-8cb0-efb1faf28f0e-20260508-1014.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-02-30553825-4c1e9290-2564-4a31-be43-175514a970dd.pdf",
+      "size": 90109,
+      "originalName": "a7c45e3f-90e6-4316-8cb0-efb1faf28f0e-20260508-1014.pdf"
+    },
+    {
+      "invoice": {
+        "id": "8477cf99-75bc-4ffe-8af3-c13115415b93",
+        "store_key": "default",
+        "invoice_number": "30492111",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-04-08",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 14.60 USD\nItems: HERO JUMBO SOL EA (amount 10.44, qty 12, 1 / pack, per item 0.87) | KAISER LG SOL DZ (amount 4.16, qty 1, 12 / pack, per item 0.35)",
+        "description": "HERO JUMBO SOL EA, KAISER LG SOL DZ",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-08/7675dd62-9369-43be-a579-b842d5f52b03-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "7675dd62-9369-43be-a579-b842d5f52b03-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-08-30492111-8477cf99-75bc-4ffe-8af3-c13115415b93.pdf",
+      "size": 90135,
+      "originalName": "7675dd62-9369-43be-a579-b842d5f52b03-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "fe009a65-5c0b-4435-9c54-cde4f1db97a6",
+        "store_key": "default",
+        "invoice_number": "30561326",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-05-06",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 17.02 USD\nItems: KAISER POPPY LG SOL DZ (amount 2.42, qty 0.5) | HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "Bakery product invoice",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-06/904f5ea0-8e73-42bb-8456-5b3d8cbc3ae4-20260508-1015.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "904f5ea0-8e73-42bb-8456-5b3d8cbc3ae4-20260508-1015.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-06-30561326-fe009a65-5c0b-4435-9c54-cde4f1db97a6.pdf",
+      "size": 371425,
+      "originalName": "904f5ea0-8e73-42bb-8456-5b3d8cbc3ae4-20260508-1015.pdf"
+    },
+    {
+      "invoice": {
+        "id": "4da766a3-0608-49db-927e-521be951779e",
+        "store_key": "default",
+        "invoice_number": "178",
+        "supplier_id": "902cd73c-abb8-4854-8c00-7a3c22210cb6",
+        "issue_date": "2026-04-01",
+        "notes": "AI extraction details\nExtracted vendor: All in One Distribution LLC\nVendor address: 7 Progress St Suite 104 Edison, New Jersey 08820\nCustomer: COUNTRY FARM DELI, SPRINGFIELD (SHAKTI CO SPRINGFIELD LLC)\nSubtotal: 433.13 USD\nTax: 88.19 USD\nItems: ALMA FUERTE ROBUSTO II 5 1/4X52 (10) (amount 156.94, qty 1) | MONTECRISTO WHITE - CHURCHILL 54 X 7 (10) (amount 134.31, qty 1) | NEW WORLD - GORDO 6X58 (21) (amount 141.88, qty 1)",
+        "description": "Tobacco products",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-01/66bf5bec-a01a-4c0d-9932-84941510a5fc-5.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "66bf5bec-a01a-4c0d-9932-84941510a5fc-5.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-01-178-4da766a3-0608-49db-927e-521be951779e.pdf",
+      "size": 196610,
+      "originalName": "66bf5bec-a01a-4c0d-9932-84941510a5fc-5.pdf"
+    },
+    {
+      "invoice": {
+        "id": "11cad206-b01a-4a20-b909-df54af47d757",
+        "store_key": "default",
+        "invoice_number": "30540954",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-04-28",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 25.54 USD\nItems: KAISER POPPY LG SOL DZ (amount 2.42, qty 0.5) | BAGEL PLAIN LG SOL DZ (amount 2.84, qty 0.5) | BAGEL EVERYTHING LG SOL DZ (amount 2.84, qty 0.5) | BAGEL CIN RAISIN LG SOL DZ (amount 2.84, qty 0.5) | HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "KAISER POPPY LG SOL DZ, BAGEL PLAIN LG SOL DZ, BAGEL EVERYTHING LG SOL DZ, +3 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-28/bca8424d-61ee-4472-9e55-130592fdd1d3-all-in-one-new.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "bca8424d-61ee-4472-9e55-130592fdd1d3-all-in-one-new.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-28-30540954-11cad206-b01a-4a20-b909-df54af47d757.pdf",
+      "size": 108349,
+      "originalName": "bca8424d-61ee-4472-9e55-130592fdd1d3-all-in-one-new.pdf"
+    },
+    {
+      "invoice": {
+        "id": "9c5653ba-b1da-4dd4-87e9-c3fd552997ca",
+        "store_key": "default",
+        "invoice_number": "30526404",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-04-22",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 25.54 USD\nItems: KAISER POPPY LG SOL DZ (amount 2.42, qty 0.5) | BAGEL PLAIN LG SOL DZ (amount 2.84, qty 0.5) | BAGEL EVERYTHING LG SOL DZ (amount 2.84, qty 0.5) | BAGEL CIN RAISIN LG SOL DZ (amount 2.84, qty 0.5) | HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "KAISER POPPY LG SOL DZ, BAGEL PLAIN LG SOL DZ, BAGEL EVERYTHING LG SOL DZ, +3 more",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-04-22/f171459c-0e6b-496a-a08b-7327ab01a7be-rock.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "f171459c-0e6b-496a-a08b-7327ab01a7be-rock.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-22-30526404-9c5653ba-b1da-4dd4-87e9-c3fd552997ca.pdf",
+      "size": 94938,
+      "originalName": "f171459c-0e6b-496a-a08b-7327ab01a7be-rock.pdf"
+    },
+    {
+      "invoice": {
+        "id": "5cd0dc7d-de99-4d65-bca3-abc27a2b7cd2",
+        "store_key": "default",
+        "invoice_number": "30479130",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-04-02",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 10.40 USD\nItems: CLUB RL BIN SOL DZ (amount 6.24, qty 1) | KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "CLUB RL BIN SOL DZ, KAISER LG SOL DZ",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-02/367daae9-11bb-4f49-bd81-2634c91bac0b-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "367daae9-11bb-4f49-bd81-2634c91bac0b-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-02-30479130-5cd0dc7d-de99-4d65-bca3-abc27a2b7cd2.pdf",
+      "size": 86948,
+      "originalName": "367daae9-11bb-4f49-bd81-2634c91bac0b-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "7a10ba4f-e722-4634-898b-a10a53e8ab68",
+        "store_key": "default",
+        "invoice_number": "30511654",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-04-16",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nItems: KAISER POPPY LG SL DZ (amount 2.55, qty 0.5) | HERO JUMBO SOL EA (amount 5.22, qty 6) | HERO JUMBO SL EA (amount 5.52, qty 6) | KAISER LG SL DZ (amount 4.38, qty 1)",
+        "description": "KAISER POPPY LG SL DZ, HERO JUMBO SOL EA, HERO JUMBO SL EA, +1 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-16/50538730-2da7-4adc-bb99-ded6f92bfb4c-5.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "50538730-2da7-4adc-bb99-ded6f92bfb4c-5.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-16-30511654-7a10ba4f-e722-4634-898b-a10a53e8ab68.pdf",
+      "size": 89038,
+      "originalName": "50538730-2da7-4adc-bb99-ded6f92bfb4c-5.pdf"
+    },
+    {
+      "invoice": {
+        "id": "9dd85f48-3993-45fc-8fb2-99045bda0cdf",
+        "store_key": "default",
+        "invoice_number": "361055",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-03-27",
+        "notes": "AI extraction details Extracted vendor: MANDELTOBACCO Vendor address: 62 Jackson St, Freehold, NJ 07728 Customer: COUNTRY FARMS DELI SPRINGFIELD Subtotal: 105.79 USD Items: Pall Mall Orange Box (amount 105.79, qty 1, 10 / pack, per item 10.58)",
+        "description": "Pall Mall Orange Box",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-27/10929ee0-01d5-458a-9240-11dc3af2750e-sixth.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "10929ee0-01d5-458a-9240-11dc3af2750e-sixth.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-27-361055-9dd85f48-3993-45fc-8fb2-99045bda0cdf.pdf",
+      "size": 131266,
+      "originalName": "10929ee0-01d5-458a-9240-11dc3af2750e-sixth.pdf"
+    },
+    {
+      "invoice": {
+        "id": "561fc4f1-5f50-4be1-8e76-ccdd35e1634c",
+        "store_key": "default",
+        "invoice_number": "30518200",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-04-18",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 28.80 USD\nItems: BAGEL PLAIN LG SOL DZ (amount 5.68, qty 12) | BAGEL EVERYTHING LG SOL DZ (amount 5.68, qty 12) | BAGEL CIN RAISIN LG SOL DZ (amount 2.84, qty 6) | HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 4.16, qty 12)",
+        "description": "BAGEL PLAIN LG SOL DZ, BAGEL EVERYTHING LG SOL DZ, BAGEL CIN RAISIN LG SOL DZ, +2 more",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-04-18/d2fe6bfe-aec0-4152-8089-8d521499b9cd-20260426-1914.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "d2fe6bfe-aec0-4152-8089-8d521499b9cd-20260426-1914.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-18-30518200-561fc4f1-5f50-4be1-8e76-ccdd35e1634c.pdf",
+      "size": 95463,
+      "originalName": "d2fe6bfe-aec0-4152-8089-8d521499b9cd-20260426-1914.pdf"
+    },
+    {
+      "invoice": {
+        "id": "9e7a9f55-8087-47b6-abc2-55f24f2c9c77",
+        "store_key": "default",
+        "invoice_number": "451469488",
+        "supplier_id": "304631f0-dfd4-45e1-861c-4476ae772919",
+        "issue_date": "2026-04-17",
+        "notes": "AI extraction details\nExtracted vendor: Center Point Distributors\nSubtotal: 196.00 USD\nItems: Flair Ultra (amount 60.00, qty 1) | Geek Pulse (amount 40.00, qty 1) | Lava Plus (amount 96.00, qty 2)",
+        "description": "Flair Ultra, Geek Pulse, Lava Plus",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-17/2fb3809d-2fba-481b-875b-4f6d4ddc143f-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "2fb3809d-2fba-481b-875b-4f6d4ddc143f-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-17-451469488-9e7a9f55-8087-47b6-abc2-55f24f2c9c77.pdf",
+      "size": 77714,
+      "originalName": "2fb3809d-2fba-481b-875b-4f6d4ddc143f-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "5a3b5f37-ac80-4a7b-b9c5-9ce184c3d31e",
+        "store_key": "default",
+        "invoice_number": "4909167",
+        "supplier_id": "261f9163-badb-4963-8291-e11827145cc3",
+        "issue_date": "2026-05-22",
+        "notes": null,
+        "description": "Invoice 4909167",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-22/1d607f73-587f-4fe6-84aa-2f340e7f942d-20260523-1622.pdf",
+        "pdf_mime_type": "application/pdf",
+        "pdf_file_name": "20260523-1622.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-22-4909167-5a3b5f37-ac80-4a7b-b9c5-9ce184c3d31e.pdf",
+      "size": 5215377,
+      "originalName": "20260523-1622.pdf"
+    },
+    {
+      "invoice": {
+        "id": "c974bc7a-2041-4e85-9b1a-45b64f17d0ad",
+        "store_key": "default",
+        "invoice_number": "379705",
+        "supplier_id": "1cdf6e51-d269-4d29-81a6-41c0d61a87e7",
+        "issue_date": "2026-03-30",
+        "notes": "AI extraction details\nExtracted vendor: V&S BEVERAGE, LLC\nVendor address: 400 Maltese Dr, Totowa NJ 07512\nCustomer: Country Farms Deli & Convenience Hemal\nSubtotal: 352.87 USD\nItems: COKE CLASSIC 24CT 200Z PET (amount 29.99, qty 1) | MOUNTAIN DEW 24CT 200Z PET (amount 25.95, qty 1) | GATORADE GLACIER FREEZE 15CT 280Z PET (amount 27.95, qty 1) | BAI BRASILIA BLUEBERRY 12CT 180Z PET (amount 21.95, qty 1) | BAI MOLOKAI COCONUT 12CT 180Z PET (amount 21.95, qty 1) | BAI KULA WATERMELON 12CT 18OZ PET (amount 21.95, qty 1) | CELSIUS CHERRY COLA 12CT 12OZ CANS (amount 20.25, qty 1) | CELSIUS BLUE RAZZ LEMONADE NO FIZZ 12CT 12OZ CANS (amount 20.25, qty 1) | POLAND SPRING WATER 35CT 16OZ PET (amount 30.00, qty 4) | POLAND SPRING WATER 6CT 1 GALLON PET (amount 21.30, qty 2) | POLAND SPRING WATER 12CT 1.5L PET (amount 19.98, qty 2) | POLAND SPRING WATER 15CT 1L PET (amount 18.50, qty 2) | SMART WATER 12CT 1L PET (amount 18.50, qty 1) | ESSENTIA PURIFIED WATER 12CT 1L PET (amount 19.95, qty 1) | POLAND SPRING SPORTSCAP WATER 24CT 24OZ PET (amount 9.45, qty 1) | PERRIER SPARKLING WATER 24CT 500ML PET (amount 24.95, qty 1)",
+        "description": "Beverage delivery",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-30/287e64fe-f46d-45ff-811a-65ac8cd3b5dc-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "287e64fe-f46d-45ff-811a-65ac8cd3b5dc-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-30-379705-c974bc7a-2041-4e85-9b1a-45b64f17d0ad.pdf",
+      "size": 375073,
+      "originalName": "287e64fe-f46d-45ff-811a-65ac8cd3b5dc-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "1c888eea-e0cc-49f5-a9dc-d930573e2415",
+        "store_key": "default",
+        "invoice_number": "363452",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-04-28",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St | Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nSubtotal: 759.85 USD\nTax: 9.00 USD\nItems: MARLBORO GOLD BOX (amount 121.74, qty 1, 10 / pack, per item 12.17) | PARLIAMENT WHITE BOX (amount 137.64, qty 1, 10 / pack, per item 13.76) | MARLBORO MENTHOL 100 BOX (amount 128.63, qty 1, 10 / pack, per item 12.86) | MAVERICK MENTHOL BOX 100 (amount 89.72, qty 1) | COPENHAGEN POUCH MINT (amount 86.46, qty 3) | AMOS PEELERZ GUMMY MANGO PEG 1CT (amount 12.25, qty 5) | AMOS PEELERZ GUMMY WATERMELON PEG 6OZ 1CT (amount 12.25, qty 5) | ANDY CAPP'S CHEDDAR FRIES 1CT (amount 2.91, qty 3) | ANDY CAPP'S HOT FRIES 1CT (amount 2.91, qty 3) | COMBOS PEG BAG CHEDDAR PRETZEL 1CT (amount 7.59, qty 3) | COMBOS PEG BAG PIZZERIA PRETZEL 1CT (amount 7.59, qty 3) | DAVID'S SUNFLOWER BUFFALO RANCH PEG 1CT (amount 4.77, qty 3) | EXTRA 35 STICKS POLAR ICE 6CT (amount 18.48, qty 1) | HARIBO HAPPY COLA PEG BAG 1CT (amount 4.02, qty 3) | JACK LINKS 1.25OZ JERKY ORIGINAL 1CT (amount 12.08, qty 4) | KINDER JOY 15CT (amount 23.83, qty 1) | NERDS LIMITED EDITION BERRY PUNCH RUSH PEG BAG 1CT (amount 6.66, qty 3) | PLANTERS PEANUTS SALTED PEG BAG 6OZ 1CT (amount 4.62, qty 3) | REESE'S BIG CUP KING SIZE 16CT (amount 35.61, qty 1) | SOUR STRIPS DOUBLEBERRY 1CT (amount 7.47, qty 3) | TWIZZLERS CHERRY NIBS PEG BAG 1CT (amount 15.06, qty 6) | WELCH'S FRUIT SNACKS ISLAND PEG BAG 1CT (amount 4.32, qty 3) | CELSIUS RASPBERRY ACAI GREEN TEA 12CT (amount 18.49, qty 1) | MARUCHAN INSTANT SOUP CUP SHRIMP 2.25OZ 1CT (amount 3.75, qty 5)",
+        "description": "MARLBORO GOLD BOX, PARLIAMENT WHITE BOX, MARLBORO MENTHOL 100 BOX, +21 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-28/5e338721-15b3-48ec-aaf5-bc7485baa120-mandel-new.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "5e338721-15b3-48ec-aaf5-bc7485baa120-mandel-new.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-28-363452-1c888eea-e0cc-49f5-a9dc-d930573e2415.pdf",
+      "size": 380197,
+      "originalName": "5e338721-15b3-48ec-aaf5-bc7485baa120-mandel-new.pdf"
+    },
+    {
+      "invoice": {
+        "id": "7c37f41e-f743-4c4f-891a-422e22ee0732",
+        "store_key": "default",
+        "invoice_number": "8997",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-05-06",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield Blvd Union, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 46.98 USD\nItems: HAM HAT 10% (amount 28.18, qty 11.74) | BRD HB 4IN PLN RCK 12CT (amount 2.05, qty 1) | BRD HB SEED RCK 5\" 12CT (amount 4.63, qty 1) | MAYO XTRA HVY CQ GAL (amount 12.12, qty 1)",
+        "description": "Food and restaurant supplies",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-06/c3fcc545-576f-4c3a-8705-7dc0d1bd9d6b-receipt-8997.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "c3fcc545-576f-4c3a-8705-7dc0d1bd9d6b-receipt-8997.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-06-8997-7c37f41e-f743-4c4f-891a-422e22ee0732.pdf",
+      "size": 27980,
+      "originalName": "c3fcc545-576f-4c3a-8705-7dc0d1bd9d6b-receipt-8997.pdf"
+    },
+    {
+      "invoice": {
+        "id": "14b20565-cf09-472a-81af-d1b2b08d7867",
+        "store_key": "default",
+        "invoice_number": "102759555",
+        "supplier_id": "23333fc1-5b4b-4a9a-9955-f207c296bac9",
+        "issue_date": "2026-04-15",
+        "notes": "AI extraction details\nExtracted vendor: SYSCO ALLENTOWN\nVendor address: 800 WILLOWBROOK ROAD NORTHAMPTON PA 18067\nCustomer: COUNTRY FARM DELI\nSubtotal: 106.22 USD\nItems: 1816 IN AREZCLS PIZZA CRUST PRKD RL ED T (amount 106.22, qty 2, 18 / pack, per item 2.95)",
+        "description": "Pizza crust order",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-15/e96b89a0-a37a-417e-9398-e290f5f06d59-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "e96b89a0-a37a-417e-9398-e290f5f06d59-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-15-102759555-14b20565-cf09-472a-81af-d1b2b08d7867.pdf",
+      "size": 1371839,
+      "originalName": "e96b89a0-a37a-417e-9398-e290f5f06d59-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "4fe81920-9b21-44a9-a99b-8707e7173992",
+        "store_key": "default",
+        "invoice_number": "15397",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-04-29",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot #832\nVendor address: 1135 Springfield Blvd Union, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 9.81 USD\nItems: Previous Balance | EGGS LOOSE LRG WH 15DZ (amount 9.81, qty 1)",
+        "description": "Invoice for eggs from Restaurant Depot",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-29/1a20c7fe-c59b-4d49-9799-d85aa2093605-receipt-15397.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "1a20c7fe-c59b-4d49-9799-d85aa2093605-receipt-15397.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-29-15397-4fe81920-9b21-44a9-a99b-8707e7173992.pdf",
+      "size": 27834,
+      "originalName": "1a20c7fe-c59b-4d49-9799-d85aa2093605-receipt-15397.pdf"
+    },
+    {
+      "invoice": {
+        "id": "0e3c0d36-f772-42e7-a5c2-dbabd0a75a98",
+        "store_key": "default",
+        "invoice_number": "102752436",
+        "supplier_id": "23333fc1-5b4b-4a9a-9955-f207c296bac9",
+        "issue_date": "2026-04-08",
+        "notes": "AI extraction details\nExtracted vendor: Sysco ALLENTOWN\nVendor address: 800 WILLOWBROOK ROAD NORTHAMPTON PA 18067\nCustomer: SHAKTI CO SPRINGFIELD LLC\nSubtotal: 1119.87 USD\nTax: 7.61 USD\nItems: AREZIMP CHEESE MOZZ PIZZ BLD FEATHER (amount 47.11, qty 45) | FIRECLS BEEF PATTY CKD SEA HMSTL (amount 83.29, qty 404) | AREZIMP TOPPING PIZZA SSG NATURA (amount 49.95, qty 25) | THINTRM CHICKEN BRST DELI BUF GLUT F (amount 65.10, qty 26) | REDBULL DRINK ENERGY (amount 58.11, qty 2412) | REDBULL DRINK ENERGY RED BULL SF (amount 55.87, qty 2412) | FULLRED SAUCE PIZZA FULLY PRPRD SMTH (amount 42.99, qty 6) | SYS REL MAYONNAISE HEAVY DUTY PAIL (amount 36.68, qty 128) | BCH BLK PORK PULLED WITH SAUCE (amount 68.99, qty 42.5) | PHIL CH CHICKEN PHILLY OP FLAT M (amount 39.99, qty 276) | BBRLCLS CHEESE AMER 120 SLI YEL (amount 13.20, qty 5) | AREZCLS PIZZA CRUST PRKD RL ED T (amount 53.11, qty 1816) | PIERCE CHICKEN WING BNLS ZING BRD PC (amount 42.68, qty 25) | BTRBALL BACON TURKEY LAYFLT (amount 57.95, qty 26) | TSTEITL APTZR BITE MAC AND CHEES (amount 39.99, qty 402) | SYS PRM APTZR PEPPER JAL CRM CHS (amount 107.11, qty 44) | SYS CLS CHICKEN WING BNLS CRISPY PCK (amount 32.57, qty 25) | SYS REL BEEF PHILLY QUICK RLS MOD MAR (amount 55.11, qty 276) | TYSONRL CHICKEN BRST BRD PCK CSP (amount 33.99, qty 463.5) | TYSONRL CHICKEN TNDR FRTR GLDN P (amount 31.57, qty 25) | SYS CLS CHICKEN BRST GRL MRK PCK 4OZ (amount 59.11, qty 25) | ALLADN WRAP TORTILLA FLOUR PLAIN 121 (amount 36.45, qty 612) | CHGS FOR FUEL SURCHARGE (amount 8.95)",
+        "description": "AREZIMP CHEESE MOZZ PIZZ BLD FEATHER, FIRECLS BEEF PATTY CKD SEA HMSTL, AREZIMP TOPPING PIZZA SSG NATURA, +20 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-08/58c54563-234d-49b8-b497-133c7c7d0d41-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "58c54563-234d-49b8-b497-133c7c7d0d41-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-08-102752436-0e3c0d36-f772-42e7-a5c2-dbabd0a75a98.pdf",
+      "size": 2415572,
+      "originalName": "58c54563-234d-49b8-b497-133c7c7d0d41-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "bc94ba7a-ab33-4576-85b7-c5f937c99c16",
+        "store_key": "default",
+        "invoice_number": "30582225",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-05-14",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 15.36 USD\nItems: BAGEL PLAIN LG SOL DZ (amount 2.84, qty 0.5) | HERO JUMBO SOL EA (amount 10.44, qty 12) | KAISER LG SOL DZ (amount 2.08, qty 0.5)",
+        "description": "Bakery products",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-14/67b7c5e7-c6d0-4b82-a065-40a1746e7e07-20260514-1602.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "67b7c5e7-c6d0-4b82-a065-40a1746e7e07-20260514-1602.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-14-30582225-bc94ba7a-ab33-4576-85b7-c5f937c99c16.pdf",
+      "size": 86112,
+      "originalName": "67b7c5e7-c6d0-4b82-a065-40a1746e7e07-20260514-1602.pdf"
+    },
+    {
+      "invoice": {
+        "id": "d3a58378-427a-45b5-b259-a394787f4086",
+        "store_key": "default",
+        "invoice_number": "21782",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-04-27",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot #832\nVendor address: 1135 Springfield Blvd Union, NJ 07083 (908) 964-5544\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 44.77 USD\nItems: MILK WHOLE 1/2GAL (amount 2.52, qty 1) | MILK WHOLE 1/2GAL (amount 2.52, qty 1) | CHZ MOZZ W/M GALB R/W (amount 13.69, qty 4.96) | CHZ MOZZ W/M GALB R/W (amount 13.80, qty 5) | BRD PANINI 81 GRIL 10CT (amount 6.12, qty 1) | BRD PANINI 81 GRIL 10CT (amount 6.12, qty 1)",
+        "description": "Invoice for various grocery items.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-27/d8ca827a-8f8c-4312-b35d-6edc2211b5fc-receipt-21782.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "d8ca827a-8f8c-4312-b35d-6edc2211b5fc-receipt-21782.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-27-21782-d3a58378-427a-45b5-b259-a394787f4086.pdf",
+      "size": 28061,
+      "originalName": "d8ca827a-8f8c-4312-b35d-6edc2211b5fc-receipt-21782.pdf"
+    },
+    {
+      "invoice": {
+        "id": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+        "store_key": "default",
+        "invoice_number": "809009651",
+        "supplier_id": "2d697fd7-4bfb-4192-b7a4-76b189e69afc",
+        "issue_date": "2026-02-17",
+        "notes": "AI extraction details Extracted vendor: AZ METRO DISTRIBUTORS LLC Vendor address: 60 CROSSWAYS PARK DRIVE W WOODBURY, NY11797 Customer: COUNTRY FARM DELI & CONVENIENT Subtotal: 464.68 USD Items: AZ 22OZ CAN BLACK&WHITE 24PK (amount 14.99, qty 1, 24 / pack, per item 0.62) | AZ 22OZ CAN GREEN TEA CUCUMBER 2 (amount 14.99, qty 1) | AZ 22OZ CAN ZERO GREEN 24PK (amount 14.99, qty 1) | AZ 22OZ CAN PEACH 24PK (amount 14.99, qty 1) | AZ 22OZ CAN SWEET 24PK (amount 14.99, qty 1) | AZ 22OZ CAN GRAPEADE 24PK (amount 14.99, qty 1) | AZ 22OZ CAN LEMONADE 24PK (amount 14.99, qty 1) | AZ 22OZ CAN GREEN 24PK (amount 14.99, qty 1) | AZ 22OZ CAN FRUIT PUNCH 24PK (amount 14.99, qty 1) | AZ 22OZ CAN ORANGEADE 24PK (amount 14.99, qty 1) | AZ 22OZ CAN WATERMELON 24PK (amount 14.99, qty 1) | AZ 22OZ CAN KIWI STRAW 24PK (amount 14.99, qty 1) | AZ 22OZ CAN MANGO 24PK (amount 14.99, qty 1) | AZ 22OZ CAN RASPBERRY 24PK (amount 14.99, qty 1) | AZ 22OZ CAN LEMON 24PK (amount 14.99, qty 1) | AZ 22OZ CAN RIZZLER BERRY NP 24 (amount 14.99, qty 1) | AZ 22OZ CAN DRAGONFRT MANGO NP 2 (amount 14.99, qty 1) | AZ GALLON RASPBERRY 4PK (amount 11.99, qty 1) | AZ GALLON UNSWEETENED 4PK (amount 11.99, qty 1) | AZ GALLON SWEET 4PK (amount 11.99, qty 1) | AZ GALLON GREEN 4PK (amount 11.99, qty 1) | AZ GALLON MUCHO MANGO 4PK (amount 11.99, qty 1) | AZ GALLON LEMON 4PK (amount 11.99, qty 1) | AZ 20 OZ TALLBOY PINA COLADA NP (amount 14.99, qty 1) | AZ 20 OZ TALLBOY PEACH N.P. TEA (amount 14.99, qty 1) | AZ 20 OZ TALLBOY BLUEBERRY WHITE (amount 14.99, qty 1) | AZ 20 OZ TALLBOY WATERMELON 24PK (amount 14.99, qty 1) | AZ 20 OZ TALLBOY MUCHO MANGO 24P (amount 14.99, qty 1) | AZ 20 OZ TALLBOY GREEN 24PK (amount 14.99, qty 1) | AZ 20 OZ TALLBOY RASPBERRY H&H (amount 14.99, qty 1) | AZ 20 OZ TALLBOY LEMON 24PK (amount 14.99, qty 1) | PALMER 24/22OZ BLACK (amount 14.99, qty 1)",
+        "description": "Invoice for various beverages",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-17/4746ff01-518e-45cd-8b68-ab85131f420f-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "4746ff01-518e-45cd-8b68-ab85131f420f-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-17-809009651-ec838f42-83c2-45fb-9a6c-77d964f9a779.pdf",
+      "size": 482956,
+      "originalName": "4746ff01-518e-45cd-8b68-ab85131f420f-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "88747bc4-f4b8-4143-b74d-fe28d2bcca59",
+        "store_key": "default",
+        "invoice_number": "357567",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-02-10",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nSubtotal: 4812.44 USD\nItems: MUSKETEERS BAR 36 CT (amount 43.60, qty 1) | AIRHEADS PEG XTREME BITES BLUE 1CT (amount 5.43, qty 3) | AIRHEADS PEG XTREME BITES RAINBOW 1CT (amount 5.43, qty 3) | AIRHEADS PEG XTREME BITES VERY BERRY 1CT (amount 5.43, qty 3) | ALTODS 12CT PEPPERMINT (amount 29.12, qty 1) | ALTCIDS ARCTIC PEPPERMINT 8CT (amount 14.98, qty 1) | ALTCIDS ARCTIC WINTERGREEN 8CT (amount 14.98, qty 1) | PEELERZ GUMMY KIWI PEG 60Z 1CT (amount 7.35, qty 3) | EZ GUMMY MANGO PEG 60Z 1CT (amount 7.35, qty 3) | REELERZ GUMMY PASSION FRUIT PEG 6OZ 1CT (amount 7.35, qty 3) | GUMMY PEACH PEG 6OZ 1CT (amount 7.35, qty 3) | PEELERZ GUMMY PINEAPPLE PEG 6OZ 1CT (amount 7.35, qty 3) | FEELERZ GUMMY WATERMELON PEG 6OZ 1CT (amount 7.35, qty 3) | PEG BBQ FRIES 1CT (amount 4.85, qty 5) | ANDY CAPP'S PEG CHEDDAR FRIES 1CT (amount 4.85, qty 5) | ANDY CAPP'S PEG HOT FRIES 1CT (amount 4.85, qty 5) | BABY BOTTLE POPS 18CT (amount 27.80, qty 1) | BREATH SAVER PEPPERMINT 1PK 12CT (amount 10.68, qty 1) | BREATH SAVER SPEARMINT 1PK 12CT (amount 10.68, qty 1) | BUGLES PEG NACHO 1CT (amount 5.52, qty 3) | BUGLES PEG ORIGINAL 1CT (amount 5.52, qty 3) | BUTTERFINGER 36 CT (amount 40.89, qty 1) | CADBURY GIANT BAR FRUIT & NUT 14CT (amount 40.17, qty 1) | CADBURY GIANT BAR MILK 14CT (amount 40.17, qty 1) | CAPE COD CHIPS 2OZ ORIGINAL 1CT (amount 3.78, qty 3) | CHARMS BLOW POP 100 CT (amount 16.60, qty 1) | CHEETOS 2OZ FLAMIN HOT 1CT (amount 7.45, qty 5) | CHEX MIX PEG BOLD PARTY BLEND 4.5OZ 1CT (amount 5.91, qty 3) | CHEX MIX PEG MUDDY BUDDIES COOKIES CREAM ACT (amount 7.65, qty 3) | CHEX MIX PEG TRADITIONAL 4.5OZ 1CT (amount 5.91, qty 3) | CHIPS AHOY MINI PEG 1CT (amount 4.17, qty 3) | CHIPS AHOY PEG CHEWY 1CT (amount 4.17, qty 3) | CHUCKLES 24 CT (amount 23.79, qty 1) | COMBOS PEG CHEDDAR CRACKER 1CT (amount 7.59, qty 3) | COMBOS PEG CHEDDAR PRETZEL 6.3OZ 1CT (amount 7.59, qty 3) | COMBOS PEG PIZZA PRETZEL 6.3OZ 1CT (amount 7.59, qty 3) | CRUNCH BAR KING 18CT (amount 36.58, qty 1) | DENTYNE ICE ARCTIC CHILL 9CT (amount 9.82, qty 1) | DENTYNE ICE PM 9CT (amount 9.82, qty 1) | DENTYNE ICE SM 9CT (amount 9.82, qty 1) | DORITOS 2.5OZ COOL RANCH 1CT (amount 7.45, qty 5) | DORITOS 2.5OZ FLAMIN HOT NACHO 1CT (amount 7.45, qty 5) | DORITOS 2.5OZ NACHO 1CT (amount 7.45, qty 5) | DORITOS 2.5OZ SWEET CHILI 1CT (amount 7.45, qty 5) | DOTS PEG PRETZELS BUFFALO 1CT (amount 9.00, qty 3) | DOTS PEG PRETZELS ORIGINAL 1CT (amount 9.00, qty 3) | EXTRA 35STICK PEPPERMINT 6CT (amount 18.48, qty 1) | EXTRA 35STICK POLAR ICE 6CT (amount 18.48, qty 1) | EXTRA 35STICK SPEARMINT 6CT (amount 18.48, qty 1) | EXTRA 35STICK WATERMELON 6CT (amount 18.48, qty 1) | EXTRA SLIM PACK PEPPERMINT 10C (amount 12.30, qty 1) | EXTRA SLIM PACK POLAR ICE 10 C (amount 12.30, qty 1) | EXTRA SLIM PACK SPEARMINT 10CT (amount 12.30, qty 1) | EXTRA SLIM PACK WATERMELON 10C (amount 12.30, qty 1) | FIG NEWTON CONVENIENCE 1CT (amount 7.05, qty 3) | FLIPZ PEG MILK CHOC PRETZEL 1CT (amount 9.24, qty 3) | FLIPZ PEG WHITE FUDGE PRETZEL 1CT (amount 9.24, qty 3) | FRITOS LAY'S CORN CHIPS 3.25OZ ORIGINAL 1CT (amount 7.45, qty 5) | GUSHERS FLAVOR MIXERS PEG 1CT (amount 5.82, qty 3) | GUSHERS SUPER SOUR PEG 1CT (amount 5.82, qty 3) | GUSHERS TROPICAL PEG 1CT (amount 5.82, qty 3) | GUSHERS WATERMELON & SOUR APPLE PEG 1CT (amount 5.82, qty 3) | HALLS STICK CHERRY 20CT (amount 61.56, qty 3) | HALLS STICK MENTHOLYPTUS 20CT (amount 61.56, qty 3) | HARIBO DINOSAURS PEG 1CT (amount 4.02, qty 3) | HARIBO GOLD BEARS PEG 1CT (amount 8.04, qty 6) | HARIBO HAPPY COLA PEG 1CT (amount 4.02, qty 3) | HARIBO PEACHES PEG 1CT (amount 4.02, qty 3) | HARIBO SOUR GOLD BEARS PEG 1CT (amount 8.04, qty 6) | HARIBO SOUR S'GHETTI PEG 1CT (amount 8.04, qty 6) | HARIBO WATERMELON PEG 1CT (amount 4.02, qty 3) | HERSHEY ALMOND 36CT (amount 45.70, qty 1) | HERSHEY COOKIES N CREME 36 CT (amount 45.70, qty 1) | HERSHEY MILK 36 CT (amount 45.70, qty 1) | HERSHEY MILK KING SIZE 18 CT (amount 40.06, qty 1) | HERSHEY PEG COOKIES N CREME PRETZELS 4.2OZ 1CT (amount 8.04, qty 3) | HERSHEY PEG DIPPED PRETZELS 4.2OZ 1CT (amount 8.04, qty 3) | HERSHEY PEG KISSES 5OZ 1CT (amount 7.53, qty 3) | HUBBA BUBBA BUBBLE TAPE ORIGINAL 6CT (amount 7.17, qty 1) | HUBBA BUBBA MAX ORIGINAL 18 CT (amount 12.03, qty 1) | ICE BREAKER ICE CUBE BOTTLE PM 6CT (amount 21.15, qty 1) | ICE BREAKER ICE CUBE BOTTLE SM 6CT (amount 21.15, qty 1) | ICE BREAKER MINTS COOL MINT 8 (amount 17.52, qty 1) | ICE BREAKER MINTS SM 8CT (amount 17.52, qty 1) | JACK LINKS BEEF STEAK 12CT ORIGINAL (amount 20.10, qty 1) | JACK LINKS BEEF STEAK 12CT TERIYAKI (amount 20.10, qty 1) | JACK LINKS BEEF STICK & CHEESE JALAPENO 16CT (amount 20.99, qty 1) | JACK LINKS BEEF STICK & CHEESE ORIGINAL 16CT (amount 20.99, qty 1) | JACK LINKS JERKY 1.25OZ ORIGINAL1CT (amount 8.58, qty 3) | JACK LINKS JERKY 1.25OZ PEPPERED 1CT (amount 8.58, qty 3) | JACK LINKS JERKY 1.25OZ SWEET & HOT 1CT (amount 8.58, qty 3) | JACK LINKS JERKY 1.25OZ TENDER BITES TERIYAKI 1CT (amount 8.58, qty 3) | JACK LINKS JERKY 1.25OZ TERIYAKI 1CT (amount 8.58, qty 3) | JOLLY RANCHER PEG HARD ASSORTED 1CT (amount 7.53, qty 3) | JOLLY RANCHER PEG POPPERS 1CT (amount 7.53, qty 3) | JOLLY RANCHER PEG ROPES BLUE/CHERRY 1CT (amount 7.53, qty 3) | JOLLY RANCHER PEG ROPES WATERMELON/APPLE 1CT (amount 7.53, qty 3) | KETTLE CHIPS 2OZ BACKYARD BBQ PEG 1CT (amount 4.56, qty 3) | KETTLE CHIPS 2OZ JALAPENO PEG 1CT (amount 4.56, qty 3) | KETTLE CHIPS 2OZ SEA SALT & VINEGAR PEG 1CT (amount 4.56, qty 3) | KINDER BUENO BAR 20CT (amount 23.33, qty 1) | KINDER CHOCOLATE 4 BARS 18CT (amount 20.43, qty 1) | KINDER JOY 15CT (amount 23.83, qty 1) | KIT KAT 36CT (amount 45.70, qty 1) | KIT KAT KING SIZE 24 CT (amount 54.70, qty 1) | LAY'S 2.25OZ BBQ 1CT (amount 7.15, qty 5) | LAY'S 2.25OZ ORIGINAL 1CT (amount 7.15, qty 5) | LAY'S 2.25OZ SOUR CREAM ONION 1CT (amount 7.15, qty 5) | LENNY & LARRY COOKIES BROWNIE 12CT (amount 23.08, qty 1) | LENNY & LARRY COOKIES CHOCOLATE CHIP 12CT (amount 23.08, qty 1) | LENNY & LARRY COOKIES WHITE CHOC MACADAMIA 12CT (amount 23.08, qty 1) | LIFESAVERS PEG GUMMIES 5 FLAVOR 7OZ 1CT (amount 6.12, qty 3) | LIFESAVERS PEG GUMMIES COLLISIONS 7OZ 1CT (amount 6.12, qty 3) | LIFESAVERS PEG GUMMIES NEON 7OZ 1CT (amount 6.12, qty 3) | LIFESAVERS PEG GUMMIES WILDBERRY 7OZ 1CT (amount 6.12, qty 3) | LIFESAVERS PEG GUMMIES XO 7OZ 1CT (amount 6.12, qty 3) | LIFESAVERS PEG WINT O GREEN 6.25OZ 1CT (amount 6.63, qty 3) | LIFESAVERS ROLL 5 FLAVOR 20CT (amount 18.42, qty 1) | LORNA DOONE CONVENIENCE 1CT (amount 7.05, qty 3) | M&M PEANUT 18 CT (amount 58.14, qty 1) | M&M PEANUT KING SIZE 24CT (amount 49.96, qty 1) | M&M PEG BAG MILK 1CT (amount 8.37, qty 3) | M&M PEG PEANUT 1CT (amount 8.37, qty 3) | M&M PEG PEANUT BUTTER 1CT (amount 8.37, qty 3) | M&M PLAIN KING SIZE 24CT (amount 49.96, qty 1) | MENTOS 15CT MINT (amount 13.94, qty 1) | MENTOS 15CT MIXED FRUIT (amount 13.94, qty 1) | MENTOS GUM BIG CUP FRESHMINT 4CT (amount 13.40, qty 1) | MENTOS GUM BIG CUP SPEARMINT 4CT (amount 13.40, qty 1) | MIKE & IKE PEG ORIGINAL 1CT (amount 3.75, qty 3) | MILKY WAY BAR 36 CT (amount 43.60, qty 1) | NERDS PEG 5OZ GUMMY CLUSTERS BERRY 1CT (amount 11.10, qty 5) | NERDS PEG 5OZ GUMMY CLUSTERS RAINBOW 1CT (amount 11.10, qty 5) | NERDS PEG 5OZ GUMMY JUICED 1CT (amount 11.10, qty 5) | NERDS PEG 5OZ LIMITED EDITION GUMMY CLUSTERS BERRY PUNCH RUSH 1CT (amount 6.66, qty 3) | NERDS PEG 5OZ LIMITED EDITION GUMMY CLUSTERS RED CHERRY LEMONADE BLITZ 1CT (amount 6.66, qty 3) | NUTELLA & GO BREADSTICKS 12CT (amount 17.82, qty 1) | ORBIT SF PEPPERMINT 12CT (amount 14.27, qty 1) | ORBIT SF SPEARMINT 12CT (amount 14.27, qty 1) | OREO CONVENIENCE 1CT (amount 7.08, qty 3) | OREO MINI PEG 3OZ 1CT (amount 4.17, qty 3) | OREO MINI PEG GOLDEN 3OZ 1CT (amount 4.17, qty 3) | PEANUT CHEW KING SIZE 18CT (amount 27.61, qty 1) | PLANTERS 18CT PEANUTS HEAT (amount 6.74, qty 1) | PLANTERS 18CT PEANUTS SALTED (amount 6.74, qty 1) | PLANTERS CASHEWS HONEY 3OZ 1CT (amount 6.12, qty 3) | PLANTERS CASHEWS SALTED 3OZ 1CT (amount 6.12, qty 3) | PLANTERS PEANUTS SALTED 6OZ 1CT (amount 4.62, qty 3) | PLANTERS TRAIL MIX NUT & CHOCOLATE 6OZ 1CT (amount 7.92, qty 3) | PLANTERS TRAIL MIX PEANUT BUTTER CHOCOLATE (amount 7.92, qty 3) | PLANTERS TRAIL MIX TROPICAL FRUIT & NUT 6OZ 1CT (amount 7.92, qty 3) | POCKY CHOCOLATE CREAM 70G 10CT (amount 15.12, qty 1) | POCKY STRAWBERRY CREAM 10CT (amount 15.12, qty 1) | POP TARTS BLUEBERRY 6CT (amount 4.91, qty 1) | POP TARTS CHERRY 6CT (amount 4.91, qty 1) | POP TARTS CHOCOLATE CHIP 6CT (amount 4.91, qty 1) | POP TARTS FROSTED SMORES 6CT (amount 4.91, qty 1) | POP TARTS HOT FUDGE SUNDAE 6CT (amount 4.91, qty 1) | POP TARTS STRAWBERRY 6CT (amount 4.91, qty 1) | PRINGLES SMALL BARBECUE 12CT (amount 9.06, qty 1) | PRINGLES SMALL CHEDDAR CHEESE 12CT (amount 9.06, qty 1) | PRINGLES SMALL ORIGINAL 12CT (amount 9.06, qty 1) | PRINGLES SMALL SOUR CREAM & ONION 12CT (amount 9.06, qty 1) | REESES BIG CUP KS 16CT (amount 35.61, qty 1) | REESE'S CUP 36 CT (amount 45.70, qty 1) | REESE'S CUPS KING SIZE 24 CT (amount 53.41, qty 1) | REESE'S FASTBREAK KS 18CT (amount 40.06, qty 1) | REESE'S OREO CUP KING 24 CT (amount 53.41, qty 1) | REESES PEG BAG MINIS 4.65OZ 1CT (amount 7.53, qty 3) | REESES PEG PIECES 1CT (amount 7.53, qty 3) | REESES PEG POPPED SNACK MIX 1CT (amount 8.04, qty 3) | REESE'S STICKS KING SIZE 24CT (amount 53.41, qty 1) | RICE KRISPIES ORIGINAL 20CT (amount 14.34, qty 1) | RICE KRISPIES ORIGINAL KING 12CT (amount 14.34, qty 1) | RITZ BITZ CHEESE PEG 1CT (amount 4.17, qty 3) | RITZ BITZ PEANUT BUTTER PEG 1CT (amount 4.17, qty 3) | RITZ BITZ PEG FLAVOR CHARGED CHEESE PIZZA 3OZ (amount 4.26, qty 3) | RITZ CONVENIENCE 3.4OZ 1CT (amount 7.08, qty 3) | SALTINES CONVENIENCE 1CT (amount 7.08, qty 3) | SKINNY POP POPCORN ORIGINAL 1CT (amount 4.11, qty 3) | SKINNY POP POPCORN WHITE CHEDDAR 1CT (amount 4.11, qty 3) | SKITTLES ORIGINAL KING 24 CT (amount 46.97, qty 1) | SKITTLES PEG 5.7OZ SOUR 1CT (amount 6.12, qty 3) | SKITTLES PEG ORIGINAL 1CT (amount 6.12, qty 3) | SKITTLES SOUR WILDBERRY KING 24CT (amount 46.97, qty 1) | SLIM JIM 20OZ 12CT (amount 34.35, qty 1) | SLIM JIM GIANT ORIGINAL 24 CT (amount 28.06, qty 1) | SLIM JIM MONSTER 18CT (amount 36.69, qty 1) | SNICKERS BAR 48 CT (amount 58.14, qty 1) | SNICKERS KING SIZE 24CT (amount 49.96, qty 1) | SNICKERS PB SQUARE KING 18CT (amount 34.83, qty 1) | SNYDERS PEG PRETZEL PIECES BUFFALO 5OZ 1CT (amount 5.97, qty 3) | SNYDERS PEG PRETZEL PIECES HONEY MUSTARD 5OZ 1CT (amount 5.97, qty 3) | SNYDERS PRETZELS MINI 3.5OZ 8CT (amount 8.21, qty 1) | SNYDERS PRETZELS STICKS 3.5OZ 8CT (amount 8.21, qty 1) | SOUR PATCH PEG 7.2OZ EXTREME 1CT (amount 6.96, qty 3) | SOUR PATCH PEG 8OZ KIDS 1CT (amount 6.96, qty 3) | SOUR PATCH PEG 8OZ PEACH 1CT (amount 6.96, qty 3) | SOUR PATCH PEG 8OZ STRAWBERRY 1CT (amount 6.96, qty 3) | SOUR PATCH PEG 8OZ WATERMELON 1CT (amount 6.96, qty 3) | SOUR STRIPS COTTON CANDY 1CT (amount 7.47, qty 3) | SOUR STRIPS DOUBLEBERRY 1CT (amount 7.47, qty 3) | SOUR STRIPS STRAWBERRY 1CT (amount 7.47, qty 3) | SUNFLOWER PEG ORIGINAL 5.25OZ 1CT (amount 4.77, qty 3) | SUNFLOWER PEG PUMPKIN SEEDS 5OZ 1CT (amount 8.55, qty 3) | SUNFLOWER PEG RANCH 5.25OZ 1CT (amount 4.77, qty 3) | SWEDISH FISH PEG 8OZ 1CT (amount 6.96, qty 3) | SWEETARTS PEG ROPE TWISTED RAINBOW 1CT (amount 6.18, qty 3) | SWEETARTS PEG ROPE WM BERRY 1CT (amount 6.18, qty 3) | TAKIS 3.25OZ BLUE HEAT 20CT (amount 38.88, qty 1) | TAKIS 3.25OZ FUEGO 20CT (amount 38.88, qty 1) | ICE FRESHMINT 1.7OZ 12CT (amount 19.94, qty 1) | TOXIC WASTE SLIME LICKER 2.0 12CT (amount 18.46, qty 1) | TRIDENT VALUE BUBBLEGUM 12CT (amount 13.19, qty 1) | TRIDENT VALUE ORIGINAL 12CT (amount 13.19, qty 1) | TRIDENT VALUE PEPPERMINT 12CT (amount 13.19, qty 1) | TRIDENT VALUE PINEAPPLE 12CT (amount 13.19, qty 1) | TRIDENT VALUE SPEARMINT 12CT (amount 13.19, qty 1) | TRIDENT VALUE TROPICAL 12CT (amount 13.19, qty 1) | TRIDENT VALUE WATERMELON 12CT (amount 13.19, qty 1) | TRIDENT VALUE WINTERGREEN 12CT (amount 13.19, qty 1) | TROLLI PEG SOUR BRITE CRAWLER 1CT (amount 4.65, qty 3) | TROLLI PEG SOUR BRITE CRAWLER BERRY 1CT (amount 4.65, qty 3) | TROLLI PEG SOUR BRITE CRAWLER FRUIT PUNCH 1CT (amount 4.65, qty 3) | TROLLI PEG SOUR BRITE CRAWLER OCTOPUS 1CT (amount 4.65, qty 3) | TWIX KING SIZE 24CT (amount 49.96, qty 1) | TWIZZLERS PEG CHERRY NIBS 6OZ 1CT (amount 7.53, qty 3) | TWIZZLERS PEG PULL AND PEEL 6.1OZ 1CT (amount 7.53, qty 3) | TWIZZLERS PEG STRAWBERRY TWIST 7OZ 1CT (amount 7.53, qty 3) | WELCH'S PEG FRUIT SNACKS BERRYCHERRY 1CT (amount 4.32, qty 3) | WELCH'S PEG FRUIT SNACKS ISLAND FRUIT 1CT (amount 4.32, qty 3) | WELCH'S PEG FRUIT SNACKS MANGO PEACH 1CT (amount 4.32, qty 3) | WELCH'S PEG FRUIT SNACKS MIXED FRUIT 1CT (amount 4.32, qty 3) | WELCH'S PEG FRUIT SNACKS SB 1CT (amount 4.32, qty 3) | WRIGLEY'S 5 35 STICK COBALT PM 8CT (amount 23.99, qty 1) | WRIGLEY'S 5 35 STICK RAIN SM 6CT (amount 23.99, qty 1) | WRIGLEYS 5 COBALT PM 10CT (amount 15.83, qty 1) | WRIGLEYS 5 PRISM WATERMELON 10CT (amount 15.83, qty 1) | WRIGLEYS 5 RAIN SPEARMINT 10CT (amount 15.83, qty 1) | WRIGLEYS 5 SOUR TO SWEET BERRY EVOLUTION 10CT (amount 15.83, qty 1) | WRIGLEYS DOUBLEMINT SLIM PACK (amount 12.14, qty 1) | WRIGLEYS JUICY FRUIT SLIM PACK (amount 12.14, qty 1) | WRIGLEYS WINTERFRESH SLIM PACK (amount 12.14, qty 1) | BAREBELL'S PROTEIN BAR COOKIES & CARAMEL 12CT (amount 24.92, qty 1) | BAREBELL'S PROTEIN BAR COOKIES & CREAM 12CT (amount 24.92, qty 1) | BAREBELL'S PROTEIN BAR CREAMY CRISP 12CT (amount 24.92, qty 1) | BUILT PROTEIN BAR PUFF COOKIE DOUGH CHUNK 12CT (amount 24.08, qty 1) | BUILT PROTEIN BAR PUFF COOKIES N CREAM 12CT (amount 24.08, qty 1) | BUILT PROTEIN BAR PUFF STRAWBERRIES N CREAM 12CT (amount 24.08, qty 1) | CLIF BAR CHOC CHIP 12CT (amount 17.83, qty 1) | CLIF BAR OATMEAL RAISIN WALNUT 12CT (amount 17.83, qty 1) | CLIF BAR WHITE CHOC MACADAMIA 12CT (amount 17.83, qty 1) | DAVID PROTEIN BAR BLUEBERRY PIE 12CT (amount 32.99, qty 1) | DAVID PROTEIN BAR CHOCOLATE CHIP COOKIE DOUGH 12CT (amount 32.99, qty 1) | DAVID PROTEIN BAR FUDGE BROWNIE 12CT (amount 32.99, qty 1) | KIND 12CT DARK CHOC CHERRY CASHEW (amount 16.19, qty 1) | KIND 12CT DARK CHOC SEA SALT (amount 16.19, qty 1) | MET-RX BIG 100 APPLE PIE 9CT (amount 21.80, qty 1) | MET-RX BIG 100 COOKIE CRUNCH 9CT (amount 21.80, qty 1) | QUEST PROTEIN BAR COOKIES & CREAM 12CT (amount 27.09, qty 1) | QUEST PROTEIN BAR CRISPY BIRTHDAY CAKE 12CT (amount 27.09, qty 1) | QUEST PROTEIN CHIPS CHILI LIME PEG 1CT (amount 6.24, qty 3) | QUEST PROTEIN CHIPS HOT & SPICY PEG 1CT (amount 6.24, qty 3) | QUEST PROTEIN CHIPS NACHO CHEESE 1.1 OZ PEG 1CT (amount 6.24, qty 3) | ALANI ENERGY BLUE SLUSH 12CT (amount 23.00, qty 1) | ALANI ENERGY BREEZEBERRY 12CT (amount 23.00, qty 1) | ALANI ENERGY CHERRY SLUSH 24CT (amount 49.63, qty 1) | ALANI ENERGY FALL FAVORITES WITCHES BREW & PUMPKIN CREAM 12CT (amount 23.00, qty 1) | ALANI ENERGY JUICY PEACH SPECIALTY 12CT (amount 23.00, qty 1) | BLOOM SPARKLING ENERGY CHERRY LIME 12CT (amount 20.70, qty 1) | BLOOM SPARKLING ENERGY PEACH MANGO 12CT (amount 20.70, qty 1) | BLOOM SPARKLING ENERGY RASPBERRY LEMON 12CT (amount 20.70, qty 1) | C4 ENERGY DRINK ZERO SUGAR CHERRY 16OZ 12CT (amount 23.15, qty 1) | C4 ENERGY DRINK ZERO SUGAR FROZEN BOMBSICLE 16OZ 12CT (amount 23.15, qty 1) | C4 ENERGY DRINK ZERO SUGAR HAWAIIAN APPLE 16OZ 12CT (amount 23.15, qty 1) | C4 ENERGY DRINK ZERO SUGAR WATERMELON 16OZ 12CT (amount 23.15, qty 1) | CELSIUS ARCTIC VIBE 12CT (amount 17.50, qty 1) | CORE POWER 26G VANILLA PROTIEN DRINK 14OZ 12CT (amount 43.70, qty 1) | CORE POWER 42G CHOCOLATE PROTIEN DRINK 14OZ (amount 44.99, qty 1) | CORE POWER 42G STRAWBERRY PROTIEN DRINK 14OZ 12CT (amount 44.99, qty 1) | CORE POWER 42G VANILLA PROTIEN DRINK 14OZ 12CT (amount 44.99, qty 1) | ELECTROLIT COCONUT 21OZ 12CT (amount 20.49, qty 1) | ELECTROLIT FRUIT PUNCH 21OZ 12CT (amount 20.49, qty 1) | ELECTROLIT WATERMELON LIME 21OZ 12CT (amount 20.49, qty 1) | REIGN ENERGY DRINK CHERRY LIMEADE 16OZ 12CT (amount 24.84, qty 1) | REIGN ENERGY DRINK ORANGE DREAMSICLE 16OZ 12CT (amount 24.84, qty 1) | REIGN ENERGY DRINK RAZZLE BERRY 16OZ 12CT (amount 24.84, qty 1) | REIGN ENERGY DRINK REIGNBOW SHERBET 16OZ (amount 24.84, qty 1) | REIGN ENERGY DRINK WHITE GUMMY BEAR 16OZ (amount 24.84, qty 1) | REIGN STORM ENERGY DRINK GUAVA STRAWBERRY 12OZ 12CT (amount 24.84, qty 1) | REIGN STORM ENERGY DRINK TROPICAL 12OZ 12CT (amount 24.84, qty 1)",
+        "description": "Wholesale invoice for various snack and beverage products.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-10/01f21148-372d-4b00-bfd8-eeb0b142e1bd-first.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "01f21148-372d-4b00-bfd8-eeb0b142e1bd-first.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-10-357567-88747bc4-f4b8-4143-b74d-fe28d2bcca59.pdf",
+      "size": 2627111,
+      "originalName": "01f21148-372d-4b00-bfd8-eeb0b142e1bd-first.pdf"
+    },
+    {
+      "invoice": {
+        "id": "3ef9b632-1f78-49df-9277-091ab881a3d5",
+        "store_key": "default",
+        "invoice_number": "360291",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-03-17",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St | Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nItems: AMERICAN SPIRIT LIGHT BLUE BOX (amount 128.00, qty 1) | MARLBORO GOLD BOX (amount 119.62, qty 1) | MARLBORO RED LABEL (MEDIUM) (amount 119.62, qty 1) | MARLBORO SILVER BOX (amount 119.62, qty 1) | MARLBORO SILVER 100 BOX (amount 119.62, qty 1) | CROWN RED 100 (amount 64.65, qty 1) | NEWPORT NON-MENTHOL (RED) 100 (amount 108.23, qty 1) | NEWPORT NON-MENTHOL (RED) BOX (amount 108.23, qty 1) | BUGLES PEG NACHO 1CT (amount 5.52, qty 3) | BUGLES PEG ORIGINAL 1CT (amount 3.68, qty 2) | CHEX MIX MUDDY BUDDIES COOKIES & CREAM 1CT (amount 5.10, qty 2) | CHEX MIX TRADITIONAL 4.5OZ 1CT (amount 3.94, qty 2) | HUBBA BUBBA BUBBLE TAPE ORIGINAL 6PACK (amount 7.17, qty 1) | LORNA DOONE CONVENIENCE PACK 1CT (amount 4.70, qty 2) | PLANTERS HONEY ROASTED CASHEWS 3OZ 1CT (amount 4.08, qty 2) | REESE'S CUP MINIATURES PEG BAG 1CT (amount 7.53, qty 3) | TWIZZLERS CHERRY NIBS PEG BAG 1CT (amount 7.53, qty 3)",
+        "description": "Wholesale tobacco and snack items",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-17/892f8ffc-6e0b-42f0-bcc9-9f06d6840098-fourth.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "892f8ffc-6e0b-42f0-bcc9-9f06d6840098-fourth.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-17-360291-3ef9b632-1f78-49df-9277-091ab881a3d5.pdf",
+      "size": 246386,
+      "originalName": "892f8ffc-6e0b-42f0-bcc9-9f06d6840098-fourth.pdf"
+    },
+    {
+      "invoice": {
+        "id": "530628ae-f8f1-4bcc-acbd-b493492ea3dd",
+        "store_key": "default",
+        "invoice_number": "25490",
+        "supplier_id": "5c56b110-ab3f-4670-b45c-88578f18baa0",
+        "issue_date": "2026-03-30",
+        "notes": "AI extraction details Extracted vendor: 360x Customer: Country Farm - Springfield Subtotal: 555.94 USD Items: STP Power Stearing Fluid 12oz (amount 6.87, qty 3) | STP Brake Fluid 12oz (amount 7.17, qty 3) | Lattafa Air Freshner 300ml Single Bottle | Honor & Glory (amount 36.00, qty 8) | Lava Plus 2600puffs 3% Nic Dispo 10ct/Box | Fruit Blast (amount 288.00, qty 6) | Glass Bong (amount 45.00, qty 1) | Lattafa Body Spray 200ml (6.67oz) | Mohra (amount 56.00, qty 16) | Trim Nail Clipper Single (amount 2.97, qty 3) | Gasoline Fuel Can Red 2 Gallon (amount 86.94, qty 6) | Prime Guard -20F PowerBlast WW 1Gallon 6ct (amount 26.99, qty 1)",
+        "description": "STP Power Stearing Fluid 12oz, STP Brake Fluid 12oz, Lattafa Air Freshner 300ml Single Bottle | Honor & Glory, +6 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-30/10c8a4bd-0977-47fd-b67b-76e788d56b00-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "10c8a4bd-0977-47fd-b67b-76e788d56b00-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-30-25490-530628ae-f8f1-4bcc-acbd-b493492ea3dd.pdf",
+      "size": 174028,
+      "originalName": "10c8a4bd-0977-47fd-b67b-76e788d56b00-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "5ad06abd-4175-4d9b-a88c-ca810268a379",
+        "store_key": "default",
+        "invoice_number": "200226460",
+        "supplier_id": "0c2321b2-6a18-46e4-83cf-c3eb9b49e52d",
+        "issue_date": "2026-02-18",
+        "notes": "AI extraction details\nExtracted vendor: LA PROVEEDORA LATINA LLC\nVendor address: 75-77 N14th Street, NEWARK,07107\nCustomer: 21058-COUNTRY FARMS DELI & CONVENIENCE\nSubtotal: 1191.79 USD\nItems: CANADA DRY SELTZER 20oz (amount 25.95, qty 1) | BODY ARMOR TROPICAL PUNCH 15 COUNT 28OZ (amount 115.80, qty 4) | SARATOGA WATER 12oz 24 COUNTS (amount 20.99, qty 1) | OCEAN SPRAY CRANBERRY 16OZ (amount 14.95, qty 1) | ST PELLEGRINO WATER 16oz (24 COUNTS) (amount 26.95, qty 1) | VITA COCO 11 OZ (amount 23.95, qty 1) | VITA COCO 16.9 OZ (amount 31.95, qty 1) | DOLE PINEAPPLE 8OZ (amount 20.99, qty 1) | HAWAIIAN PUNCH 20oz (24 BOTTLES) (amount 26.95, qty 1) | BRISK ICED TEA 20oz (24 BOTTLES) (amount 26.95, qty 1) | COCA COLA VANILLA 20oz(24 COUNTS) (amount 28.95, qty 1) | COCA COLA CHERRY (20oz) (amount 28.95, qty 1) | SUNKIST GRAPE 20oz (24 COUNTS) (amount 25.95, qty 1) | SUNKIST ORANGE 20oz (amount 25.95, qty 1) | MINUTE MAID PINK LEMONADE 20oz (amount 27.75, qty 1) | MINUTE MAID LEMONADE 20oz (amount 27.75, qty 1) | CANADA DRY GINGER ALE 20OZ (amount 25.95, qty 1) | A&W VANILLA CREAM 20oz 24 COUNT (amount 25.95, qty 1) | PEPSI ZERO 20OZ (amount 26.95, qty 1) | DIET PEPSI 20oz (24 BOTTLES) (amount 26.95, qty 1) | FANTA ORANGE 20oz 24 COUNT (amount 27.75, qty 1) | DIET DR PEPPER 20oz (amount 28.95, qty 1) | DR PEPPER 20oz (amount 28.95, qty 1) | COCA COLA ZERO SUGAR 200oz 24 COUNTS (amount 28.95, qty 1) | SPRITE ZERO 20oz (amount 27.95, qty 1) | SPRITE 20oz (amount 27.95, qty 1) | COCA COLA 20oz 24 COUNTS (amount 28.95, qty 1) | SNAPPLE 16oz (amount 46.98, qty 2) | MISTIC 15.9 oz 12 COUNTS (amount 26.98, qty 2) | SNAPPLE 32oz 12 COUNTS (amount 59.97, qty 3) | POLAND SPRINGS WATER 1 LITER (amount 25.47, qty 3) | POLAND SPRINGS WATER 24 OZ (amount 17.90, qty 2) | POLAND SPRINGS WATER 16oz (35 PACK) (amount 104.85, qty 15) | POLAND SPRINGS WATER 1.5 LITER (amount 37.96, qty 4) | POLAND SPRINGS WATER GALLON 6 COUNTS (amount 65.70, qty 6)",
+        "description": "Invoice for various beverages.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-18/98418802-a902-403e-abd2-53b4666e971f-la-proveedora-latina.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "98418802-a902-403e-abd2-53b4666e971f-la-proveedora-latina.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-18-200226460-5ad06abd-4175-4d9b-a88c-ca810268a379.pdf",
+      "size": 292436,
+      "originalName": "98418802-a902-403e-abd2-53b4666e971f-la-proveedora-latina.pdf"
+    },
+    {
+      "invoice": {
+        "id": "4eba1029-fb42-474d-9e34-7153c9b26c32",
+        "store_key": "default",
+        "invoice_number": "30494612",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-04-09",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 14.76 USD\nItems: BAGEL PLAIN LG SOL DZ (amount 2.84, qty 0.5) | BAGEL GARLIC LG SOL DZ (amount 2.84, qty 0.5) | BAGEL EVERYTHING LG SOL DZ (amount 2.84, qty 0.5) | KAISER LG SOL DZ (amount 6.24, qty 1.5)",
+        "description": "Bakery products",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-09/c967c594-57d6-4529-90b7-0bbe64ee486d-3.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "c967c594-57d6-4529-90b7-0bbe64ee486d-3.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-09-30494612-4eba1029-fb42-474d-9e34-7153c9b26c32.pdf",
+      "size": 98275,
+      "originalName": "c967c594-57d6-4529-90b7-0bbe64ee486d-3.pdf"
+    },
+    {
+      "invoice": {
+        "id": "eae1daf6-9bad-41ba-8d9f-b47bcbceacae",
+        "store_key": "default",
+        "invoice_number": "30497188",
+        "supplier_id": "84b1c314-1290-4065-a3da-c6c3bf6638fd",
+        "issue_date": "2026-04-10",
+        "notes": "AI extraction details\nExtracted vendor: ROCKLAND BAKERY INC.\nVendor address: 94 DEMAREST MILL ROAD NANUET, NY 10954\nCustomer: COUNTRY FARM DELI\nSubtotal: 9.38 USD\nItems: HERO JUMBO SOL EA (amount 5.22, qty 6) | KAISER LG SOL DZ (amount 4.16, qty 1)",
+        "description": "HERO JUMBO SOL EA, KAISER LG SOL DZ",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-10/89644ee0-3c86-4c58-a8e1-cc5be8a95c66-4.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "89644ee0-3c86-4c58-a8e1-cc5be8a95c66-4.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-10-30497188-eae1daf6-9bad-41ba-8d9f-b47bcbceacae.pdf",
+      "size": 90510,
+      "originalName": "89644ee0-3c86-4c58-a8e1-cc5be8a95c66-4.pdf"
+    },
+    {
+      "invoice": {
+        "id": "d21093d9-0da0-411f-bac4-468714ab29b7",
+        "store_key": "default",
+        "invoice_number": "19979",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-03-30",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 3562 Route 66 Neptune, NJ 07753\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 85.57 USD\nTax: 1.73 USD\nItems: TROP ORANGE BLEND 15.2Z (amount 18.88, qty 1) | COCA COLA CLASSIC 20Z (amount 34.66, qty 1) | LINDEN BUTTR CRUNH 1.75Z (amount 11.69, qty 1) | VITAMIN WTR ENERGY 20Z (amount 16.04, qty 1) | SQEZ BOT CLEAR 32Z 6PK (amount 8.99, qty 1) | QC GRIDDLE LIQUID 701 (amount 17.08, qty 1) | BRD PNTD WEDGE 6PK 18Z (amount 4.47, qty 1) | BRD SAND RLL PLN 12PK (amount 4.21, qty 1) | BRD SAND RLL PLN 12PK (amount 4.21, qty 1) | COCA COLA CLASSIC 20Z (qty 1)",
+        "description": "TROP ORANGE BLEND 15.2Z, COCA COLA CLASSIC 20Z, LINDEN BUTTR CRUNH 1.75Z, +7 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-30/b832d1cb-078e-425e-bf17-4676abf28578-receipt-19979.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "b832d1cb-078e-425e-bf17-4676abf28578-receipt-19979.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-30-19979-d21093d9-0da0-411f-bac4-468714ab29b7.pdf",
+      "size": 28261,
+      "originalName": "b832d1cb-078e-425e-bf17-4676abf28578-receipt-19979.pdf"
+    },
+    {
+      "invoice": {
+        "id": "6ffacefe-590c-478a-94f2-ef5cee89ce9f",
+        "store_key": "default",
+        "invoice_number": "361438",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-04-01",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St | Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nSubtotal: 780.37 USD\nItems: MARLBORO RED BOX (amount 119.62, qty 1) | PARLIAMENT WHITE BOX (amount 134.99, qty 1) | PARLIAMENT WHITE MENTHOL BOX (amount 134.99, qty 1) | NEWPORT MENTHOL BOX 100 (amount 123.92, qty 1) | PARLIAMENT WHITE MENTHOL BOX 100 (amount 134.99, qty 1) | CROWN RED 100 (amount 131.86, qty 2)",
+        "description": "MARLBORO RED BOX, PARLIAMENT WHITE BOX, PARLIAMENT WHITE MENTHOL BOX, +3 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-01/6b2645f9-f588-4e0f-9ca6-ab61fa7e49ad-eight.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "6b2645f9-f588-4e0f-9ca6-ab61fa7e49ad-eight.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-01-361438-6ffacefe-590c-478a-94f2-ef5cee89ce9f.pdf",
+      "size": 158030,
+      "originalName": "6b2645f9-f588-4e0f-9ca6-ab61fa7e49ad-eight.pdf"
+    },
+    {
+      "invoice": {
+        "id": "eaf26a2f-3521-4778-a712-68ab6132c9e3",
+        "store_key": "default",
+        "invoice_number": "362346",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-04-14",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St Freehold, NJ 07728 Phone 732-866-1899 WhatsApp 732-778-5437 Email info@mandeltobacco.com 958 SOUTH SPRINGFIELD AV SPRINGFIELD, NJ 07081 912-901-1647 (customer address is also listed in this block in the OCR but the vendor's main address is at the bottom of the page.) 62 Jackson St | Freehold, NJ 07728 | Phone 732-866-1899 | WhatsApp 732-778-5437 | Email info@mandeltobacco.com (repeated at the bottom of the page 2, this is more clearly the vendor address.) So, using the clearer vendor address from the bottom of the page: \"62 Jackson St Freehold, NJ 07728\" Actually, the schema specifies vendorAddress as a string. The text at the bottom is definitely the vendor's contact information. The\nCustomer: COUNTRY FARMS DELI SPRINGFIELD",
+        "description": "Invoice 362346",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-14/03be4054-8bd1-45b1-a3c9-de8d1027f53e-nine.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "03be4054-8bd1-45b1-a3c9-de8d1027f53e-nine.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-14-362346-eaf26a2f-3521-4778-a712-68ab6132c9e3.pdf",
+      "size": 410484,
+      "originalName": "03be4054-8bd1-45b1-a3c9-de8d1027f53e-nine.pdf"
+    },
+    {
+      "invoice": {
+        "id": "dace9f5f-4fb6-4d49-a86c-62897c5904de",
+        "store_key": "default",
+        "invoice_number": "6083",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-04-23",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield Blvd, Union, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 18.62 USD\nTax: 1.23 USD\nItems: QC GRIDDLE LIQUID 701 (amount 15.96, qty 1) | GRILL BRICK GB12 (amount 2.66, qty 1)",
+        "description": "QC GRIDDLE LIQUID 701, GRILL BRICK GB12",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-23/38582b6b-fa00-46bd-a7b8-f502d20a34fc-receipt-6083.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "38582b6b-fa00-46bd-a7b8-f502d20a34fc-receipt-6083.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-23-6083-dace9f5f-4fb6-4d49-a86c-62897c5904de.pdf",
+      "size": 27885,
+      "originalName": "38582b6b-fa00-46bd-a7b8-f502d20a34fc-receipt-6083.pdf"
+    },
+    {
+      "invoice": {
+        "id": "f5281ca7-a1b6-406e-bef4-99666436d5b1",
+        "store_key": "default",
+        "invoice_number": "358359",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-02-20",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St | Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nSubtotal: 964.14 USD\nItems: AIRHEADS 5 BAR ASSORTED FLAVORS 18 CT (amount 17.92, qty 1) | AIRHEADS SOUR WATERMELON 36 CT (amount 7.19, qty 1) | AIRHEADS WATERMELON 36 CT (amount 7.19, qty 1) | BABY RUTH KING SIZE 18CT (amount 32.48, qty 1) | BREATHSAVER 3 HOUR TINS SPEARMINT 8CT (amount 17.51, qty 1) | BUGLES PEG RANCH 1CT (amount 5.52, qty 3) | BUGLES PEG TABASCO HOT & CHESSY 1CT (amount 5.52, qty 3) | CHARMS BLOW POP COTTON CANDY 48CT (amount 7.84, qty 1) | CHEX MIX CHEDDAR PEG BAG 1CT (amount 5.91, qty 3) | CHEX MIX JALAPENO CHEDDER 4.5OZ 1CT (amount 5.91, qty 3) | CHEX MIX MUDDY BUDDIES GIRL SCOUTS THIN MINTS 1CT (amount 7.65, qty 3) | CHEX MIX MUDDY BUDDIES PEANUT BUTTER & CHOCOLATE 1CT (amount 7.65, qty 3) | DOVE DARK CHOCOLATE 18CT (amount 21.84, qty 1) | DOVE MILK CHOCOLATE 18CT (amount 21.84, qty 1) | FERRERO ROCHER 3PC 12CT (amount 18.49, qty 1) | HELLO PANDA CHOCOLATE 6CT (amount 6.19, qty 1) | HELLO PANDA STRAWBERRY 6CT (amount 6.19, qty 1) | HERSHEY PEG KISSES 5OZ 1CT (amount 30.12, qty 12) | HI CHEW STICKS APPLE 15CT (amount 15.18, qty 1) | HI CHEW STICKS BANANA 15CT (amount 15.18, qty 1) | HI CHEW STICKS GRAPE 15CT (amount 15.18, qty 1) | HI CHEW STICKS STRAWBERRY 15CT (amount 15.18, qty 1) | HI CHEW STICKS SWEET & SOUR WATERMELON 15CT (amount 15.18, qty 1) | ICE BREAKERS DUO MINT WATERMELON 8CT (amount 17.52, qty 1) | KINDER JOY 15CT (amount 23.83, qty 1) | KOKO'S ICEE SLUSH SQUEEZE CANDY 12CT (amount 11.97, qty 1) | LIFESAVERS GUMMIES 5 FLAVOR KING SIZE 15CT (amount 28.84, qty 1) | LIFESAVERS GUMMIES COLLISIONS KING SIZE 15CT (amount 28.84, qty 1) | LINDT LINDOR MILK CHOCOLATE TRUFFLES BAR 24CT (amount 33.25, qty 1) | M&M PEANUT BUTTER 24CT (amount 29.42, qty 1) | MAMBA FRUIT CHEWS 24 CT (amount 22.90, qty 1) | MIKE & IKE 3/$.99 ORIGINAL 24CT (amount 4.26, qty 1) | MIKE & IKE 3/$.99 BERRY BLAST 24CT (amount 4.26, qty 1) | MOUNDS 24CT (amount 30.47, qty 1) | NERDS GRAPE/STRAWBERRY 36CT (amount 34.99, qty 1) | NERDS GUMMY CLUSTERS RAINBOW KING SIZE (amount 21.49, qty 1) | NERDS LIMITED EDITION JUICED KING SIZE 12CT (amount 21.49, qty 1) | NERDS WATERMELON/CHERRY 36CT (amount 34.99, qty 1) | SKITTLES GUMMIES SOUR KING 15CT (amount 28.77, qty 1) | SOUR PATCH KIDS 24CT (amount 24.24, qty 1) | SOUR PATCH WATERMELON 24CT (amount 24.24, qty 1) | STARBURST FAVE REDS 24CT (amount 29.16, qty 1) | STARBURST FAVE REDS KING SIZE 24CT (amount 46.97, qty 1) | STARBURST ORIGINAL CHEWS 36CT (amount 43.70, qty 1) | SWEDISH FISH 24CT (amount 23.80, qty 1) | SWEETARTS ROPE TWISTED RAINBOW PUNCH KING SIZE 12CT (amount 23.01, qty 1) | SWEETARTS ROPES CHERRY PUNCH KING SIZE 12ST (amount 23.01, qty 1) | TWIX 36CT EXP. APRIL 2026 (amount 25.00, qty 1) | TWIZZLERS STRAWBERRY TWIST 18CT (amount 22.86, qty 1)",
+        "description": "AIRHEADS 5 BAR ASSORTED FLAVORS 18 CT, AIRHEADS SOUR WATERMELON 36 CT, AIRHEADS WATERMELON 36 CT, +46 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-20/fc785389-dd52-4e2b-90d8-6aed53c402f4-second.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "fc785389-dd52-4e2b-90d8-6aed53c402f4-second.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-20-358359-f5281ca7-a1b6-406e-bef4-99666436d5b1.pdf",
+      "size": 538672,
+      "originalName": "fc785389-dd52-4e2b-90d8-6aed53c402f4-second.pdf"
+    },
+    {
+      "invoice": {
+        "id": "9ab7f84a-626e-4c9c-b190-1c56d7f32eeb",
+        "store_key": "default",
+        "invoice_number": "610465",
+        "supplier_id": "a8baad69-5fb9-48fe-b64a-758f57e66745",
+        "issue_date": "2026-04-01",
+        "notes": "AI extraction details Extracted vendor: COUNTRY FARM SPRING FIELD Vendor address: 958 S SPRINGFIELD AVE,, SPRINGFIELD, New Jersey (NJ) USA-07081 Subtotal: 360.00 USD Items: GEEK BAR 15K: NO RETURN/EXCHANGE (amount 360.00, qty 8, 5 / pack, per item 9.00)",
+        "description": "Sales of GEEK BAR 15K",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-01/1d76e0d5-5e5f-4bc9-86e8-20d0af77e61b-6.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "1d76e0d5-5e5f-4bc9-86e8-20d0af77e61b-6.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-01-610465-9ab7f84a-626e-4c9c-b190-1c56d7f32eeb.pdf",
+      "size": 137223,
+      "originalName": "1d76e0d5-5e5f-4bc9-86e8-20d0af77e61b-6.pdf"
+    },
+    {
+      "invoice": {
+        "id": "632c1129-4d18-4b27-a74a-7f7fc9fdbed2",
+        "store_key": "default",
+        "invoice_number": "20647",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-05-02",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot #832\nVendor address: 1135 Springfield BlvdUnion, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 105.81 USD\nTax: 0.43 USD\nItems: MILK COCONUT #10 (amount 14.21, qty 1) | RS PINK DISH 4/1GAL (amount 6.55, qty 1) | CHZ PEPJCK SLC GL 6/1.5L (amount 4.84, qty 1) | CHZ PROV SLC GL (amount 4.63, qty 1) | CHZ SWISS SLCD 6/1.5L (amount 5.54, qty 1) | CHZ MOZZ W/M GALB R/W (amount 13.84, qty 4.96) | TKY GOLDN RST BS (amount 56.20, qty 8.58)",
+        "description": "MILK COCONUT #10, RS PINK DISH 4/1GAL, CHZ PEPJCK SLC GL 6/1.5L, +4 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-02/0a719112-3569-497f-a7dc-d17ba87424d6-receipt-20647.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "0a719112-3569-497f-a7dc-d17ba87424d6-receipt-20647.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-02-20647-632c1129-4d18-4b27-a74a-7f7fc9fdbed2.pdf",
+      "size": 28131,
+      "originalName": "0a719112-3569-497f-a7dc-d17ba87424d6-receipt-20647.pdf"
+    },
+    {
+      "invoice": {
+        "id": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+        "store_key": "default",
+        "invoice_number": "SL12623",
+        "supplier_id": "902cd73c-abb8-4854-8c00-7a3c22210cb6",
+        "issue_date": "2026-03-12",
+        "notes": "AI extraction details\nExtracted vendor: ALL IN ONE DISTRIBUTION LLC\nVendor address: 7 PROGRESS STREET, SUITE #104 EDISON, NJ - 08820, USA\nCustomer: COUNTRY FARM DELI, SPRINGFIELD (SHAKTI CO SPRINGFIELD LLC)\nSubtotal: 1068.44 USD\nTax: 295.26 USD\nItems: AL CAPONE SWEETS COGNAC DIPPED NONFIL 10/10CIGARS (amount 60.00, qty 1) | AL CAPONE SWEETS FILTER COGNAC DIPPED 10/10CIGARS (amount 66.94, qty 1) | BACKWOOD CIGARS 5/8 PACK-RUSSIAN CREAM (amount 35.00, qty 1) | BACKWOOD CIGARS 5/8 PACK-SWEET AROMATIC (amount 35.00, qty 1) | BACKWOOD CIGARS 5/8 PACK-VANILLA (amount 35.00, qty 1) | BACKWOODS 5/8PK LA AROMATIC (amount 35.00, qty 1) | BLACK & MILD CIGARS 10/5pk - FT ORIGINAL (amount 19.60, qty 1) | BLACK & MILD CIGARS 10/5PK - PLASTIC TIP ORIGINAL (amount 48.18, qty 1) | BLACK & MILD CIGARS 10/5PK - PLASTIC TIP WINE (amount 50.17, qty 1) | BLUNTVILLE VANILA CIGAR 25CT (amount 19.13, qty 1) | ENTOURAGE PALMA CIGAR 25 (amount 20.50, qty 1) | ENTOURAGE PINK VANILLA CIGAR 25 (amount 20.50, qty 1) | ENTOURAGE VANILLA CIGAR 25 (amount 20.50, qty 1) | SWEET WOODS 1.49 - VANILLA (30) (amount 14.50, qty 1) | SWISHER SWEET CIGRILLOS 1.39/2-GRAPE (30) (amount 25.99, qty 1) | BUGLER CIGARETTE TOBACCO ORIGINAL 6PK/BOX (amount 26.00, qty 1) | NATURAL AMERICAN SPIRIT ROLL YOUR OWN 1.41 OZ 6PK/BOX - ORIGINAL (amount 80.00, qty 1) | NATURAL AMERICAN SPIRIT ROLL YOUR OWN 1.41 OZ 6PK/BOX - ORGANIC (amount 80.00, qty 1) | BLUNTVILLE PINK DIVA 25CT (amount 19.99, qty 1) | BLUNTVILLE TRIPPLE VANILA CIGRILLOS 25CT (amount 19.99, qty 1) | GAME WHITE GRAPE 2 CIGARS 1.29 (amount 24.95, qty 1) | GAME CIGARILLOS 2/1.29 30CT-BLUE (amount 24.95, qty 1) | WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - PLATINUM UN SWEET (amount 22.50, qty 1) | WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - SILVER OL (amount 22.50, qty 1) | WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - WHITE RUSSIAN (amount 22.50, qty 1) | ZYN 15PC/5PK-3MG- CITRUS (amount 21.50, qty 1) | ZYN 15PC/5PK-6MG- CITRUS (amount 21.50, qty 1) | ZYN 3MG SPERMINT $1 OFF* (amount 17.99, qty 1) | ZYN 6MG SPEARMINT $1 OFF* (amount 17.99, qty 1) | GOOD STUFF PREMIUM PIPE TOBACCO GOLD 6OZ (amount 5.15, qty 1) | GOOD STUFF PREMIUM PIPE TOBACCO MENTHOL 6OZ (amount 5.15, qty 1) | GOOD STUFF PREMIUM PIPE TOBACCO RED 6OZ (amount 5.15, qty 1) | GOOD STUFF PREMIUM PIPE TOBACCO SILVER 6OZ (amount 5.15, qty 1) | PLATINUM 2X BLUNT WRAP - CHOCOLATE (amount 13.99, qty 1) | PLATINUM 2X BLUNT WRAP - FRENCH VANILLA (amount 13.99, qty 1) | PLATINUM 2X BLUNT WRAP - GRAPE (amount 13.99, qty 1) | ZIG ZAG CIGAR WRAPS - 2PC/25PK - BLUBERRY (amount 15.50, qty 1) | ZIG ZAG CIGAR WRAPS - 2PC/25PK - CHERRY (amount 15.50, qty 1) | ZIG ZAG CIGAR WRAPS - 2PC/25PK - GRAPE (amount 15.50, qty 1) | ZIG ZAG CIGAR WRAPS - 2PC/25PK - STRAIGHT UP (amount 15.50, qty 1) | ZIG ZAG CIGAR WRAPS - 2PC/25PK - VANILLA (amount 15.50, qty 1)",
+        "description": "Tobacco products, including cigars, cigarettes, pipe tobacco, and tobacco wraps",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-12/9e08a5b7-c6fa-4680-92ab-a1d2a010c17e-3.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "9e08a5b7-c6fa-4680-92ab-a1d2a010c17e-3.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-12-SL12623-d27a7790-3813-41d4-9c41-9ca0ae4fdf2b.pdf",
+      "size": 550814,
+      "originalName": "9e08a5b7-c6fa-4680-92ab-a1d2a010c17e-3.pdf"
+    },
+    {
+      "invoice": {
+        "id": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+        "store_key": "default",
+        "invoice_number": "SL12624",
+        "supplier_id": "902cd73c-abb8-4854-8c00-7a3c22210cb6",
+        "issue_date": "2026-03-12",
+        "notes": "AI extraction details\nExtracted vendor: ALL IN ONE DISTRIBUTION LLC\nVendor address: 7 PROGRESS STREET, SUITE #104 EDISON, NJ - 08820, USA\nCustomer: COUNTRY FARM DELI, SPRINGFIELD (SHAKTI CO SPRINGFIELD LLC)\nSubtotal: 3001.79 USD\nTax: 835.98 USD\nItems: ACID Blondie (4x38)(40) (amount 145.00, qty 1) | ACID Kuba Kuba(5x54)(24) (amount 145.00, qty 1) | ASHTON MAGNUM (25) (amount 202.15, qty 1) | CAO FLATHEAD V770 Big Block 7 x 70Box(24) (amount 180.00, qty 1) | COHIBA NICARAGUA N4 7/8 x 50 4 7/8 x 50Box(16) (amount 165.00, qty 1) | DEADWOOD FAT BOTTOM BETTY TORO 6X50 (10) (amount 65.00, qty 1) | DIESEL WHISKEY ROW ROB 5 1/2X52 (25) (amount 145.00, qty 1) | FACTORY SMOKES SUNGROWN Robusto (5x54)(25) (amount 40.02, qty 1) | FACTORY SMOKES SWEETS Belicoso (6x54)(20) (amount 46.81, qty 1) | MACANUDO Diplomat 41/2 x 38/60/44Box(25) (amount 175.00, qty 1) | MACANUDO INSPIRADO RED Robusto 5 x 50Box(20) (amount 90.00, qty 1) | MFC La Gran Oferta Toro 6X50 (20) (amount 105.34, qty 1) | Miami Tatiana Classic - Groovy Blue (25) (amount 65.00, qty 1) | Montecristo 1935 Anniversary - Robusto 54x5 (10) (amount 95.00, qty 1) | MONTECRISTO MINI WHITE 20 (amount 54.00, qty 1) | Montecristo White Churchill (54X7) 10ct (amount 95.00, qty 1) | NEW WORLD - CORONA DOUBLE 7 1/2X55 (21) (amount 105.00, qty 1) | NUB CONNECTICUT 460 (24) (amount 115.36, qty 1) | ODYSSEY MADURO Toro 6 x 50Bundle(20) (amount 24.60, qty 1) | PARTAGAS BLACK LABELCrystal (Tubo) 5 1/2 x 50 (8) (amount 70.00, qty 1) | PLASENCIA RESERVA ORIGINAL ROBUSTO 4 3/4X52 (10) (amount 63.77, qty 1) | PRD RSV 10TH ANNIV CHAMP CT FIGUARDO 4 3/4X56 (25) (amount 140.00, qty 1) | QUORUM MADURO CHURCHILL BDL 20(7x48) (amount 43.93, qty 1) | Romeo y Julieta 1875 Bully (50X5) 25ct (amount 155.00, qty 1) | ROMEO Y JULIETA MINI TIN - AROMA (RED) (amount 45.00, qty 1) | Romeo y Julieta Reserva Real Churchill (50X7) 25ct (amount 150.00, qty 1) | RP Vintage 1999 Robusto 5-1/2x50 (20) (amount 130.81, qty 1) | TABAK ESPECIAL DULC Robusto (5x54)(24) (amount 145.00, qty 1)",
+        "description": "TOBACCO PREMIUM CIGAR",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-12/7cadccac-f9f2-4532-ad82-e13e95ec7f8b-4.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "7cadccac-f9f2-4532-ad82-e13e95ec7f8b-4.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-12-SL12624-f27d3717-00ba-494e-8c3d-a7b46054aeed.pdf",
+      "size": 456216,
+      "originalName": "7cadccac-f9f2-4532-ad82-e13e95ec7f8b-4.pdf"
+    },
+    {
+      "invoice": {
+        "id": "94228962-4f6e-4995-a0bd-99efc733cde3",
+        "store_key": "default",
+        "invoice_number": "20709",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-03-24",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 3562 Route 66 Neptune, NJ 07753\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 21.57 USD\nItems: BRD SAND RLL PLN 12PK (amount 4.21, qty 1) | BRD SAND RLL PLN 12PK (amount 4.21, qty 1) | BRD SAND RLL PLN 12PK (amount 4.21, qty 1) | BRD PNTD WEDGE 6PK 18Z (amount 4.47, qty 1) | BRD PNTD WEDGE 6PK 18Z (amount 4.47, qty 1)",
+        "description": "BRD SAND RLL PLN 12PK, BRD SAND RLL PLN 12PK, BRD SAND RLL PLN 12PK, +2 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-24/71c1978f-5d15-4764-9fdf-396fd45794d9-receipt-20709.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "71c1978f-5d15-4764-9fdf-396fd45794d9-receipt-20709.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-24-20709-94228962-4f6e-4995-a0bd-99efc733cde3.pdf",
+      "size": 27959,
+      "originalName": "71c1978f-5d15-4764-9fdf-396fd45794d9-receipt-20709.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e81249bd-f7e6-4ecb-add6-a9b216ab72e6",
+        "store_key": "default",
+        "invoice_number": "ORD1264587",
+        "supplier_id": "304631f0-dfd4-45e1-861c-4476ae772919",
+        "issue_date": "2026-04-17",
+        "notes": "AI extraction details\nExtracted vendor: Center Point Distributors\nVendor address: 155 Helen St unit a, South Plainfield, NJ 07080, USA\nCustomer: Country Farm Deli (Springfield)\nSubtotal: 520.21 USD\nItems: Fix-A-Flat Tire With Hose16oz (amount 20.85, qty 3) | Gumout Fuel Injector Cleaner 6oz (amount 9.30, qty 3) | Jumper Cable Economy 150/250 (amount 11.98, qty 2) | STP Fuel Injector Cleaner 5.25oz (Black) (amount 10.50, qty 3) | STP Gas Treatment 5.25oz (Red) (amount 7.50, qty 3) | STP Oil Treatment 15oz (amount 11.85, qty 3) | Tire Repair Kit for Cars (amount 2.97, qty 3) | Ghost Sugar-Free Energy Drink 16oz 12ct Tropical Mango (amount 22.50, qty 1) | CLVR Connect CD Cellphone Charger Counter Display 82CT - CC1003 (amount 215.00, qty 1) | Febreze Air Spray Exotic Bloom 6.25Oz (amount 6.50, qty 2) | Febreze Air Spray Fresh Linen 6.25Oz (amount 6.50, qty 2) | Febreze Air Spray Lavender 6.25Oz (amount 6.50, qty 2) | Banana Boat Lotion SPF 30 8oz (amount 17.98, qty 2) | Banana Boat Lotion SPF 50 8oz (amount 17.98, qty 2) | Banana Boat Spray SPF 30 6oz (amount 15.00, qty 2) | Banana Boat Spray SPF 50 6oz (amount 15.00, qty 1) | Dove Body Wash Deeply Nourshing 450ML (amount 3.50, qty 1) | Dove Body Wash Men Clean Comfort 400ML (amount 11.25, qty 3) | Dove Body Wash Nourishing Silk 450ML (amount 7.00, qty 2) | J & J Baby Oil 3oz/100ml Regular (amount 8.85, qty 3) | Lattafa Perfumed Spray Ajwad 200MI (amount 3.50, qty 1) | Lattafa Perfumed Spray Ajwad Pink to Pink 200ml (amount 3.50, qty 1) | Lattafa Perfumed Spray Ameerat Al Arab 200ml (amount 3.50, qty 1) | Lattafa Perfumed Spray Amethyst 200MI (amount 3.50, qty 1) | Lattafa Perfumed Spray Cherry Intense 200ml (amount 3.50, qty 1) | Lattafa Perfumed Spray Eclaire 200ml (amount 3.50, qty 1) | Lattafa Perfumed Spray Fakhar Lattafa 200MI (amount 3.50, qty 1) | Lattafa Perfumed Spray Hayaati Al Maleky 200MI (amount 3.50, qty 1) | Lattafa Perfumed Spray Hayaati Florence 200MI (amount 3.50, qty 1) | Lattafa Perfumed Spray Mahasin Crystal 200MI (amount 3.50, qty 1) | Lattafa Perfumed Spray Mayar Natural Intense 200MI (amount 3.50, qty 1) | Lattafa Perfumed Spray Prive Rose Princess Of Arabia 200MI (amount 3.50, qty 1) | Lattafa Perfumed Spray Sublime 200ml (amount 3.50, qty 1) | Listerine Cool Mint 95/100ml (amount 4.95, qty 3) | Paper Bag # 12_90028 (amount 27.00, qty 1) | Formula 420 Cleaner Original 12oz (Red) (A1) (amount 14.25, qty 3)",
+        "description": "Fix-A-Flat Tire With Hose16oz, Gumout Fuel Injector Cleaner 6oz, Jumper Cable Economy 150/250, +33 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-17/f8a5afbe-fd03-4b02-9f80-5c3930185c4c-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "f8a5afbe-fd03-4b02-9f80-5c3930185c4c-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-17-ORD1264587-e81249bd-f7e6-4ecb-add6-a9b216ab72e6.pdf",
+      "size": 528691,
+      "originalName": "f8a5afbe-fd03-4b02-9f80-5c3930185c4c-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "6ea88697-4208-48eb-bf16-119314cc6def",
+        "store_key": "default",
+        "invoice_number": "451469489",
+        "supplier_id": "304631f0-dfd4-45e1-861c-4476ae772919",
+        "issue_date": "2026-04-17",
+        "notes": "AI extraction details\nExtracted vendor: Center Point Distributors\nSubtotal: 113.99 USD\nItems: BM PT 25ct Regular (amount 25.99, qty 1) | ZYN Nicotine Pouches Cool Mint 6MG 5ct (amount 22.00, qty 1) | ZYN Nicotine Pouches Peppermint 6MG 5ct (amount 22.00, qty 1) | ZYN Nicotine Pouches Spearmint 6MG 5ct (amount 22.00, qty 1) | ZYN Nicotine Pouches Wintergreen 6MG 5ct (amount 22.00, qty 1)",
+        "description": "Purchase of various nicotine pouches and regular items.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-17/a032ba22-675e-4cbd-853c-ac174d212e1c-3.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "a032ba22-675e-4cbd-853c-ac174d212e1c-3.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-17-451469489-6ea88697-4208-48eb-bf16-119314cc6def.pdf",
+      "size": 100776,
+      "originalName": "a032ba22-675e-4cbd-853c-ac174d212e1c-3.pdf"
+    },
+    {
+      "invoice": {
+        "id": "f97853c6-511c-4054-a616-14e7cad551ef",
+        "store_key": "default",
+        "invoice_number": "660324",
+        "supplier_id": "3698f6d5-b6a1-4c17-8116-0c9ff53c2b00",
+        "issue_date": "2026-04-08",
+        "notes": "AI extraction details\nExtracted vendor: Quality Express Coffee & Vending\nVendor address: 1006 Branagan DriveTullytown, PA 19007\nCustomer: Country Farms/Fuel 4\nSubtotal: 273.00 USD\nItems: Energy Surcharge (amount 5.00, qty 1) | NE 100% Col 128*2.5oz (amount 268.00, qty 1) | Bunn 12 Cup Filters-Nest=50 pots (qty 1)",
+        "description": "Energy Surcharge, NE 100% Col 128*2.5oz, Bunn 12 Cup Filters-Nest=50 pots",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-08/beee03e8-e083-4f6f-9ac1-6ed1424cfa97-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "beee03e8-e083-4f6f-9ac1-6ed1424cfa97-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-08-660324-f97853c6-511c-4054-a616-14e7cad551ef.pdf",
+      "size": 173165,
+      "originalName": "beee03e8-e083-4f6f-9ac1-6ed1424cfa97-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "a26bfeff-549e-46ab-b861-47de76376f55",
+        "store_key": "default",
+        "invoice_number": "657897",
+        "supplier_id": "3698f6d5-b6a1-4c17-8116-0c9ff53c2b00",
+        "issue_date": "2026-02-19",
+        "notes": "AI extraction details\nExtracted vendor: Quality Express Coffee & Vending\nVendor address: 1006 Branagan Drive Tullytown, PA 19007\nCustomer: Fuel 4 Mart\nSubtotal: 1023.00 USD\nItems: Energy Surcharge (amount 5.00, qty 1) | NE 100% Col 128*2.5oz (amount 268.00, qty 1) | New England Decaf 42/1.75 (amount 74.50, qty 1) | French Vanilla 2.00 Oz (amount 44.50, qty 1) | Hazelnut 2.00 Oz. (amount 44.50, qty 1) | Swiss Miss Hot Choc W/M (amount 16.50, qty 1) | QE Hot Chocolate (amount 52.00, qty 1) | HM French Vanilla Capp (amount 48.00, qty 1) | HM Original Capp Mix (amount 48.00, qty 1) | Lipton Tea Regular (amount 10.50, qty 1) | Bigelow Lemon Lift Tea (amount 6.00, qty 1) | Bigelow Orange Spice Tea (amount 6.00, qty 1) | Bigelow I Love Lemon Tea (amount 6.00, qty 1) | Bigelow Green Tea (amount 6.00, qty 1) | Bigelow Apple Cinn Tea (amount 6.00, qty 1) | Sugar Packets (2000) (amount 22.50, qty 1) | Sweet-N-Low (2000 ct) (amount 32.50, qty 1) | SPLENDA 2000CT (amount 68.00, qty 1) | Pac 12oz Gourmet Hot Cup (amount 64.00, qty 1) | Pac 16oz Gourmet Hot Cup (amount 72.00, qty 1) | PAC 20 oz Gourmet Hot Cup 500 ct (amount 59.00, qty 1) | Maui 10/24 Sip Lid (dome) (amount 58.50, qty 1) | 7\" Plastic Stirrers 1000 ct. (amount 5.00, qty 1) | 12 Cup Filters Nest-50 pots (qty 1)",
+        "description": "Coffee and vending supplies",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-19/999cea22-1bf4-45e8-a93b-8531b18a38ea-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "999cea22-1bf4-45e8-a93b-8531b18a38ea-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-19-657897-a26bfeff-549e-46ab-b861-47de76376f55.pdf",
+      "size": 268497,
+      "originalName": "999cea22-1bf4-45e8-a93b-8531b18a38ea-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+        "store_key": "default",
+        "invoice_number": "359580",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-03-09",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St | Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nSubtotal: 1286.38 USD\nItems: AMERICAN SPIRIT DARK GREEN BOX (amount 133.09, qty 1) | AMERICAN SPIRIT YELLOW BOX (amount 128.00, qty 1) | MARLBORO GOLD BOX (amount 119.62, qty 1) | MARLBORO RED BOX (amount 119.62, qty 1) | NEWPORT MENTHOL BOX (amount 123.92, qty 1) | PARLIAMENT WHITE BOX (amount 134.99, qty 1) | MARLBORO BOX (RED) 100 (amount 119.62, qty 1) | MARLBORO GOLD 100 BOX (amount 119.62, qty 1) | NEWPORT MENTHOL BOX 100 (amount 123.92, qty 1) | PARLIAMENT WHITE BOX 100 (amount 134.99, qty 1) | AMOS PEELERZ GUMMY PEACH PEG 1CT (amount 4.90, qty 2) | BUGLES PEG NACHO 1CT (amount 3.68, qty 2) | CHEETOS CRUNCHY 2OZ 1CT (amount 4.47, qty 3) | CHEETOS PUFFS 2OZ 1CT (amount 4.47, qty 3) | HARIBO WATERMELON PEG BAG 1CT (amount 4.02, qty 3) | SMARTFOOD WHITE CHEDDAR 1.75OZ 1CT (amount 2.98, qty 2) | SUN CHIPS HARVEST CHEDDAR 2OZ 1CT (amount 4.47, qty 3)",
+        "description": "AMERICAN SPIRIT DARK GREEN BOX, AMERICAN SPIRIT YELLOW BOX, MARLBORO GOLD BOX, +14 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-09/d0ae94a6-c0ee-4c0a-bb05-ca28d72480dd-third.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "d0ae94a6-c0ee-4c0a-bb05-ca28d72480dd-third.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-09-359580-cc0820e8-7ab6-47d3-80ab-ea35a33d67ff.pdf",
+      "size": 195613,
+      "originalName": "d0ae94a6-c0ee-4c0a-bb05-ca28d72480dd-third.pdf"
+    },
+    {
+      "invoice": {
+        "id": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+        "store_key": "default",
+        "invoice_number": "360986",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-03-26",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St | Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nSubtotal: 1136.15 USD\nTax: 33.00 USD\nItems: AMERICAN SPIRIT PALE GREEN BOX (amount 133.09, qty 1) | MARLBORO BLEND 27 BOX (amount 119.62, qty 1) | MARLBORO GOLD BOX (amount 119.62, qty 1) | NEWPORT MENTHOL BOX (amount 123.92, qty 1) | PARLIAMENT WHITE BOX (amount 134.99, qty 1) | MARLBORO SILVER 100 BOX (amount 119.62, qty 1) | COPENHAGEN LONG CUT WINTERGREEN (amount 90.96, qty 3) | COPENHAGEN SNUFF (amount 34.10, qty 1) | GRIZZLY LONG CUT WINTERGREEN (amount 28.91, qty 1) | GRIZZLY POUCH WINTERGREEN (amount 27.41, qty 1) | SKOAL LC CLASSIC MINT 5CT (amount 34.00, qty 1) | SKOAL POUCH CLASSIC MINT 5CT (amount 34.00, qty 1) | CHEETOS 2.75OZ FLAMIN HOT LIMON 1CT (amount 5.96, qty 4) | CHEETOS CRUNCHY 2OZ 1CT (amount 2.98, qty 2) | CHEETOS PUFFS 2OZ 1CT (amount 5.96, qty 4) | COMBOS PEG BAG NACHO CHEESE 1CT (amount 7.59, qty 3) | COMBOS PEG BAG PIZZERIA PRETZEL 1CT (amount 7.59, qty 3) | DORITOS COOL RANCH 1CT (amount 4.47, qty 3) | DORITOS NACHO 1CT (amount 2.98, qty 2) | EXTRA 35 STICKS SPEARMINT 6CT (amount 18.48, qty 1) | HARIBO PEACHES PEG BAG 1CT (amount 4.02, qty 3) | MENTOS GUM BIG BOTTLE PURE FRESH MINT 50PC 4CT (amount 13.42, qty 1) | MENTOS GUM BIG BOTTLE SPEARMINT 50PC 4CT (amount 13.42, qty 1) | PLANTERS SALTED CASHEWS 3OZ 1CT (amount 8.16, qty 4) | SKINNY POP POPCORN WHITE CHEDDAR 1CT (amount 4.11, qty 3) | WRIGLEY 5 35 STICK RAIN SM 6CT (amount 23.99, qty 1) | MET-RX BIG 100 APPLE PIE 9CT (amount 22.89, qty 1) | MET-RX BIG 100 COOKIE CRUNCH 9CT (amount 22.89, qty 1)",
+        "description": "AMERICAN SPIRIT PALE GREEN BOX, MARLBORO BLEND 27 BOX, MARLBORO GOLD BOX, +25 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-26/2deba63d-911c-44be-a590-91583020a0a0-fifth.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "2deba63d-911c-44be-a590-91583020a0a0-fifth.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-26-360986-9b6df63f-b748-4e6c-ac1b-9a1909e547f0.pdf",
+      "size": 369830,
+      "originalName": "2deba63d-911c-44be-a590-91583020a0a0-fifth.pdf"
+    },
+    {
+      "invoice": {
+        "id": "1a8eafe1-b3f7-4951-8226-bdc9388b7a1b",
+        "store_key": "default",
+        "invoice_number": "DS00112376",
+        "supplier_id": "5bec9e44-44f8-4e10-9b30-87f1d55bd8a6",
+        "issue_date": "2026-03-12",
+        "notes": "AI extraction details\nExtracted vendor: DELFINO & SON DISTRIBUTORS LLC\nVendor address: 95 8th ST Passaic, NJ\nSubtotal: 301.65 USD\nItems: 7 Days Strawberry & Vanilla Cro (amount 9.30, qty 6) | 7 Days Vanilla Croissant (amount 9.30, qty 6) | Daisy's Apple Danish (amount 4.65, qty 3) | Daisy's Banana Nut Muffin (amount 4.65, qty 3) | Daisy's Banana Nut Pound Cake (amount 4.65, qty 3) | Daisy's Blueberry Muffin (amount 4.65, qty 3) | Daisy's Brownies (amount 4.65, qty 3) | Daisy's Carrot Pound Cake (amount 4.65, qty 3) | Daisy's Cheese Danish (amount 4.65, qty 3) | Daisy's Cheese Pound Cake (amount 4.65, qty 3) | Daisy's Cherry Cheese Danish (amount 4.65, qty 3) | Daisy's Cho. Chip Pound Cake (amount 4.65, qty 3) | Daisy's Chocolate Chip Muffin (amount 4.65, qty 3) | Daisy's Coffee Cake (amount 4.65, qty 3) | Daisy's Corn Bread (amount 4.65, qty 3) | Daisy's Corn Muffin (amount 4.65, qty 3) | Daisy's Croissant Plain (amount 18.60, qty 12) | Daisy's Double Cho. Pound Cake (amount 4.65, qty 3) | Daisy's Golden Cream Cheese (amount 4.65, qty 3) | Daisy's Guava Jelly Rolls 3.5oz (amount 4.65, qty 3) | Daisy's Iced Lemon Pound Cake (amount 4.65, qty 3) | Daisy's Lemon Pound Cake (amount 4.65, qty 3) | Daisy's Lintzer Tarts (amount 4.65, qty 3) | Daisy's Marble Pound Cake (amount 4.65, qty 3) | Daisy's Pineapple Cream Cheese (amount 4.65, qty 3) | Daisy's Plain Pound Cake (amount 4.65, qty 3) | Daisy's Rasp. Jelly Rolls 3.5oz (amount 4.65, qty 3) | Daisy's Raspberry Cream Cheese (amount 4.65, qty 3) | Daisy's Strawberry Chees Danish (amount 4.65, qty 3) | Doritos Nacho Chesse 2.5oz (amount 4.89, qty 3) | Freshley's Cookies N' Crem 8ct (amount 12.72, qty 8) | Fritos Chili Cheese 3.1/4 oz (amount 4.89, qty 3) | Hostess Cho. Ding Dongs 6ct (amount 9.54, qty 6) | Hostess Coffee Cake 8c (amount 12.72, qty 8) | Hostess Glazed Honey Buns 6ct (amount 9.54, qty 6) | Hostess Iced Honey Buns 6ct (amount 9.54, qty 6) | Hostess Orange CupCakes 6ct (amount 9.54, qty 6) | Hostess Powdered Donuts 10ct (amount 15.90, qty 10) | Hostess Snoballs 6ct (amount 9.54, qty 6) | Hostess Twinkies 6ct (amount 9.54, qty 6) | Ne-Mo's Iced Banana Cake 6ct (amount 10.26, qty 6) | Ne-Mo's Iced Carrot Cake 6ct (amount 10.26, qty 6) | Pop Corners White Chedd 1.3/4oz (amount 4.89, qty 3) | Ruffes Cheddar & Sour Cream 2.5 (amount 4.89, qty 3) | Sun Chips Whole Grain Salsa (amount 4.89, qty 3)",
+        "description": "Sales Order for various baked goods and snacks.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-12/74d4aa4c-1a1d-4db2-a82f-9c715d661701-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "74d4aa4c-1a1d-4db2-a82f-9c715d661701-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-12-DS00112376-1a8eafe1-b3f7-4951-8226-bdc9388b7a1b.pdf",
+      "size": 391387,
+      "originalName": "74d4aa4c-1a1d-4db2-a82f-9c715d661701-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "d3f789b1-82b5-49d8-99d8-d031cacf9f44",
+        "store_key": "default",
+        "invoice_number": "SL15460",
+        "supplier_id": "8a65a7ba-3695-4a6f-92c7-e589a90ec92c",
+        "issue_date": "2026-02-13",
+        "notes": "AI extraction details\nExtracted vendor: SOUTH JERSEY WHOLESALER LLC\nVendor address: 715 S DELSEA DRIVE VINELAND NJ 08360 VINELAND, NJ 08360\nCustomer: COUNTRY FARM SPRING FIELD\nSubtotal: 2878.00 USD\nItems: CEREAL BAKED BLEND LEMON POUND CAKE (amount 26.00, qty 2) | CEREAL BAKED BLEND CRISPY PEBBLES (amount 26.00, qty 2) | CEREAL BAKED BLEND PURPLE PUNCH (amount 26.00, qty 2) | CEREAL BAKED BLEND COOKIES N CLOUDZ (amount 26.00, qty 2) | CEREAL BAKED BLEND CHERRY LIME GELTAO (amount 26.00, qty 2) | CEREAL BAKED BLEND BLUE RAZ (amount 26.00, qty 2) | CEREAL BAKED BLEND CINNAMON CRUNCH (amount 26.00, qty 2) | CEREAL BAKED BLEND OG KUSH (amount 26.00, qty 2) | CEREAL BAKED BLEND PINAPPLE EXPRESS (amount 26.00, qty 2) | CEREAL BAKED BLEND BLUE DREAM (amount 26.00, qty 2) | MOON MARY 3PK PREROLLS 1CT AST (amount 120.00, qty 24) | HAZY MARY 3PK PREROLLS 1 COUNT (amount 108.00, qty 18) | FULLSEND DELTA 8 PINEAPPLE (amount 20.00, qty 1) | FULLSEND DELTA 8 CALI MELON (amount 20.00, qty 1) | FULLSEND DELTA 8 TROPICAL PUNCH (amount 20.00, qty 1) | FULLSEND DELTA 8 PASSION (amount 20.00, qty 1) | FULLSEND DELTA 8 MANGO (amount 20.00, qty 1) | FULLSEND DELTA 8 WATERMELON (amount 20.00, qty 1) | FULLSEND DELTA 8 GREEN APPLE (amount 20.00, qty 1) | FULLSEND DELTA 8 BLUE RAZ (amount 20.00, qty 1) | FULLSEND DELTA 8 STRAWBERRY (amount 20.00, qty 1) | FULLSEND 3000MG CHILI MANGO (amount 50.00, qty 1) | FULLSEND 3000MG COTTON CANDY (amount 50.00, qty 1) | DOUBLE STACKED BITEZ 120,000MG CHERRY/STRAWBERRY (amount 110.00, qty 1) | DOUBLE STACKED BITEZ 120,000MG SOUR WATERMELON / SOUR APPLE GRAPE (amount 110.00, qty 1) | DOUBLE STACKED BITEZ 120,000MG STRAWBERRY LEMONADE / BLUE RAZZ (amount 110.00, qty 1) | HAZY MARY 40CT DISPLAY SOUR TANGIE (amount 70.00, qty 1) | HAZY MARY 1G 40CT DISPLAY STRAWBERRY SHORTCAKE (amount 70.00, qty 1) | HAZY MARY 1G 40CT DISPLAY PINEAPPLE OG (amount 70.00, qty 1) | HAZY MARY 1G 40CT DISPLAY SKYWALKER (amount 70.00, qty 1) | HAZY MARY THCP + D9 MANGO TANGO 2PK GUMMIES 20CT (amount 40.00, qty 1) | HAZY MARY THCP + D9 STRAWBERRY BURST 2PK GUMMIES 20CT (amount 40.00, qty 1) | HAZY MARY THCP + D9 PINK LEMON 2PK GUMMIES 20CT (amount 40.00, qty 1) | Zour Stash 1.25G 2PK $7.99 Pre Roll 10ct/Box | StrawBerry Lemonade (amount 35.00, qty 1) | Zour Stash 1.25G 2PK $7.99 Pre Roll 10ct/Box | Citrus Sunburst (amount 35.00, qty 1) | Zour Stash 2G Hash Hole Pre Roll 20ct/Box | Citrus Sunburst (amount 60.00, qty 1) | ZOUR STASH THCA HASH HOLES 20CT BERRY BLAST (amount 60.00, qty 1) | Zour Stash 2G Hash Hole Pre Rolls 20ct/Box | Grape BubbleGum (amount 60.00, qty 1) | GHOST 7G CASPER BLEND BLUE DREAM (amount 30.00, qty 2) | GHOST 7G CASPER BLEND CEREAL MILK (amount 30.00, qty 2) | HAZY MARY 1G PREROLL TROPICAN COOKIES 50CT (amount 70.00, qty 1) | HAZY MARY 1G PREROLL WEDDING CAKE (amount 70.00, qty 1) | HAZY MARY 1G PREROLL GUSH MINTS 50CT (amount 70.00, qty 1) | ZOMBIE PREROLLS (amount 140.00, qty 2) | ZOUR STASH SUGAR 10CT PREROLLS (amount 75.00, qty 3) | POLK A DOT FORBIDDEN FRUIT LOOP (amount 150.00, qty 10) | HAZY MARY DIM DONUTS ROLLS 20CT/DISPLAY CHERRY FROST (amount 65.00, qty 1) | HAZY MARY DIM DONUTS ROLLS 20CT/DISPLAY PINK LEMON POP (amount 65.00, qty 1) | HAZY MARY DIM DONUTS ROLLS 20CT/DISPLAY RAINBOW BURST (amount 65.00, qty 1) | MOON MARY EXOTIC 50CT JARS SUGAR DADDY (amount 50.00, qty 1) | MOON MARY EXOTIC 50CT JARS FRUITY PEBBLES (amount 50.00, qty 1) | MOON MARY EXOTIC 50CT JARS BLUE DREAM (amount 50.00, qty 1) | GHOST 7G GRAPE APE (amount 30.00, qty 2) | GHOST 7G PEACHES & CREAM (amount 30.00, qty 2) | GHOST 7G STRAWBERRY (amount 30.00, qty 2) | GHOST 7G PINEAPPLE OG (amount 30.00, qty 2) | GHOST 7G BLUEBERRY MUFFIN (amount 30.00, qty 2)",
+        "description": "CEREAL BAKED BLEND LEMON POUND CAKE, CEREAL BAKED BLEND CRISPY PEBBLES, CEREAL BAKED BLEND PURPLE PUNCH, +54 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-13/791383f1-4aec-477f-a63f-6ff6a865f71a-1-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "791383f1-4aec-477f-a63f-6ff6a865f71a-1-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-13-SL15460-d3f789b1-82b5-49d8-99d8-d031cacf9f44.pdf",
+      "size": 574181,
+      "originalName": "791383f1-4aec-477f-a63f-6ff6a865f71a-1-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "43fc5b86-0c03-4f13-b408-e208fea03a19",
+        "store_key": "default",
+        "invoice_number": "SL15462",
+        "supplier_id": "8a65a7ba-3695-4a6f-92c7-e589a90ec92c",
+        "issue_date": "2026-02-13",
+        "notes": "AI extraction details\nExtracted vendor: SOUTH JERSEY WHOLESALER LLC\nVendor address: 715 S DELSEA DRIVE VINELAND NJ 08360 VINELAND, NJ 08360\nCustomer: COUNTRY FARM SPRING FIELD\nSubtotal: 1024.35 USD\nItems: Imperial silver (amount 42.00, qty 1) | Imperial black (amount 42.00, qty 1) | VIP HONEY 12CT (amount 6.00, qty 1) | BLUNTEFFECTS SMALL INCENSE 72CT (amount 31.99, qty 1) | RHINO 7 PLATINUM 2200K (amount 36.00, qty 1) | RHINO 69 TITANIUM 990K SINGLE PILL (amount 42.00, qty 1) | DRAGON VIP CANDY POWER 12CT (amount 42.00, qty 1) | RHINO CHOCO 12CT (amount 18.00, qty 1) | BLUNTEFFECTS SPRAY 18CT (amount 33.99, qty 1) | CIGAR CUTTER (amount 23.99, qty 1) | ZIPPO BUTANE FUEL 1.48OZ/75ML (amount 3.98, qty 2) | ZIPPO BUTANE 135ML (amount 5.98, qty 2) | RONSON BUTANE FUEL 135ML 2.75OZ (amount 5.98, qty 2) | RONSON BUTANE FUEL 75ML/1.48OZ (amount 3.98, qty 2) | ZIPPO LIGHTER FUEL 4OZ/118ML (amount 3.98, qty 2) | RONSONOL LIGHTER FUEL 5OZ/148ML (amount 3.98, qty 2) | 5 SCREENS SILVER SCREENS FILTERS (amount 2.99, qty 1) | 5 SCREENS BRASS SCREENS FILTERS (amount 4.99, qty 1) | CELLTEKK USB CABLE FOR IPHONE (amount 17.82, qty 18) | FOYO HEADPHONE TYPE-C (amount 30.00, qty 12) | FOYO WALL CHARGER (amount 15.00, qty 6) | SOUR POWER STRAWS STRAWBERRY 24CT (amount 23.49, qty 1) | SOUR POWER STRAWS GREEN APPLE 24CT (amount 23.49, qty 1) | SOUR PUNCH STRAWBERRY STRAWS 24CT (amount 19.99, qty 1) | SOUR PUNCH RAINBOW STRAWS 24CT (amount 19.99, qty 1) | SOUR POWER STRAWS BLUE RASPBERRY 24CT (amount 23.49, qty 1) | SOUR POWER STRAWS WATERMELON 24CT (amount 23.49, qty 1) | GHOST ENERGY DRINK 12CT/CASE (amount 131.94, qty 6) | CELSIUS 12FL OZ-12CT (amount 341.82, qty 18)",
+        "description": "Invoice for various products including tobacco, electronic accessories, and beverages.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-13/1c7ace48-1319-433f-b3c2-6280735ce869-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "1c7ace48-1319-433f-b3c2-6280735ce869-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-13-SL15462-43fc5b86-0c03-4f13-b408-e208fea03a19.pdf",
+      "size": 268797,
+      "originalName": "1c7ace48-1319-433f-b3c2-6280735ce869-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "84800fbc-5b3a-491d-89e2-aa2a1ee9d957",
+        "store_key": "default",
+        "invoice_number": "SL15465",
+        "supplier_id": "8a65a7ba-3695-4a6f-92c7-e589a90ec92c",
+        "issue_date": "2026-02-15",
+        "notes": "AI extraction details\nExtracted vendor: SOUTH JERSEY WHOLESALER LLC\nVendor address: 715 S DELSEA DRIVE VINELAND NJ 08360 VINELAND, NJ 08360\nCustomer: COUNTRY FARM SPRING FIELD\nSubtotal: 271.95 USD\nItems: MOBIL-MOTOR OIL 5W20 6CT (amount 24.00, qty 1) | MOBIL-MOTOR OIL 5W30 6CT (amount 24.00, qty 1) | MOBIL-MOTOR OIL 10W40 6CT (amount 24.00, qty 1) | MOBIL-MOTOR OIL 10W30 6CT (amount 24.00, qty 1) | MOBIL ATF (amount 30.00, qty 1) | PRIDE ANTI-FREEZE COOLANT 1GALLON (amount 41.94, qty 6) | PRIM GUARD - 20F POWERBLAST WIND SHIELD WATER 1GALLON 6CT (amount 24.99, qty 1) | GAS CAN-1 GALLON (amount 17.98, qty 2) | STP COMPLETE FUEL SYSTEM CLEANER 5.25 OZ (amount 11.98, qty 2) | STP POWER STEARING FLUID (amount 5.58, qty 2) | STP OCTANE BOOSTER 5.25FLOZ (amount 8.98, qty 2) | STP FUEL INJ & CARD TREATMENT 8OZ (amount 15.96, qty 4) | STP WATER REMOVAL (amount 5.98, qty 2) | STP GAS TREATMENT 5.25OZ (amount 7.98, qty 2) | JOHNSEN'S INSTANT WINDSHIELD DE-ICER 100Z (amount 4.58, qty 2)",
+        "description": "Invoice for various automotive oils, coolants, fuels, and cleaning products.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-15/9127d6bc-6f32-4136-8c11-67b31df0f9bf-3.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "9127d6bc-6f32-4136-8c11-67b31df0f9bf-3.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-15-SL15465-84800fbc-5b3a-491d-89e2-aa2a1ee9d957.pdf",
+      "size": 246810,
+      "originalName": "9127d6bc-6f32-4136-8c11-67b31df0f9bf-3.pdf"
+    },
+    {
+      "invoice": {
+        "id": "25fe0fca-178d-4d7a-a5a9-b90d3dcccdf6",
+        "store_key": "default",
+        "invoice_number": "SL15459",
+        "supplier_id": "8a65a7ba-3695-4a6f-92c7-e589a90ec92c",
+        "issue_date": "2026-02-13",
+        "notes": "AI extraction details\nExtracted vendor: SOUTH JERSEY WHOLESALER LLC\nVendor address: 715 S DELSEA DRIVE VINELAND NJ 08360 VINELAND, NJ 08360\nCustomer: COUNTRY FARM SPRING FIELD\nSubtotal: 2898.22 USD\nItems: Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | Blue Razz (amount 48.00, qty 3) | Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | Cherry (amount 48.00, qty 3) | Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | Grape (amount 48.00, qty 3) | Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | Strawberry (amount 48.00, qty 3) | Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | COTTON CANDY (amount 48.00, qty 3) | Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | Mango (amount 48.00, qty 3) | OPIA 4X 7 HYDROXY TABS 1CT CLASSIC (amount 27.00, qty 3) | OPIA 4X 7 HYDROXY TABS 1CT BLUE RAS (amount 27.00, qty 3) | OPIA 4X 7 HYDROXY TABS 1CT SOUR APPLE (amount 27.00, qty 3) | OPIA 4X 7 HYDROXY TABS 120 MG BLUE RASPBERRY (amount 42.00, qty 3) | OPIA 4X 7 HYDROXY TABS 120 MG PINK STRAWBERRY (amount 42.00, qty 3) | OPIA 4X 7 HYDROXY TABS 120 MG WATERMELON (amount 42.00, qty 3) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG CHERRY BURST (amount 57.00, qty 3) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG BLUE RASPBERRY (amount 57.00, qty 3) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG RASPBERRY PEACH (amount 57.00, qty 3) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG BLUEBERRY WATERMELON (amount 57.00, qty 3) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG SOUR STRAWBERRY (amount 57.00, qty 3) | RISE 70H 4CT 500MG BAJA BLAST (amount 49.50, qty 3) | RISE 70H 4CT 500MG CLEAN MINTZ (amount 49.50, qty 3) | RISE 70H 4CT 500MG COTTON CANDY CLOUD (amount 49.50, qty 3) | RISE 70H 4CT 500MG WILD CHERRY (amount 49.50, qty 3) | RISE 70H 4CT 500MG STRAWBERRY (amount 49.50, qty 3) | ZOUR Z 7-HYDROXY 500MG SOUR WATERMELON (amount 51.00, qty 3) | ZOUR Z 7-HYDROXY 500MG CITRUS SUNBURST (amount 51.00, qty 3) | ZOUR Z 7-HYDROXY 500MG STRAWBERRY PUNCH (amount 51.00, qty 3) | ZOUR Z 7-HYDROXY 500MG GRAPE BUBBLEGUM (amount 51.00, qty 3) | ZOUR Z 7-HYDROXY 500MG BLUE RASPBERRY (amount 51.00, qty 3) | Opexia 500mg Tablet 4pk WILD BERRY (amount 60.00, qty 3) | Opexia 500mg Tablet 4pk NATURAL (amount 60.00, qty 3) | Opexia 500mg Tablet 4pk BLUE RAZZ (amount 60.00, qty 3) | Opexia 500mg Tablet 4pk STRAWBERRY BANANA (amount 60.00, qty 3) | Opexia 500mg Tablet 4pk WATERMELON MINT (amount 60.00, qty 3) | OPMS 5CT GOLD SINGLE PCS (amount 123.00, qty 6) | OPMS 3CT SINGLE PCS (amount 78.00, qty 6) | OPMS SHOT 1PC (amount 80.00, qty 10) | HUSH ULTRA (amount 95.00, qty 1) | MIT 45 GOLD PACKAGE NEW (amount 102.00, qty 1) | MIT SUPER K PURPLE NEW (amount 145.00, qty 1) | FEEL FREE DRINK 12PK/BOX (amount 60.00, qty 1) | 7OH EDP SHOT (amount 80.00, qty 1) | R.HERBS MAENG DA RED VEIN 8.OZ POWDER (amount 22.98, qty 2) | R.HERBS BALI RED VEIN 8.OZ POWDER (amount 25.98, qty 2) | R.HERBS VIETNAM GREEN VEIN 8.OZ POWDER (amount 22.98, qty 2) | R.HERBS INDO GREEN VEIN 8.OZ POWDER (amount 22.98, qty 2) | R.HERBS MALAYSIAN GREEN VEIN 8.OZ POWDER (amount 25.98, qty 2) | R.HERBS MAENG DA GREEN VEIN 8.OZ POWDER (amount 22.98, qty 2) | R.HERBS INDO GREEN VEIN 20.OZ POWDER (amount 49.98, qty 2) | R.HERBS VIETNAM GREEN VEIN 20.OZ POWDER (amount 49.98, qty 2) | R.HERBS MALAYSIAN GREEN VEIN 20.OZ POWDER (amount 53.98, qty 2) | R.HERBS BALI RED VEIN 20.OZ POWDER (amount 53.98, qty 2) | R.HERBS MAENG DA GREEN VEIN 20.OZ POWDER (amount 49.98, qty 2) | R.HERBS MAENG DA RED VEIN 20.OZ POWDER (amount 49.98, qty 2) | R.HERBS MAENG DA RED VEIN 1.OZ POWDER (amount 5.98, qty 2) | R.HERBS MAENG DA GREEN VEIN 1.OZ POWDER (amount 5.98, qty 2) | R.HERBS BALI RED VEIN 1.OZ POWDER (amount 6.58, qty 2) | R.HERBS VIETNAM GREEN VEIN 1.OZ POWDER (amount 5.98, qty 2) | R.HERBS INDO GREEN VEIN 1.OZ POWDER (amount 5.98, qty 2) | R.HERBS MALAYSIAN GREEN VEIN 1.OZ POWDER (amount 6.58, qty 2) | R.HERBS INDO GREEN VEIN 3.OZ POWDER (amount 9.98, qty 2) | R.HERBS VIETNAM GREEN VEIN 3.OZ POWDER (amount 9.98, qty 2) | R.HERBS BALI RED VEIN 3.OZ POWDER (amount 11.98, qty 2) | R.HERBS MAENG DA RED VEIN 3.OZ POWDER (amount 9.98, qty 2) | RH GREEN VEIN MAGDA 3OZ (amount 9.98, qty 2) | R.HERBS MALAYSIAN GREEN VEIN 3.OZ POWDER (amount 11.98, qty 2)",
+        "description": "Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | Blue Razz, Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | Cherry, Hazy Tabz Hydroxy 400mg Tablets 4pk 10ct/Box | Grape, +61 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-13/ec2802ce-2f7d-4ccb-9916-f7014747fa3c-4.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "ec2802ce-2f7d-4ccb-9916-f7014747fa3c-4.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-13-SL15459-25fe0fca-178d-4d7a-a5a9-b90d3dcccdf6.pdf",
+      "size": 580578,
+      "originalName": "ec2802ce-2f7d-4ccb-9916-f7014747fa3c-4.pdf"
+    },
+    {
+      "invoice": {
+        "id": "eb2a34ca-638c-4ef3-86d7-50116f2c5057",
+        "store_key": "default",
+        "invoice_number": "SL15458",
+        "supplier_id": "8a65a7ba-3695-4a6f-92c7-e589a90ec92c",
+        "issue_date": "2026-02-13",
+        "notes": "AI extraction details\nExtracted vendor: SOUTH JERSEY WHOLESALER LLC\nVendor address: 715 S DELSEA DRIVE VINELAND NJ 08360 VINELAND, NJ 08360\nCustomer: COUNTRY FARM SPRING FIELD\nSubtotal: 3872.00 USD\nTax: 1564.14 USD\nItems: VUSE MENTHOL 2.4% 4PK (amount 112.80, qty 1) | VUSE 1.8% 2PK MENTHOL (amount 64.70, qty 1) | VUSE GOLDEN TOBACCO 4PK 5% (amount 112.80, qty 1) | VUSE 5% 2PK MENTHOL (amount 67.40, qty 1) | VUSE GOLDEN TOBBACO 2PK 5% (amount 64.70, qty 1) | VUSE MENTHOL 4PK 5% (amount 112.80, qty 1) | LAVA PLUS BLACK ICE (amount 69.00, qty 1) | LAVA PLUS PEACH MANGO WATERMELON (amount 69.00, qty 1) | LAVA PLUS COOL MINT (amount 69.00, qty 1) | LAVA PLUS ORANGE ICE 3% (amount 69.00, qty 1) | LAVA PLUS BANANA ICE (amount 69.00, qty 1) | LAVA PLUS PEACH ICE (amount 69.00, qty 1) | LAVA PLUS GUAVA ICE (amount 69.00, qty 1) | LAVA PLUS JOLLY RANCHER ICE (amount 69.00, qty 1) | LAVA PLUS CLEAR ICE (amount 69.00, qty 1) | LAVA PLUS BLUE RAS LEMON 3% (amount 69.00, qty 1) | LAVA PLUS CLEAR (amount 69.00, qty 1) | LAVA PLUS WATERMELON MINT (amount 69.00, qty 1) | LAVA PLUS ICE GRAPE 3% (amount 69.00, qty 1) | LAVA PLUS KIWI STRAWBERRY (amount 69.00, qty 1) | LAVA PLUS SPEARMINT (amount 69.00, qty 1) | LAVA PLUS STRAWBERRY BANANA (amount 69.00, qty 1) | LAVA PLUS SOUR WATERMELON CANDY (amount 69.00, qty 1) | LAVA PLUS SOUR PATCH (amount 69.00, qty 1) | LAVA PLUS STRAWBERRY ICE (amount 69.00, qty 1) | LAVA PLUS STRAWBERRY MILK (amount 69.00, qty 1) | LAVA PLUS STRAWBERRY LEMON MINT (amount 69.00, qty 1) | LAVA PLUS FRUIT ICE (amount 69.00, qty 1) | LAVA PLUS STRAWBERRY WATERMELON BUBBLE GUM (amount 69.00, qty 1) | LAVA PLUS SOLO MINT 3% (amount 69.00, qty 1) | LAVA PLUS 2600 SKITTLES (amount 69.00, qty 1) | LAVA PLUS SPLASH ICE (amount 69.00, qty 1) | FOGER SWITCH PRO KIT 30K MEXICO MANGO (amount 83.50, qty 1) | FOGER SWITCH PRO KIT 30K COOL MINT (amount 83.50, qty 1) | FOGER SWITCH PRO KIT 30K BLUE RAZZ ICE (amount 83.50, qty 1) | FOGER SWITCH PRO KIT 30K WHITE GUMMY (amount 83.50, qty 1) | JUUL MENTHOL 5% 4PK 8CT (amount 112.72, qty 1) | JUUL VIRG. TOBAC 5% 4PK 8CT (amount 112.72, qty 1) | FOGER SWITCH PRO POD 30K COLA SLUSH (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K BLUE RANCHER (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K SOUR FCUKING FAB (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K FROZEN WATERMELON (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K FROZEN BANANA (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K SOUR RASPBERRY PUNCH (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K ORANGE SLUSH (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K WATERMELON ICE (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K SOUR APPLE ICE (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K CHERRY SLUSH (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K TRIPLE BERRY PUNCH (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K PURPLE PASSION PUNCH (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K HAWAIIAN PUNCH (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K STRAWBERRY CUPCAKE (amount 73.50, qty 1) | FOGER SWITCH PRO POD 30K PINK & BLUE (amount 73.50, qty 1) | FLAIR ULTRA 2500 STRAWBERRY ICE (amount 80.50, qty 1) | FLAIR ULTRA 2500 PEACH MANGO (amount 80.50, qty 1) | FLAIR ULTRA 2500 WATERMELON MINT (amount 80.50, qty 1) | FLAIR ULTRA 2500 STRAWBERRY MILKSHAKE (amount 80.50, qty 1) | FLAIR ULTRA 2500 STRAWBERRY KIWI (amount 80.50, qty 1) | FLAIR ULTRA 2500 BLACK ICE (amount 80.50, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Fruity Pebz (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Fcuking Fab (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Frozen Pina Colada (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Cool Mint (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Sakura Grape (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Jolly Rancher (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Miami Mint (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Strawberry Mango (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Mexican Mango (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Clear Mint (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | White Gummy Ice (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Strawberry Skittles (amount 74.00, qty 1) | Foyo 50Kpuffs 5% Nic 5ct/Box | Blue Razz Ice (amount 74.00, qty 1)",
+        "description": "Wholesale tobacco and vape products invoice",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-13/de244fd7-a07e-4e6c-b1f8-5d80226fb124-5.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "de244fd7-a07e-4e6c-b1f8-5d80226fb124-5.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-13-SL15458-eb2a34ca-638c-4ef3-86d7-50116f2c5057.pdf",
+      "size": 570918,
+      "originalName": "de244fd7-a07e-4e6c-b1f8-5d80226fb124-5.pdf"
+    },
+    {
+      "invoice": {
+        "id": "387fb74c-aa0c-4534-93e0-c7f189b7ba1d",
+        "store_key": "default",
+        "invoice_number": "C20 120403 OP277307",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-04-20",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield RdUnion, NJ 07083\nCustomer: ASAD RABBI HASSAN RABBI\nSubtotal: 155.68 USD\nTax: 2.69 USD\nItems: RH SAND KNIFE 9IN SG1639 (amount 24.08, qty 1) | LID FOIL HALF 10CT (amount 4.90, qty 1) | CONT STEAM HALF SH 10 CT (amount 6.25, qty 1) | GLOVE NITRL LG BLK (amount 5.43, qty 1) | TUNA CHUNK WHT RBY 66.52 (amount 16.79, qty 1) | BRD PANINI 8I GRIL 10CT (amount 6.12, qty 1) | CHZ CRM SFT SPRD 6/3LB (amount 20.40, qty 1) | ESTI GARLIC HUMMUS 352 (amount 7.99, qty 1)",
+        "description": "RH SAND KNIFE 9IN SG1639, LID FOIL HALF 10CT, CONT STEAM HALF SH 10 CT, +5 more",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-04-20/daa2b16e-5076-4395-aeb6-98e963206a7b-rs3.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "daa2b16e-5076-4395-aeb6-98e963206a7b-rs3.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-20-C20-120403-OP277307-387fb74c-aa0c-4534-93e0-c7f189b7ba1d.pdf",
+      "size": 179507,
+      "originalName": "daa2b16e-5076-4395-aeb6-98e963206a7b-rs3.pdf"
+    },
+    {
+      "invoice": {
+        "id": "fafe7614-bc5d-4c3e-a5f5-03ce59a508bd",
+        "store_key": "default",
+        "invoice_number": "26992",
+        "supplier_id": "5c56b110-ab3f-4670-b45c-88578f18baa0",
+        "issue_date": "2022-04-26",
+        "notes": "AI extraction details\nExtracted vendor: KREMA\nCustomer: Country Farm - Springfield (-)\nSubtotal: 92.00 USD\nItems: Hunks Quartz Banger Set MXY-002 10ct (amount 60.00, qty 1) | VIP Royal Honey 12ct/Box (amount 32.00, qty 4)",
+        "description": "Purchase of Hunks Quartz Banger Set and VIP Royal Honey.",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2022-04-26/9e505f97-f0e1-4645-ba77-0a233a940c95-kriaa.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "9e505f97-f0e1-4645-ba77-0a233a940c95-kriaa.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2022-04-26-26992-fafe7614-bc5d-4c3e-a5f5-03ce59a508bd.pdf",
+      "size": 122132,
+      "originalName": "9e505f97-f0e1-4645-ba77-0a233a940c95-kriaa.pdf"
+    },
+    {
+      "invoice": {
+        "id": "a01e45b3-edd9-482d-915e-e2c0d2983596",
+        "store_key": "default",
+        "invoice_number": "376275",
+        "supplier_id": "1cdf6e51-d269-4d29-81a6-41c0d61a87e7",
+        "issue_date": "2026-02-17",
+        "notes": "AI extraction details\nExtracted vendor: V&S BEVERAGE, LLC\nVendor address: 400 Maltese Dr, Totowa NJ 07512\nCustomer: Country Farms Deli & Convenience Hemal\nSubtotal: 427.40 USD\nItems: GATORADE COOL BLUE 15CT 28OZ PET (amount 27.95, qty 1) | GATORADE ORANGE 15CT 28OZ PET (amount 27.95, qty 1) | GATORADE LEMON LIME 15CT 28OZ PET (amount 27.95, qty 1) | GATORADE GLACIER CHERRY 15CT 28OZ PET (amount 27.95, qty 1) | GATORADE ZERO LEMON LIME 15CT 280Z PET (amount 27.95, qty 1) | GATORADE ZERO COOL BLUE 15CT 28OZ PET (amount 27.95, qty 1) | GATORADE ZERO FRUIT PUNCH 15CT 28OZ PET (amount 27.95, qty 1) | GATORADE FRUIT PUNCH 15CT 28OZ PET (amount 27.95, qty 1) | GATORADE COOL BLUE 24CT 200Z PET (amount 24.50, qty 1) | GATORADE LEMON LIME 24CT 20OZ PET (amount 24.50, qty 1) | GATORADE ORANGE 24CT 200Z PET (amount 24.50, qty 1) | GATORADE GLACIER FREEZE 24CT 20OZ PET (amount 24.50, qty 1) | ESSENTIA PURIFIED WATER 12CT 1L PET (amount 19.95, qty 1) | SMART WATER 12CT 1L PET (amount 18.50, qty 1) | FIJI NATURAL ARTESIAN WATER 12CT 1L PET (amount 21.50, qty 1) | POLAND SPRING WATER 6CT 3L PET (amount 17.90, qty 2) | GATORADE ZERO GLACIER FREEZE 15CT 28OZ PET (amount 27.95, qty 1)",
+        "description": "GATORADE COOL BLUE 15CT 28OZ PET, GATORADE ORANGE 15CT 28OZ PET, GATORADE LEMON LIME 15CT 28OZ PET, +14 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-17/4c13402f-21e4-4fad-ad40-0fa39909066d-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "4c13402f-21e4-4fad-ad40-0fa39909066d-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-17-376275-a01e45b3-edd9-482d-915e-e2c0d2983596.pdf",
+      "size": 388754,
+      "originalName": "4c13402f-21e4-4fad-ad40-0fa39909066d-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e59a958b-4cde-4916-91fd-d277c4013c6f",
+        "store_key": "default",
+        "invoice_number": "9220761",
+        "supplier_id": "8e536cb3-637b-4dbf-b585-f3678be9f517",
+        "issue_date": "2026-02-18",
+        "notes": "AI extraction details\nExtracted vendor: Herr Foods Inc\nVendor address: 12 Van Vooren Road, Oakland, NJ\nCustomer: CASH SALE\nSubtotal: 553.80 USD\nItems: 6 CADDIES OF 12 1.375 OZ SALTED PEANUTS (amount 6.60, qty 12) | 6 CADDIES OF 12 1.375 OZ HOT PEANUTS (amount 6.60, qty 12) | 9CT 8 CADDIES VANILLA & CHOCOLATE SANDWICH COOKIE (amount 9.90, qty 9) | 8 CADDIES OF 9 CT VANILLA SANDWICH COOKIES (amount 9.90, qty 9) | 9CT CADDY PEANUT BUTTER SANDWICH COOKIES (amount 9.90, qty 9) | 9/8 LEMON CREME SANDWICH COOKIES CADDY (amount 9.90, qty 9) | 9CT 8 CADDIES STRAWBERRY SANDWICH COOKIE (amount 9.90, qty 9) | 6/12 CADDIES 1.5 OZ HONEY CASHEWS (amount 14.88, qty 12) | 6 CADDIES OF 12 1.5 OZ SALTED CASHEWS (amount 14.88, qty 12) | 6 CADDIES OF 12 1.375 OZ PISTACHIO (amount 14.88, qty 12) | 24CT 1.875 OZ BAKED CRISPS (amount 11.40, qty 6) | 24CT 1.875 OZ BARBEQUE BAKED CRISP (amount 11.40, qty 6) | 24CT 1.875 OZ SOUR CREAM & ONION BAKED CRISP (amount 11.40, qty 6) | 24CT 1.875 OZ CHEDDAR & SOUR CREAM BAKED (amount 11.40, qty 6) | 20CT 3 OZ JALAPENO CHEESE CURL (amount 11.40, qty 6) | 20CT 3 OZ HONEY CHEESE CURL (amount 11.40, qty 6) | 20CT 3 OZ CHEESE CURL (amount 11.40, qty 6) | 24CT 2.75 OZ REGULAR CHIP (amount 11.40, qty 6) | 24CT 2.75 OZ SOUR CREAM & ONION CHIP (amount 22.80, qty 12) | 24CT 2.75 OZ RIPPLE CHIP (amount 11.40, qty 6) | 24CT 2.75 OZ HONEY BARBEQUE RIPPLE CHIP (amount 22.80, qty 12) | 24CT 2.75 OZ CREAMY DILL RIPPLE CHIP (amount 11.40, qty 6) | 24CT 2.75 OZ CHEDDAR & SOUR CREAM RIPPLE CHIP (amount 11.40, qty 6) | 24CT 2.75 OZ KETCHUP RIPPLE CHIP (amount 11.40, qty 6) | 24CT 2.5 OZ SALT & VINEGAR KETTLE CHIP (amount 11.40, qty 6) | 24CT 2.5 OZ MESQUITE KETTLE CHIP (amount 11.40, qty 6) | 24CT 2.5 OZ ORIGINAL KETTLE (amount 22.80, qty 12) | 24CT 2.5 OZ JALAPENO KETTLE CHIP (amount 22.80, qty 12) | 24CT 2.5 OZ LATTICE CUT KETTLE (amount 11.40, qty 6) | 24CT 2.5 OZ SALT & PEPPER KETTLE CHIP (amount 11.40, qty 6) | 24CT 2.5 OZ CHEDDAR HORSERADISH KETTLE CHIP (amount 11.40, qty 6) | 24. OZ SOUR CREAM & ONION KETTLE CHIP (amount 11.40, qty 6) | 24CT 2.5 OZ HONEY JALAPENO KETTLE CHIP (amount 11.40, qty 6) | 16CT 2 OZ REGULAR POPCORN (amount 11.40, qty 6) | 16CT 2 OZ HOT CHEESE POPCORN (amount 11.40, qty 6) | 16CT 3.75 OZ PUB STYLE PRETZEL THINS (amount 11.40, qty 6) | 24CT 4.5 OZ BITE SIZE PRETZEL (amount 11.40, qty 6) | 16CT 3.875 OZ PRETZEL THINS (amount 11.40, qty 6) | 24CT 2.625 OZ HONEY SRIRACHA KETTLE CHIP (amount 11.40, qty 6) | 15CT 4.25 OZ POTATO STIX (amount 11.40, qty 6) | 15CT 4.5 OZ PARTY MIX (amount 11.40, qty 6) | 15CT 3.75 OZ ORIGINAL PORK RINDS (amount 13.26, qty 6)",
+        "description": "6 CADDIES OF 12 1.375 OZ SALTED PEANUTS, 6 CADDIES OF 12 1.375 OZ HOT PEANUTS, 9CT 8 CADDIES VANILLA & CHOCOLATE SANDWICH COOKIE, +39 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-18/e0f88425-2a59-4259-b09a-33427b6e03b6-herr-s.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "e0f88425-2a59-4259-b09a-33427b6e03b6-herr-s.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-18-9220761-e59a958b-4cde-4916-91fd-d277c4013c6f.pdf",
+      "size": 311142,
+      "originalName": "e0f88425-2a59-4259-b09a-33427b6e03b6-herr-s.pdf"
+    },
+    {
+      "invoice": {
+        "id": "4f189efa-9d27-41ef-8ce6-b2d03d598bcc",
+        "store_key": "default",
+        "invoice_number": "18637",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-04-17",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield Blvd Union, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 106.40 USD\nTax: 0.86 USD\nItems: NAP CCKTL SUN WHT 1PLY (amount 12.99, qty 1) | WAX DRY MASTER HVY 12x101 (amount 15.49, qty 1) | CHZ MOZZ P/S GALB R/W (amount 13.69, qty 5.07) | TKY GOLDN RST BS (amount 64.23, qty 9.11)",
+        "description": "NAP CCKTL SUN WHT 1PLY, WAX DRY MASTER HVY 12x101, CHZ MOZZ P/S GALB R/W, +1 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-17/2e9056e2-5d0a-42ff-b942-8c75c34a8af0-receipt-18637.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "2e9056e2-5d0a-42ff-b942-8c75c34a8af0-receipt-18637.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-17-18637-4f189efa-9d27-41ef-8ce6-b2d03d598bcc.pdf",
+      "size": 28038,
+      "originalName": "2e9056e2-5d0a-42ff-b942-8c75c34a8af0-receipt-18637.pdf"
+    },
+    {
+      "invoice": {
+        "id": "51770c79-9eb8-43f4-b52e-4d234439c615",
+        "store_key": "default",
+        "invoice_number": "DS0220607",
+        "supplier_id": "5bec9e44-44f8-4e10-9b30-87f1d55bd8a6",
+        "issue_date": "2026-04-02",
+        "notes": "AI extraction details\nExtracted vendor: DELFINO & SON DISTRIBUTORS LLC\nVendor address: 95 8th ST Passaic, NJ\nCustomer: COUNTRY FARM 9585 SPINFILD\nSubtotal: 216.05 USD\nItems: 7 Days Chocolate Croissant (amount 8.94, qty 6, 1 / pack, per item 1.49) | Cheetos Cheddar Jalapeno 2.3/40 (amount 4.89, qty 3) | Cloverhill Big Texas Cinn Holl (amount 8.52, qty 6) | Daisy's Blueberry Muffin (amount 35.76, qty 24) | Daisy's Chocolate Chip Muffin (amount 17.88, qty 12) | Daisy's Corn Muffin (amount 17.88, qty 12) | Daisy's Croissant Plain (amount 11.92, qty 8) | Daisy's Guava Jelly Rolls 3.5oz (amount 17.88, qty 12) | Daisy's Marble Pound Cake (amount 17.88, qty 12) | Daisy's Plain Pound Cake (amount 17.88, qty 12) | Hostess Chocolate CupCakes 6ct (amount 8.94, qty 6) | Hostess Chocolate Zingers 6ct (amount 8.94, qty 6) | Hostess Coffee Cake 8c (amount 11.92, qty 8) | Hostess Glazed Honey Buns 6ct (amount 8.94, qty 6) | Hostess Iced Honey Buns 6ct (amount 8.94, qty 6) | Little Debbie Zebra Cake 6ct (amount 8.94, qty 6)",
+        "description": "7 Days Chocolate Croissant, Cheetos Cheddar Jalapeno 2.3/40, Cloverhill Big Texas Cinn Holl, +13 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-02/53ddcdf0-cf80-408c-aace-11ef138fc7ae-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "53ddcdf0-cf80-408c-aace-11ef138fc7ae-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-02-DS0220607-51770c79-9eb8-43f4-b52e-4d234439c615.pdf",
+      "size": 200138,
+      "originalName": "53ddcdf0-cf80-408c-aace-11ef138fc7ae-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "2a4674ca-cb5c-4b18-98ba-48171f82f88f",
+        "store_key": "default",
+        "invoice_number": "3055",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-04-01",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 3562 Route 66 Neptune, NJ 07753\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 21.16 USD\nTax: 1.40 USD\nItems: PIZZA PEEL WOOD 42 20X20 (amount 21.16, qty 1)",
+        "description": "PIZZA PEEL WOOD 42 20X20",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-01/08e3aa9c-9ea6-4842-b4e2-0aa20563bd70-receipt-3055.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "08e3aa9c-9ea6-4842-b4e2-0aa20563bd70-receipt-3055.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-01-3055-2a4674ca-cb5c-4b18-98ba-48171f82f88f.pdf",
+      "size": 27847,
+      "originalName": "08e3aa9c-9ea6-4842-b4e2-0aa20563bd70-receipt-3055.pdf"
+    },
+    {
+      "invoice": {
+        "id": "67eae08a-32c0-4722-8539-472bfe08c8df",
+        "store_key": "default",
+        "invoice_number": "1198",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-02-19",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1760 New Durham Road South Plainfield, NJ 07080\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 402.10 USD\nItems: CUP HOT 20 WH SUN (amount 27.29, qty 1) | CUP HOT 12 WH SUN (amount 37.99, qty 1) | LID DOME12/16/20BK (amount 31.69, qty 1) | CUP HOT 16 WHT SUN (amount 46.99, qty 1) | COKE MEXICAN VP 12Z (amount 39.66, qty 1) | COCA COLA DIET 20Z (amount 35.01, qty 1) | A&W ROOT BEER 20Z (amount 27.99, qty 1) | POWERADE SR CHERRY 28Z (amount 18.60, qty 1) | POWERADE FRT PUNCH 28Z (amount 18.66, qty 1) | POWERADE LEM LIME 28Z (amount 18.76, qty 1) | JARRITOS VP MIXER 12.5Z (amount 23.99, qty 1) | JARRITOS VP MIXER 12.5Z (Case Discount) (qty 1) | MISTIC LOTTACOLADA 15.9Z (amount 13.18, qty 1) | MISTIC MANG/CARROT 15.9Z (amount 13.11, qty 1) | FZ POP JAL CHDR 7LB (amount 28.65, qty 1) | POWERADE MTN BLAST 28Z (amount 18.72, qty 1) | JARRITOS VP GLASS 12Z (amount 23.99, qty 1) | (Coupon) Jarritos VP 24/12oz (qty 1) | MISTIC LOTTACOLADA 15.9Z (Credit) (qty 1)",
+        "description": "Invoice for various grocery and beverage items from Restaurant Depot.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-19/104fa598-9cc1-4e85-b2cf-63ee56b0166b-receipt-1198.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "104fa598-9cc1-4e85-b2cf-63ee56b0166b-receipt-1198.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-19-1198-67eae08a-32c0-4722-8539-472bfe08c8df.pdf",
+      "size": 28610,
+      "originalName": "104fa598-9cc1-4e85-b2cf-63ee56b0166b-receipt-1198.pdf"
+    },
+    {
+      "invoice": {
+        "id": "6c2b20cf-b66a-4072-8fae-260752388b17",
+        "store_key": "default",
+        "invoice_number": "C21 113174 OP256291",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-03-25",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1760 New Durham Rd South Plainfield, NJ 07080\nCustomer: SENTHULKUMAR RAJASEKARAN HEAVEN SPICE USA LLC\nSubtotal: 173.53 USD\nItems: FLOR ALL TRUMP H/G 50LB (amount 20.44, qty 1) | FLOR DURUM GM 50LB (amount 24.87, qty 1) | CHZ MOZZ W/M GALB R/W (amount 12.52, qty 4.99) | CHZ MOZZ W/M GALB R/W (amount 12.63, qty 5.03) | CHZ MOZZ W/M GALB R/W (amount 12.47, qty 4.97) | SP PEPP RED CRUSH 3.75LB (amount 18.19, qty 1) | SAUC MARI DN PEPNO #10 (amount 9.18, qty 1) | CHZ PARM SHRED 5LB (amount 29.83, qty 1) | TOM MARINA ISBLA #10 (amount 8.22, qty 1) | TOM MARINA ISBLA #10 (amount 8.22, qty 1) | TOM MARINA ISBLA #10 (amount 8.22, qty 1) | CREAM JF 40% 12/32Z (amount 4.37, qty 1) | CREAM JF 40% 12/32Z (amount 4.37, qty 1)",
+        "description": "Invoice for restaurant supplies.",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-03-25/3849c00f-ff09-4b76-b41c-e4156e3dafc7-rs1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "3849c00f-ff09-4b76-b41c-e4156e3dafc7-rs1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-25-C21-113174-OP256291-6c2b20cf-b66a-4072-8fae-260752388b17.pdf",
+      "size": 188196,
+      "originalName": "3849c00f-ff09-4b76-b41c-e4156e3dafc7-rs1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "d2a485fd-94a5-48d1-83d2-6f552866f5d5",
+        "store_key": "default",
+        "invoice_number": "C20 118128 OP240719",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-04-09",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield Rd Union, NJ 07083\nCustomer: ASAD RABBI HASSAN RABBI\nSubtotal: 65.25 USD\nTax: 1.61 USD\nItems: BAG WHT #3 BUNDLE 500CT (amount 11.95, qty 1) | MARG CCROCK TUB 5LBS (amount 6.91, qty 1) | TURKEY BACON SLAB (amount 24.06, qty 1) | BRD ROLL BRIOCH 4\" 12CT (amount 5.13, qty 1) | BRD BIM HB SEED5\" 12CT (amount 4.89, qty 1) | BUNDLE BAG LIQ. PINT (amount 12.31, qty 1)",
+        "description": "BAG WHT #3 BUNDLE 500CT, MARG CCROCK TUB 5LBS, TURKEY BACON SLAB, +3 more",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-04-09/c3522b0d-2cff-4e85-83d1-79c2b87c35ba-rs2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "c3522b0d-2cff-4e85-83d1-79c2b87c35ba-rs2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-09-C20-118128-OP240719-d2a485fd-94a5-48d1-83d2-6f552866f5d5.pdf",
+      "size": 175209,
+      "originalName": "c3522b0d-2cff-4e85-83d1-79c2b87c35ba-rs2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+        "store_key": "default",
+        "invoice_number": "20705",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-03-24",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 3562 Route 66 Neptune, NJ 07753\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 609.54 USD\nItems: CHZ AMER Y200 JF 5LB (amount 12.54, qty 1) | CHZ SWISS SLCD 6/1.5L (amount 7.64, qty 1) | CHZ PROV SLC GL (amount 4.43, qty 1) | CHZ PROV SLC GL (amount 4.43, qty 1) | CHZ PEPJCK SLC GL 6/1.5L (amount 4.67, qty 1) | CHZ SWISS SLCD 6/1.5L (amount 7.64, qty 1) | CHZ PEPJCK SLC GL 6/1.5L (amount 4.67, qty 1) | HNZ KETCHUP JUG 114Z (amount 11.23, qty 1) | FOIL 10.75X12 200S (amount 10.37, qty 1) | PPR ROLL MG 15X900 (amount 13.99, qty 1) | SAUCE HOT CQ 1GAL (amount 8.45, qty 1) | MIKE HOT HONEY 24Z (amount 16.20, qty 1) | VINEGAR RED CQ GAL (amount 4.38, qty 1) | B&G PCKL CHP KOSH 1GAL (amount 6.21, qty 1) | PEPP JALA SLICED GAL (amount 10.56, qty 1) | TUL AIOLI CHPTLE 8/18Z (amount 4.69, qty 1) | SAUC GARL PRM SBR 64Z (amount 11.99, qty 1) | MAYO XTRA HVY CQ GAL (amount 11.61, qty 1) | PEPPERONI 5LB ISAB (amount 16.90, qty 1) | EGGS LOOSE XLG WH 15DZ (amount 30.25, qty 1) | TKY GOLDN RST BS (amount 55.62, qty 7.89) | BTR SALT JF TUB 5LB (amount 15.20, qty 1) | BACON ONE HORMEL 18/22 (amount 64.12, qty 1) | ROAST BF BK STEER (amount 50.98, qty 6.88) | PIZZABOX 10 WH E CORR (amount 11.16, qty 1) | RED BULL ENERGY 12Z (amount 56.76, qty 1) | RED BULL 8.3Z (amount 38.60, qty 1) | HAM 1/2 BLK STEER (amount 19.38, qty 6.23) | PASTRMI BLK STR SL (amount 50.36, qty 7.46) | PD LETTUCE CELLO (amount 1.15, qty 1) | PD LETTUCE CELLO (amount 1.15, qty 1) | PIZZABOX 18 BR B CORR (amount 23.83, qty 1) | SUGAR DOM BULK 25# (amount 18.38, qty 1)",
+        "description": "Restaurant supply items",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-24/9dae2b87-3e98-4edf-9e4a-e9ce9436411e-receipt-20705.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "9dae2b87-3e98-4edf-9e4a-e9ce9436411e-receipt-20705.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-24-20705-f21d85d2-bd07-4346-97ac-f62fc8853b4f.pdf",
+      "size": 29484,
+      "originalName": "9dae2b87-3e98-4edf-9e4a-e9ce9436411e-receipt-20705.pdf"
+    },
+    {
+      "invoice": {
+        "id": "ef007030-5ce8-4187-9716-016a5eae83e1",
+        "store_key": "default",
+        "invoice_number": "3358720",
+        "supplier_id": "ded24199-4344-4710-af94-5eba3da6aa9e",
+        "issue_date": "2026-04-23",
+        "notes": "AI extraction details\nExtracted vendor: GlacierPoint ENTERPRISES\nVendor address: 141 Fieldcrest Avenue Edison, NJ 08837\nCustomer: COUNTRY FARM DELI & CONVENIENCE\nSubtotal: 282.76 USD\nItems: H.HILL LF FRENCH VANILLA (amount 282.76, qty 4)",
+        "description": "H.HILL LF FRENCH VANILLA",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-04-23/866cb341-1f42-46bc-ab0d-6f38022bae2b-glacier.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "866cb341-1f42-46bc-ab0d-6f38022bae2b-glacier.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-23-3358720-ef007030-5ce8-4187-9716-016a5eae83e1.pdf",
+      "size": 133212,
+      "originalName": "866cb341-1f42-46bc-ab0d-6f38022bae2b-glacier.pdf"
+    },
+    {
+      "invoice": {
+        "id": "90fa0c43-3b74-485c-a36e-b51361326a89",
+        "store_key": "default",
+        "invoice_number": "452726",
+        "supplier_id": "b7600035-b6bf-46ae-b722-afa02ae3a104",
+        "issue_date": "2026-04-22",
+        "notes": "AI extraction details\nExtracted vendor: Oliveri & Sons Inc\nVendor address: 4401 DELL AVENUE P.O. BOX 88 NORTH BERGEN, NEW JERSEY 07047-0088\nCustomer: COUNTRY FARMS DELI & CONVENIENCE\nSubtotal: 475.20 USD\nItems: CULTIVATED BLUEBERRYS IQF 30# BOX (LARGE) (amount 69.95, qty 1) | STRAWBERRIES 30% IQF SMOOTHIE CUT (amount 46.95, qty 1) | PEACHES SLICED IQF 40# SPECIAL ORDER (amount 92.95, qty 1) | MANGO CHUNKS 30# IQF LG PIECES (amount 55.95, qty 1) | DICED PINEAPPLE 22# TIDBITS (amount 46.95, qty 1) | BONJI SCOOPABLE PITAYA 3 GALL 3 GALL (amount 84.95, qty 1) | BONJI SCOOPABLE ACAI 3 GAL 3 GALL (amount 77.50, qty 1)",
+        "description": "Invoice for various frozen fruits and purees",
+        "pdf_path": "default/21510783-503e-4bce-abdd-e4bd51179a4c/2026-04-22/a62c4ab6-a52d-4c11-8dd2-6846a8b4e345-oliver.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "a62c4ab6-a52d-4c11-8dd2-6846a8b4e345-oliver.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-22-452726-90fa0c43-3b74-485c-a36e-b51361326a89.pdf",
+      "size": 222561,
+      "originalName": "a62c4ab6-a52d-4c11-8dd2-6846a8b4e345-oliver.pdf"
+    },
+    {
+      "invoice": {
+        "id": "6c118fbd-9fc2-4f89-bd4e-1b1286ca4132",
+        "store_key": "default",
+        "invoice_number": "SL12457",
+        "supplier_id": "902cd73c-abb8-4854-8c00-7a3c22210cb6",
+        "issue_date": "2026-02-21",
+        "notes": "AI extraction details\nExtracted vendor: ALL IN ONE DISTRIBUTION LLC\nVendor address: 7 PROGRESS STREET, SUITE #104 EDISON, NJ - 08820, USA\nCustomer: COUNTRY FARM DELI, SPRINGFIELD (SHAKTI CO SPRINGFIELD LLC)\nSubtotal: 280.00 USD\nItems: z can (amount 280.00, qty 14)",
+        "description": "Invoice for z cans",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-21/b5db9fb4-202c-4e5d-976c-3e76bbdc4f0b-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "b5db9fb4-202c-4e5d-976c-3e76bbdc4f0b-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-21-SL12457-6c118fbd-9fc2-4f89-bd4e-1b1286ca4132.pdf",
+      "size": 185658,
+      "originalName": "b5db9fb4-202c-4e5d-976c-3e76bbdc4f0b-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e6ab0eb8-acb3-46d1-a65b-b3f721373fc0",
+        "store_key": "default",
+        "invoice_number": "361439",
+        "supplier_id": "369778d5-512b-4e81-80b0-bb79d319c413",
+        "issue_date": "2026-04-01",
+        "notes": "AI extraction details\nExtracted vendor: Mandel Wholesale\nVendor address: 62 Jackson St, Freehold, NJ 07728\nCustomer: COUNTRY FARMS DELI SPRINGFIELD\nSubtotal: 146.82 USD\nItems: AMOS PEELERZ GUMMY MANGO PEG 6OZ 1CT (amount 4.90, qty 2) | AMOS PEELERZ GUMMY PEACH PEG 6OZ 1CT (amount 4.90, qty 2) | BUGLES PEG ORIGINAL 1CT (amount 7.36, qty 4) | CHEX MIX PEG MUDDY BUDDIES COOKIES CREAM 1CT (amount 2.55, qty 1) | CHEX MIX PEG TRADITIONAL 4.5OZ 1CT (amount 3.94, qty 2) | COMBOS PEG CHEDDAR PRETZEL 6.3OZ 1CT (amount 2.53, qty 1) | COMBOS PEG NACHO PRETZEL 1CT (amount 5.06, qty 2) | COMBOS PEG PIZZA PRETZEL 6.3OZ 1CT (amount 5.06, qty 2) | EXTRA SLIM PACK SPEARMINT 10CT (amount 12.30, qty 1) | FIG NEWTON CONVENIENCE 1CT (amount 2.35, qty 1) | HERSHEY PEG DIPPED PRETZELS 4.2OZ 1CT (amount 10.72, qty 4) | ICE BREAKER MINTS WINTRGRN 8CT (amount 17.74, qty 1) | JACK LINKS JERKY 1.25OZ TENDER BITES TERIYAKI 1CT (amount 9.06, qty 3) | LAY'S 2.25OZ ORIGINAL 1CT (amount 2.86, qty 2) | LORNA DOONE CONVENIENCE 1CT (amount 4.70, qty 2) | NERDS PEG 5OZ GUMMY CLUSTERS RAINBOW 1CT (amount 6.66, qty 3) | OREO CAKESTERS 8CT (amount 13.23, qty 1) | OREO CONVENIENCE 1CT (amount 7.08, qty 3) | SKINNY POP POPCORN ORIGINAL 1CT (amount 4.11, qty 3) | SKINNY POP POPCORN WHITE CHEDDAR 1CT (amount 4.11, qty 3) | SOUR PATCH PEG 8OZ PINK LEMONADE 1CT (amount 6.96, qty 3) | WELCH'S PEG FRUIT SNACKS BERRYCHERRY 1CT (amount 2.88, qty 2) | WELCH'S PEG FRUIT SNACKS ISLAND FRUIT 1CT (amount 2.88, qty 2) | WELCH'S PEG FRUIT SNACKS MIXED FRUIT 1CT (amount 2.88, qty 2)",
+        "description": "Wholesale grocery and snack items",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-01/9033e34d-6d43-4188-ab07-10a9fd63abcd-seventh.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "9033e34d-6d43-4188-ab07-10a9fd63abcd-seventh.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-01-361439-e6ab0eb8-acb3-46d1-a65b-b3f721373fc0.pdf",
+      "size": 379083,
+      "originalName": "9033e34d-6d43-4188-ab07-10a9fd63abcd-seventh.pdf"
+    },
+    {
+      "invoice": {
+        "id": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+        "store_key": "default",
+        "invoice_number": "SL12456",
+        "supplier_id": "902cd73c-abb8-4854-8c00-7a3c22210cb6",
+        "issue_date": "2026-02-21",
+        "notes": "AI extraction details\nExtracted vendor: ALL IN ONE DISTRIBUTION LLC\nVendor address: 7 PROGRESS STREET, SUITE #104 EDISON, NJ - 08820, USA\nCustomer: COUNTRY FARM DELI, SPRINGFIELD (SHAKTI CO SPRINGFIELD LLC)\nSubtotal: 796.47 USD\nTax: 219.79 USD\nItems: BACKWOOD CIGARS 1/24 PACK - HONEY BERRY (amount 22.65, qty 1) | BACKWOOD CIGARS 1/24 PACK - ORIGINAL (amount 22.65, qty 1) | BACKWOOD CIGARS 1/24 PACK - RUSSIAN CREAM (amount 22.65, qty 1) | BACKWOOD CIGARS 5/8 PACK - HONEY BERRY (amount 34.50, qty 1) | BACKWOOD CIGARS 5/8 PACK - ORIGINAL (amount 34.50, qty 1) | BACKWOOD CIGARS 5/8 PACK-HONEY BOURBON (amount 34.50, qty 1) | BLACK & MILD (25) PLASTIC TIP - ORIGINAL (amount 23.68, qty 1) | BLACK & MILD (25) PLASTIC TIP - WINE (amount 23.68, qty 1) | BLACK & MILD (25) WOOD TIP ORIGINAL (amount 26.78, qty 1) | BLACK & MILD (25) WOOD TIP WINE (amount 26.78, qty 1) | DUTCH MASTER 3/2 PALMA (amount 39.55, qty 1) | DUTCH MASTER 5/4 PALMA (VANILLA) (amount 24.96, qty 1) | SWEET WOODS CIGARS 2/1.49 - SWEET AROMA (30) (amount 14.75, qty 1) | SWEET WOODS CIGARS 2F1.49 15/2CT (LIMITED EDITION) - GRAPE (amount 14.75, qty 1) | SWEET WOODS LEAF - RUSSIAN CREAM $1.49 (amount 14.74, qty 1) | DUTCH CIGARS 30/2PK BERRY FUSION 1.29 (amount 24.30, qty 1) | DUTCH CIGARS 30/2PK HONEYFUSION 1.29 (amount 24.30, qty 1) | DUTCH PALM CIGAR 2 PK (amount 48.80, qty 1) | GAME CIGARILLOS 2/1.29 30CT-GRAPE (amount 24.30, qty 1) | GAME CIGARILLOS 2/1.29 30CT-HONEY (amount 24.30, qty 1) | GAME CIGARILLOS 2/1.29 30CT- MANGO (amount 24.30, qty 1) | GAME CIGARILLOS 2/1.29 30CT- PINEAPPLE (amount 24.30, qty 1) | GAME CIGARILLOS 2/1.29 30CT-WHITE PEACH (amount 24.30, qty 1) | SWISHER SWEETS CIGARILLOS 2/1.39- ORIGINAL (30) (amount 23.50, qty 1) | SWISHER SWEETS CIGARILLOS - 2PC/30PK - GREEN (amount 18.50, qty 1) | ZYN 15PC/5PK-3MG - PEPPERMINT (amount 21.50, qty 1) | ZYN 15PC/5PK-6MG-COOL MINT (amount 43.00, qty 2) | ZYN 3MG-COOL MINT $1 OFF* (amount 17.99, qty 1) | ZYN 3MG-WINTERGREEN $1 OFF* (amount 17.99, qty 1) | ZYN 6MG PEPPERMINT $1 OFF* (amount 17.99, qty 1) | ZYN 6MG SPEARMINT $1 OFF* (amount 17.99, qty 1) | ZYN 6MG-WINTERGREEN $1 OFF* (amount 17.99, qty 1)",
+        "description": "Invoice for tobacco and nicotine products.",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-21/75b3d321-5ae4-407a-a4cd-ed0a3abe6c60-1.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "75b3d321-5ae4-407a-a4cd-ed0a3abe6c60-1.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-21-SL12456-0067cf1d-425b-421f-9c5f-35d49d702c0c.pdf",
+      "size": 482019,
+      "originalName": "75b3d321-5ae4-407a-a4cd-ed0a3abe6c60-1.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e9a85211-8d7f-413f-8569-0b0f981b26a8",
+        "store_key": "default",
+        "invoice_number": "460",
+        "supplier_id": "902cd73c-abb8-4854-8c00-7a3c22210cb6",
+        "issue_date": "2026-04-28",
+        "notes": "AI extraction details\nExtracted vendor: All in One Distribution LLC\nVendor address: 7 Progress St Suite 104 Edison, New Jersey 08820\nCustomer: COUNTRY FARM DELI, SPRINGFIELD (SHAKTI CO SPRINGFIELD LLC)\nSubtotal: 406.42 USD\nItems: ZYN 6mg - CITRUS (amount 56.50, qty 2, 5 / pack, per item 5.65) | ZYN 6mg - SPEARMINT (amount 56.50, qty 2, 5 / pack, per item 5.65) | NEW WORLD - GORDO 6X58 (21) (amount 293.42, qty 2, 21 / pack, per item 6.99)",
+        "description": "Tobacco and nicotine products",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-28/3186ff83-18cd-4b38-b4bc-912ae247dcc6-ain-new.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "3186ff83-18cd-4b38-b4bc-912ae247dcc6-ain-new.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-28-460-e9a85211-8d7f-413f-8569-0b0f981b26a8.pdf",
+      "size": 181753,
+      "originalName": "3186ff83-18cd-4b38-b4bc-912ae247dcc6-ain-new.pdf"
+    },
+    {
+      "invoice": {
+        "id": "8317788b-a105-491e-a5c8-ef66f57a91d6",
+        "store_key": "default",
+        "invoice_number": "809201990",
+        "supplier_id": "2d697fd7-4bfb-4192-b7a4-76b189e69afc",
+        "issue_date": "2026-04-28",
+        "notes": "AI extraction details\nExtracted vendor: AZ METRO DISTRIBUTORS LLC\nVendor address: 60 CROSSWAYS PARK DRIVE W WOODBURY,NY11797\nCustomer: COUNTRY FARM DELI & CONVENIENT\nSubtotal: 189.00 USD\nItems: AZ 22OZ CAN MANGO 24PK (amount 15.50, qty 1, 24 / pack, per item 0.65) | AZ 22OZ CAN ORANGEADE 24PK (amount 15.50, qty 7) | AZ 22OZ CAN PEACH 24PK (amount 31.00, qty 2) | AZ 22OZ CAN ZERO GREEN 24PK (amount 15.50, qty 1) | AZ 20 OZ TALLBOY GREEN 24PK (amount 15.50, qty 1) | AZ 20 OZ TALLBOY MUCHO MANGO 24P (amount 15.50, qty 1) | AZ 20 OZ TALLBOY BLUEBERRY WHITE (amount 31.00, qty 2) | AZ 20 OZ TALLBOY PEACH N.P. TEA (amount 15.50, qty 1) | AZ 20 OZ TALLBOY PINA COLADA NP (amount 15.50, qty 1) | PALMER 24/22OZ BLACK (amount 15.50, qty 1) | FUEL CHARGES (amount 3.00, qty 1)",
+        "description": "AZ 22OZ CAN MANGO 24PK, AZ 22OZ CAN ORANGEADE 24PK, AZ 22OZ CAN PEACH 24PK, +8 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-28/763c1d59-8b83-4b6a-99e3-3540fa88a66e-arizona-new.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "763c1d59-8b83-4b6a-99e3-3540fa88a66e-arizona-new.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-28-809201990-8317788b-a105-491e-a5c8-ef66f57a91d6.pdf",
+      "size": 229059,
+      "originalName": "763c1d59-8b83-4b6a-99e3-3540fa88a66e-arizona-new.pdf"
+    },
+    {
+      "invoice": {
+        "id": "752f2f0b-9f7c-4885-ab3f-e47205924bd0",
+        "store_key": "default",
+        "invoice_number": "0000P34003000031213",
+        "supplier_id": "29092a00-229e-4bc2-bc99-845cbcfa3571",
+        "issue_date": "2026-04-24",
+        "notes": "AI extraction details\nExtracted vendor: AAA WHOLESALE\nVendor address: 370 ESSEX ST LODI, NJ 07644\nCustomer: SHAKTI CO SPRINGFIELD LLC\nItems: CORE POWER ELITE CHOCOLATE MILK SHAKE 12 (amount 44.99, qty 1, 12 / pack, per item 3.75) | CORE POWER ELITE STRAWBERRY MILK SHAKE I (amount 44.99, qty 1, 12 / pack, per item 3.75) | MONSTER ENERGY GREEN 24-160Z (amount 35.99, qty 1, 24 / pack, per item 1.50) | JOE TEA CLASSIC RASPBERRY 12-200Z (amount 19.99, qty 1, 12 / pack, per item 1.67) | JOE TEA CLASSIC PEACH 12-200Z (amount 19.99, qty 1, 12 / pack, per item 1.67) | TROPICANA ORANGE JUICE 12-1602 (amount 14.99, qty 1, 12 / pack, per item 1.25) | RED BULL REGULAR 24-120Z (amount 49.99, qty 1, 24 / pack, per item 2.08) | RED BULL REGULAR 24-8.4OZ (amount 34.99, qty 1, 24 / pack, per item 1.46) | VITAMIN WATER FOCUS 12-2007 (amount 16.99, qty 1, 12 / pack, per item 1.42) | GATORADE FRUIT PUNCH 15-280Z (amount 27.99, qty 1, 15 / pack, per item 1.87)",
+        "description": "CORE POWER ELITE CHOCOLATE MILK SHAKE 12, CORE POWER ELITE STRAWBERRY MILK SHAKE I, MONSTER ENERGY GREEN 24-160Z, +7 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-24/30d76dd7-5cb8-4137-9fea-15a301eb9b77-aaa-new.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "30d76dd7-5cb8-4137-9fea-15a301eb9b77-aaa-new.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-24-0000P34003000031213-752f2f0b-9f7c-4885-ab3f-e47205924bd0.pdf",
+      "size": 100599,
+      "originalName": "30d76dd7-5cb8-4137-9fea-15a301eb9b77-aaa-new.pdf"
+    },
+    {
+      "invoice": {
+        "id": "c684f0f6-f0a5-40b7-9bc7-a1f6be82a070",
+        "store_key": "default",
+        "invoice_number": "200231606",
+        "supplier_id": "0c2321b2-6a18-46e4-83cf-c3eb9b49e52d",
+        "issue_date": "2026-05-07",
+        "notes": "AI extraction details\nExtracted vendor: LA PROVEEDORA LATINA LLC\nVendor address: 75-77 N14th Street,NEWARK,071079734127040\nCustomer: COUNTRY FARMS DELI & CONVENIENCE\nSubtotal: 1623.52 USD\nItems: VITA COCO 11 OZ (amount 23.95, qty 1) | VITA COCO 16.9 OZ (amount 63.90, qty 2) | CALYPSO 16OZ (amount 53.25, qty 3) | FIJI EARTH-S FINEST WATER 2X6 OF 1LITER (amount 21.95, qty 1) | RED BULL ENERGY 16oz 12 COUNT (amount 38.49, qty 1) | POLAND SPRINGS WATER 1 LITER (amount 28.47, qty 3) | JOE TEA GLASS 20 OZ (amount 18.75, qty 1) | TROPICANA JUICE 16OZ (amount 33.90, qty 2) | GATORADE 20oz (amount 71.85, qty 3) | GATORADE 28OZ (amount 83.85, qty 3) | MONSTER ZERO 16oz (24 COUNTS) AND ULTRA PARADISE (amount 171.80, qty 4) | PURE LEAF 18.5oz (12 COUNTS) (amount 68.85, qty 3) | SARATOGA SPARKLING WATER 12OZ 24 CT (amount 44.00, qty 2) | SANPELLEGRINO ARANCIATA ROSSA ITALIAN SPARKLING DRINKS 11.15oz 24 COUNTS (amount 25.49, qty 1) | CRUSH ORANGE 12oz (amount 13.49, qty 1) | DIET COCA COLA 12oz(24 CANS) (amount 16.49, qty 1) | COCA COLA 12OZ (24 COUNT) (amount 16.49, qty 1) | CORE POWER 42G 12CT (amount 183.80, qty 4) | A&W ZERO SUGAR (DIET) ROOT BEER 20oz (24 BOTTLES) (amount 25.95, qty 1) | SCHWEPPES GINGER ALE 20oz (24 BOTTLES) (amount 26.95, qty 1) | CANADA DRY GINGER ALE 20OZ (amount 25.95, qty 1) | PEPSI 20OZ (amount 53.90, qty 2) | PEPSI WILD CHERRY 20oz (24 BOTTLES) (amount 53.90, qty 2) | FANTA STRAWBERRY 20oz (24 COUNTS) (amount 29.25, qty 1) | FANTA PINEAPPLE 20oz (amount 29.25, qty 1) | FANTA ORANGE 20oz 24 COUNT (amount 29.25, qty 1) | SPRITE 20oz (amount 29.95, qty 1) | COCA COLA DIET 20oz (amount 29.95, qty 1) | COCA COLA 20oz 24 COUNTS (amount 29.95, qty 1) | SMART WATER 20oz 24 COUNT (amount 29.95, qty 1) | FIJI WATER 1.5L (12 CT) (amount 23.95, qty 1) | FIJI NATURAL ARTESIAN WATER 4X6 PACK 16oz 500 ML 24 COUNT (amount 24.95, qty 1) | POLAND SPRINGS WATER GALLON 6 COUNTS (amount 131.40, qty 12) | POLAND SPRINGS WATER 24 OZ (amount 49.75, qty 5) | POLAND SPRINGS WATER 1.5 LITER (amount 20.50, qty 2)",
+        "description": "Invoice for various beverages and waters",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-07/ea92c21b-5632-4ce2-9996-8c937e917340-20260508-1657.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "ea92c21b-5632-4ce2-9996-8c937e917340-20260508-1657.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-07-200231606-c684f0f6-f0a5-40b7-9bc7-a1f6be82a070.pdf",
+      "size": 245748,
+      "originalName": "ea92c21b-5632-4ce2-9996-8c937e917340-20260508-1657.pdf"
+    },
+    {
+      "invoice": {
+        "id": "a055ec09-efaf-4678-8bdc-813f71617485",
+        "store_key": "default",
+        "invoice_number": "98459",
+        "supplier_id": "7dc1b357-112f-4048-b35f-30360eb52a50",
+        "issue_date": "2026-05-06",
+        "notes": "AI extraction details\nExtracted vendor: Prestige Concept LLC\nVendor address: 55 Bergenline Ave Westwood, NJ 07675 US\nCustomer: NJ \"County Farm Deli\"\nItems: MR BITE milk chocolate coated wafer with coconut cream 38 g | 24 packs*6 bxc | 24 items (amount 12.24, qty 24) | MR BITE milk chocolate coated wafer with pistachio cream 32 g | 24 packs*6 bxc | 24 items (amount 12.24, qty 24) | Mr.Bite Groan Hazelnut Cream Filling Coated With Milk Chocolate 32g | 24 items (amount 8.40, qty 24) | Mr.Bite Groan Pistachio Cream Filling Coated With Milk Chocolate 28g. | 24 items (amount 8.40, qty 24) | 5 American Drinks | Milk drinks Mango 290mlx24 (qty 24) | American Drop 100% LYCHEE juice NO PULP | 490 ml 24 pcs (amount 48.00, qty 24) | American Drop 100% ORANGE juice NO PULP | 490 ml 24 pcs (amount 48.00, qty 24) | American Drop 100% SOURSOP juice NO PULP | 490 ml 24 pcs (amount 48.00, qty 24) | American Drop 100% Passion fruit juice with pulp | 490 ml | 24 pcs (amount 48.00, qty 24) | American Drop 100% Orange juice with pulp | 490 ml | 24 pcs (amount 48.00, qty 24) | Nawon Red Smoothie No sugar added | 16.9 fl. oz (500 ml) | 24 items (amount 50.40, qty 24) | Nawon Yellow Smoothie No sugar added | 16.9 fl. oz (500 ml) | 24 items (amount 50.40, qty 24)",
+        "description": "MR BITE milk chocolate coated wafer with coconut cream 38 g | 24 packs*6 bxc | 24 items, MR BITE milk chocolate coated wafer with pistachio cream 32 g | 24 packs*6 bxc | 24 items, Mr.Bite Groan Hazelnut Cream Filling Coated With Milk Chocolate 32g | 24 items, +9 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-06/6ad24748-fb85-4994-bd13-354d7f370313-prestige.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "6ad24748-fb85-4994-bd13-354d7f370313-prestige.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-06-98459-a055ec09-efaf-4678-8bdc-813f71617485.pdf",
+      "size": 223243,
+      "originalName": "6ad24748-fb85-4994-bd13-354d7f370313-prestige.pdf"
+    },
+    {
+      "invoice": {
+        "id": "aa6a09b0-1309-448e-8f3c-fc94081c591b",
+        "store_key": "default",
+        "invoice_number": "9877",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-05-14",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield Blvd Union, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 91.29 USD\nTax: 1.13 USD\nItems: QC GRIDDLE LIQUID 701 (amount 17.08, qty 1) | CHZ MOZZ W/M GALB R/W (amount 13.87, qty 4.97) | CHZ AMER Y160 JF 5LB (amount 11.35, qty 1) | BTR CLARIFIED LOL 5LB (amount 24.58, qty 1) | EGGS LOOSE LRG WH 15DZ (amount 10.30, qty 1) | CUP PL SOUF 2Z (amount 4.12, qty 1) | LID PL SOUF 1.5Z2Z PL200N (amount 1.84, qty 1) | TUL AIOLI CHIPOLT 32Z (amount 8.15, qty 1)",
+        "description": "QC GRIDDLE LIQUID 701, CHZ MOZZ W/M GALB R/W, CHZ AMER Y160 JF 5LB, +5 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-14/34c273d3-eace-4e53-9cfb-1070f083fccb-receipt-9877.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "34c273d3-eace-4e53-9cfb-1070f083fccb-receipt-9877.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-14-9877-aa6a09b0-1309-448e-8f3c-fc94081c591b.pdf",
+      "size": 28231,
+      "originalName": "34c273d3-eace-4e53-9cfb-1070f083fccb-receipt-9877.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e956ee0d-b210-4bc1-b690-73dfbe0953d6",
+        "store_key": "default",
+        "invoice_number": "SL17692",
+        "supplier_id": "8a65a7ba-3695-4a6f-92c7-e589a90ec92c",
+        "issue_date": "2026-05-07",
+        "notes": "AI extraction details\nExtracted vendor: SOUTH JERSEY WHOLESALER LLC\nVendor address: 715 S DELSEA DRIVE VINELAND NJ 08360 VINELAND, NJ 08360\nCustomer: COUNTRY FARM SPRING FIELD\nSubtotal: 662.73 USD\nItems: OPIA 4X 7 HYDROXY TABS 1CT MINTOPΙΑ (amount 90.00, qty 10) | OPIA 4X 7 HYDROXY TABS 1CT BLUE RAS (amount 45.00, qty 5) | OPIA 4X 7 HYDROXY TABS 1CT SOUR APPLE (amount 45.00, qty 5) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG BLUEBERRY WATERMELON (amount 49.50, qty 3) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG RASPBERRY PEACH (amount 49.50, qty 3) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG KIWI APPLE (amount 49.50, qty 3) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG CHERRY BURST (amount 82.50, qty 5) | OPIA ULTRA 4X 7 HYDROXY TABS 1CT 240MG BLUE RASPBERRY (amount 82.50, qty 5) | TAMPEX SUPER 12PC (amount 13.16, qty 4) | BLUNEFFECT 18CT DIFF (amount 27.99, qty 1) | LISTERINE 250ML COOL MINT (amount 5.58, qty 2) | PEPTO BISMOL 4 OZ BOTTEL (amount 13.96, qty 4) | RAW CONE 1 1/4 6PK CLASSIC (amount 36.00, qty 1) | 5 HOUR PEACH MANGO (amount 22.99, qty 1) | 5 HOUR HAWAIIAN BREEZE (amount 22.99, qty 1) | 5 HOUR TROPICAL BURST (amount 22.99, qty 1) | VASELINE BLUE SEAL 12CT 50ML (amount 3.57, qty 3)",
+        "description": "Various merchandise",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-07/181b589b-f12c-45e4-9f47-2782ebaeb712-20260514-1603.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "181b589b-f12c-45e4-9f47-2782ebaeb712-20260514-1603.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-07-SL17692-e956ee0d-b210-4bc1-b690-73dfbe0953d6.pdf",
+      "size": 262865,
+      "originalName": "181b589b-f12c-45e4-9f47-2782ebaeb712-20260514-1603.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e598f9cc-350f-438a-85a1-e216516fdd92",
+        "store_key": "default",
+        "invoice_number": "17682",
+        "supplier_id": "8a65a7ba-3695-4a6f-92c7-e589a90ec92c",
+        "issue_date": "2026-05-07",
+        "notes": "AI extraction details\nExtracted vendor: COUNTRY FARM SPRING FIELD\nVendor address: 958 S SPRINGFIELD AVE, SPRINGFIELD, New Jersey (NJ) USA-07081\nSubtotal: 604.50 USD\nItems: GLASS PIPE FU2500 (amount 62.50, qty 1) | GEEK BAR 15K: NO RETURN/EXCHANGE (amount 90.00, qty 2) | JUUL VIRG. TOBAC 5% 4PK 8CT (amount 106.00, qty 1) | JUUL MENTHOL 3% 4PK 8CT (amount 106.00, qty 1) | LAVA PLUS 2600 SKITTLES (amount 48.00, qty 1) | LAVA PLUS CLEAR (amount 96.00, qty 2) | LAVA PLUS GUAVA ICE (amount 96.00, qty 2)",
+        "description": "Sales of tobacco, vape products and accessories",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-07/aa50d697-8c87-47e0-999f-ea5d2079849b-20260514-1603-2.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "aa50d697-8c87-47e0-999f-ea5d2079849b-20260514-1603-2.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-07-17682-e598f9cc-350f-438a-85a1-e216516fdd92.pdf",
+      "size": 181540,
+      "originalName": "aa50d697-8c87-47e0-999f-ea5d2079849b-20260514-1603-2.pdf"
+    },
+    {
+      "invoice": {
+        "id": "1381660c-234b-4944-86fd-ad25b67437f7",
+        "store_key": "default",
+        "invoice_number": "0000P34005000032292",
+        "supplier_id": "29092a00-229e-4bc2-bc99-845cbcfa3571",
+        "issue_date": "2026-05-13",
+        "notes": "AI extraction details\nExtracted vendor: AAA WHOLESALE\nVendor address: 370 ESSEX ST LODI, NJ 07644\nCustomer: SHAKTI CO SPRINGFIELD LLC\nSubtotal: 442.04 USD\nItems: POLAND SPRING WATER 40-16.90Z NONDEPOSIT (amount 29.16, qty 4) | SPRITE ZERO LEMON LIME 24-2007 (amount 27.99, qty 1) | RED BULL ICED EDITION VANILLA BERRY 24-8 (amount 38.99, qty 1) | RED BULL REGULAR 24-8.4OZ (amount 34.99, qty 1) | RED BULL SUGAR FREE 24-8.4OZ (amount 34.99, qty 1) | RED BULL SUGAR FREE 12-160Z (amount 36.99, qty 1) | RED BULL SUMMER EDITION SUDACHI LIME 24- (amount 50.99, qty 1) | RED BULL SF PEACH EDITION WHITE PEACH 24 (amount 50.99, qty 1) | RED BULL SUGARFREE 24-120Z (amount 50.99, qty 1) | MET-RX CRISPY APPLE PIE 9-3.5202 (amount 22.99, qty 1) | MET-RX CHOCOLATE CHIP COOKIE 9-3.520Z (amount 22.99, qty 1) | VITAMIN WATER ENERGY 12-2002 (amount 16.99, qty 1) | C4 ENERGY ZERO STARBURST STRAWBERRY 12-1 (amount 22.99, qty 1)",
+        "description": "Wholesale beverage and snack purchase",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-05-13/d882e4ae-0cd5-44c4-9c82-2c9c52c60875-20260514-1604.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "d882e4ae-0cd5-44c4-9c82-2c9c52c60875-20260514-1604.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-05-13-0000P34005000032292-1381660c-234b-4944-86fd-ad25b67437f7.pdf",
+      "size": 111439,
+      "originalName": "d882e4ae-0cd5-44c4-9c82-2c9c52c60875-20260514-1604.pdf"
+    },
+    {
+      "invoice": {
+        "id": "f3cbcbbe-8973-45a0-ae4f-e255759e52ef",
+        "store_key": "default",
+        "invoice_number": "8786",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-04-30",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 1135 Springfield Blvd, Union, NJ 07083\nCustomer: COUNTRY FARMS DELI CONVENIENCE\nSubtotal: 17.02 USD\nItems: CHZ AMER Y120 JF 5LB (amount 11.70, qty 1) | BRD WHT CLUB SAND 18SLC (amount 2.63, qty 1) | BRD WHEAT CLUB 18SLC (amount 2.69, qty 1)",
+        "description": "CHZ AMER Y120 JF 5LB, BRD WHT CLUB SAND 18SLC, BRD WHEAT CLUB 18SLC",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-04-30/a3d660d5-df5e-430a-86e2-49c1a0f9ab39-receipt-8786.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "a3d660d5-df5e-430a-86e2-49c1a0f9ab39-receipt-8786.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-04-30-8786-f3cbcbbe-8973-45a0-ae4f-e255759e52ef.pdf",
+      "size": 27927,
+      "originalName": "a3d660d5-df5e-430a-86e2-49c1a0f9ab39-receipt-8786.pdf"
+    },
+    {
+      "invoice": {
+        "id": "3d316af9-c6d2-4ca6-ba1c-31d397eb461f",
+        "store_key": "default",
+        "invoice_number": "2026-102244",
+        "supplier_id": "a347142a-e1f0-41bb-b2a3-93542e728c4a",
+        "issue_date": "2026-02-17",
+        "notes": "AI extraction details\nExtracted vendor: L & E Distributors\nVendor address: PO Box 265 Sayreville, NJ 08871\nCustomer: Country Deli and Convenience\nSubtotal: 683.86 USD\nItems: Ghost Energy Welch's Grape Cranberry 12Pk (amount 23.25, qty 1) | Ghost Energy Sour Strips 12Pk | Ghost Energy Swedish Fish 12Pk (amount 23.25, qty 1) | Ghost Energy Orange Cream 12Pk (amount 23.25, qty 1) | Ghost Energy Pink Lemonade 12Pk (amount 23.25, qty 1) | Ghost Energy Warhead Apple 12Pk (amount 23.25, qty 1) | Bucked Up RTD Rocket PoP 12pk (amount 21.00, qty 1) | Bucked Up RTD Miami Vice 12pk (amount 21.00, qty 1) | Bucked Up RTD White Gummy Deer 12 pk (amount 21.00, qty 1) | Bucked Up RTD Cherry Hard Candy 12pk (amount 21.00, qty 1) | MET-RX 100g Chocolate Chip Cookie Dough 9PK (amount 24.50, qty 1) | MET-RX 100g Salted Caramel Brownie 9PK (amount 24.50, qty 1) | Barebells White Choc Almond 12PK (amount 25.95, qty 1) | Barebells Lemon Cheesecake 12PK (amount 25.95, qty 1) | Fit Crunch Chocolate Chip Cookie Dough 88g 12ct (amount 27.50, qty 1) | Fit Crunch Milk & Cookies 88g 12ct (amount 27.50, qty 1) | Quest Chip Sweet Spicy Chili 8Pk (amount 18.50, qty 1) | Quest Chip Pizza 8Pk (amount 18.50, qty 1) | Quest Chip Loaded Taco 8Pk (amount 18.50, qty 1) | Quest Chip Buffalo Ranci 8Pk ***Quest Chips Feb 15-28 2026 Promo Buy 3 Get 1 FREE*** (qty 1) | Quest Bar Lemon Cake 12Pk ***short dated, good through Mar 14 2026*** (amount 12.00, qty 1) | Quest Bar Cookies N Cream 12Pk (amount 27.50, qty 1) | Quest Bar Cookie Dough 12Pk (amount 27.50, qty 1) | Quest Cookie Double Chocolate 12 Pk ***short dated, good through Mar 13 2026*** (amount 12.00, qty 1) | Quest Cookie Peanut Butter 12 Pk (amount 26.45, qty 1) | Prime Bites Blondie Cookies N Cream 12Pk (amount 26.50, qty 1) | Prime Bites Banana Nut 12Pk (amount 26.50, qty 1) | Prime Bites Blueberry Cobbler 12Pk (amount 26.50, qty 1) | Lenny & Larry Complete Cookie Pb Choc Chip (amount 25.15, qty 1) | Lenny & Larry Complete Cookie Oat Raisin Protein 12Pk (amount 25.15, qty 1) | Lenny & Larry Complete Cookie White Choc Mac Protein 12Pk (amount 25.15, qty 1) | Len And Larr Promo 15% Mcb Comp Cookies (qty 1) | Credit card surcharge (amount 23.13, qty 1)",
+        "description": "Ghost Energy Welch's Grape Cranberry 12Pk, Ghost Energy Sour Strips 12Pk, Ghost Energy Swedish Fish 12Pk, +30 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-02-17/fd6324ec-ed02-4a26-9866-056e05a3e35f-l-e-dist.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "fd6324ec-ed02-4a26-9866-056e05a3e35f-l-e-dist.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-02-17-2026-102244-3d316af9-c6d2-4ca6-ba1c-31d397eb461f.pdf",
+      "size": 379044,
+      "originalName": "fd6324ec-ed02-4a26-9866-056e05a3e35f-l-e-dist.pdf"
+    },
+    {
+      "invoice": {
+        "id": "e0a68115-3b4d-44d7-9cf4-10d97fe69191",
+        "store_key": "default",
+        "invoice_number": "17130",
+        "supplier_id": "8d099b27-bdd4-41f6-ab6f-b9b458f2d5d1",
+        "issue_date": "2026-03-26",
+        "notes": "AI extraction details\nExtracted vendor: Restaurant Depot\nVendor address: 3562 Route 66 Neptune, NJ 07753 (732) 643-9393C Customer #7437971 958,S Springfield Ave Springfield, NJ 07081-3508\nCustomer: COUNTRY FARMS DELI CONVENIENCE\n\nBackfilled extraction details\nItems: SAUS PTY 3532 FC (code 7091903532, amount 37.35, qty 1) | PORK ROLL TRENTON (code 4120802010, amount 38.34, qty 1) | TOM PIZZA MUTTI #10 (code 85006054510, amount 7.26, qty 1) | BRD SAND RLL PLN 12PK (code 7220125174, amount 4.21, qty 1) | BRD SAND RLL PLN 12PK (code 7220125174, amount 4.21, qty 1)",
+        "description": "SAUS PTY 3532 FC, PORK ROLL TRENTON, TOM PIZZA MUTTI #10, +2 more",
+        "pdf_path": "default/241c7b47-f556-4fe3-bef6-989948d93a04/2026-03-26/afcab89c-adf5-47fb-b732-96bd6deda9b8-receipt-17130.pdf",
+        "pdf_mime_type": null,
+        "pdf_file_name": "afcab89c-adf5-47fb-b732-96bd6deda9b8-receipt-17130.pdf"
+      },
+      "localPath": "tmp/invoice-upc-backfill/2026-03-26-17130-e0a68115-3b4d-44d7-9cf4-10d97fe69191.pdf",
+      "size": 28018,
+      "originalName": "afcab89c-adf5-47fb-b732-96bd6deda9b8-receipt-17130.pdf"
+    }
+  ]
+}

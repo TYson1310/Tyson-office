@@ -1,0 +1,5075 @@
+{
+  "createdAt": "2026-06-02T22:21:06.557Z",
+  "criteria": "notes OR pdf_text_upc_header score>=0.6 OR pdf_text score>=0.65; conflicts excluded",
+  "selected": [
+    {
+      "productId": "8674ef51-cdce-4eff-94ff-e2af17e94c12",
+      "productName": "BRD SAND RLL PLN 12PK",
+      "productSku": "INV-8D099B-BRD-SAND-RLL-PLN-1-YWR8JK",
+      "barcode": "7220125174",
+      "source": "notes",
+      "invoiceId": "e0a68115-3b4d-44d7-9cf4-10d97fe69191",
+      "invoiceNumber": "17130",
+      "description": "BRD SAND RLL PLN 12PK",
+      "score": 1,
+      "evidenceLine": null,
+      "allCodes": [
+        [
+          "7220125174",
+          4
+        ]
+      ]
+    },
+    {
+      "productId": "d301714b-9f83-4160-9e37-f51fe502c5c2",
+      "productName": "AZ 22OZ CAN GREEN 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-GREEN-DFY8U9",
+      "barcode": "613008715274",
+      "source": "pdf_text",
+      "invoiceId": "73dc168f-ffc3-4319-8976-d689aa373605",
+      "invoiceNumber": "809264635",
+      "description": "3 629 |az 2202 CAN GREEN 24PK",
+      "score": 0.8,
+      "evidenceLine": "3 629 |az 2202 CAN GREEN 24PK 613008715274 | 20.99 0.00 0.00",
+      "allCodes": [
+        [
+          "613008715274",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "beb95fe3-436e-4878-83f3-606e9d06cf01",
+      "productName": "Hush Kratom Extract Shot Coffee Single",
+      "productSku": "INV-5C56B1-HUSH-KRATOM-EXTRAC-1MA7K7",
+      "barcode": "683332494220",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "HushKratom Extract Shot Coffeesingle = ttti(‘(D”””””*”*C«S OOO CSB",
+      "score": 0.717,
+      "evidenceLine": "“7 683332494220 -HushKratom Extract Shot Coffeesingle = ttti(‘(D”””””*”*C«S OOO CSB",
+      "allCodes": [
+        [
+          "683332494220",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "0986bccf-72a0-4d65-8146-a4cd6fa61e59",
+      "productName": "Hush Kratom Ultra Shots Single",
+      "productSku": "INV-5C56B1-HUSH-KRATOM-ULTRA-87FHSJ",
+      "barcode": "683332494486",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Hush Kratom Ultra Shots Single 1",
+      "score": 0.963,
+      "evidenceLine": "2 683332494486 Hush Kratom Ultra Shots Single 1 $8.25 $0.00 $8.25",
+      "allCodes": [
+        [
+          "683332494486",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8db08aa1-e492-4190-ac3c-7f14028c01e6",
+      "productName": "Pixel Lab LED Display 16*192",
+      "productSku": "INV-5C56B1-PIXEL-LAB-LED-DISP-1K7A94",
+      "barcode": "6504256542139",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Pixel Lab LED Display 16*192 1",
+      "score": 0.958,
+      "evidenceLine": "3 6504256542139 Pixel Lab LED Display 16*192 1 $200.00 $0.00 $200.00",
+      "allCodes": [
+        [
+          "6504256542139",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f2f21960-e0ff-4828-b854-5913dde5bed5",
+      "productName": "Pixel Lab LED Display 16*96 Plus",
+      "productSku": "INV-5C56B1-PIXEL-LAB-LED-DISP-1ACUSQ",
+      "barcode": "6504256542184",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "—_—~Pixel Lab LED Display 16*96 Plus 2",
+      "score": 0.963,
+      "evidenceLine": "4 6504256542184 —_—~Pixel Lab LED Display 16*96 Plus 2 $116.00 $0.00 $230.00",
+      "allCodes": [
+        [
+          "6504256542184",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "342fa6bd-4507-49db-8c12-922f9dcfb185",
+      "productName": "Dice 48ct",
+      "productSku": "INV-5C56B1-DICE-48CT-100M0J",
+      "barcode": "655708011652",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Dice 48ct 1",
+      "score": 0.889,
+      "evidenceLine": "6 655708011652 Dice 48ct 1 $5.99 $0.00 $5.99",
+      "allCodes": [
+        [
+          "655708011652",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "bc847f7c-7d1c-48f7-b083-0afbad960e4a",
+      "productName": "Kind Pen Variable 510 Battery Black",
+      "productSku": "INV-5C56B1-KIND-PEN-VARIABLE-1HH5QW",
+      "barcode": "691959362853",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Kind Pen Variable 510 Battery Black 3",
+      "score": 0.968,
+      "evidenceLine": "7 691959362853 Kind Pen Variable 510 Battery Black 3 $5.00 $0.00 $15.00",
+      "allCodes": [
+        [
+          "691959362853",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2509a76b-d085-42ad-af74-3c71dcbb960e",
+      "productName": "ADD ALL 2pk Capsules Single",
+      "productSku": "INV-5C56B1-ADD-ALL-2PK-CAPSUL-N3BLKH",
+      "barcode": "853168006489",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "ADD ALL 2pk Capsules Single 3",
+      "score": 0.958,
+      "evidenceLine": "8 853168006489 ADD ALL 2pk Capsules Single 3 $4.00 $0.00 $12.00",
+      "allCodes": [
+        [
+          "853168006489",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "612ec059-b4a5-4d04-885d-f2bee3fc541b",
+      "productName": "Sharpie Fine Marker Black Single",
+      "productSku": "INV-5C56B1-SHARPIE-FINE-MARKE-1ITBS8",
+      "barcode": "071641301016",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Sharpie Fine Marker Black Single 3 sun",
+      "score": 0.875,
+      "evidenceLine": "9 071641301016 Sharpie Fine Marker Black Single 3 sun $0.00 $3.33",
+      "allCodes": [
+        [
+          "071641301016",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "9e710179-febb-4ced-9871-82e66aad77b2",
+      "productName": "House stuff scissor 8in",
+      "productSku": "INV-5C56B1-HOUSE-STUFF-SCISSO-P3APY9",
+      "barcode": "856577006644",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "House stuff scissor 8in 3",
+      "score": 0.952,
+      "evidenceLine": "10 856577006644 House stuff scissor 8in 3 $0.99 $0.00 $2.97",
+      "allCodes": [
+        [
+          "856577006644",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "761d36af-c885-4de7-9aa2-9ba5a68c3b98",
+      "productName": "Gillette Black Razors 3pk",
+      "productSku": "INV-5C56B1-GILLETTE-BLACK-RAZ-1NDCZ6",
+      "barcode": "047400670372",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Gillette Black Razors 3pk 2",
+      "score": 0.957,
+      "evidenceLine": "Nl 047400670372 Gillette Black Razors 3pk 2 $1.69 $0.00 $3.38",
+      "allCodes": [
+        [
+          "047400670372",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c8e8979a-9863-4e4c-b6f7-2a06848ee825",
+      "productName": "Bic Cristal Pen 2pk Red",
+      "productSku": "INV-5C56B1-BIC-CRISTAL-PEN-2P-14FLB2",
+      "barcode": "070330902848",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "—_Bic Cristal Pen 2pk Red 1",
+      "score": 0.95,
+      "evidenceLine": "12 070330902848 —_Bic Cristal Pen 2pk Red 1 $0.79 $0.00 $0.79",
+      "allCodes": [
+        [
+          "070330902848",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c3690c1f-fa6e-4558-8e69-f3b8e3dc1061",
+      "productName": "Bic Cristal Pen 2pk blue",
+      "productSku": "INV-5C56B1-BIC-CRISTAL-PEN-2P-1JQ62B",
+      "barcode": "070330902824",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Bic Cristal Pen 2pk blue 1",
+      "score": 0.952,
+      "evidenceLine": "13 070330902824 Bic Cristal Pen 2pk blue 1 $0.79 $0.00 $0.79",
+      "allCodes": [
+        [
+          "070330902824",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "bb3fe608-f54a-47b8-afc3-6951d9965f2f",
+      "productName": "Sharpie Black Marker 2ct",
+      "productSku": "INV-5C56B1-SHARPIE-BLACK-MARK-16RHSM",
+      "barcode": "071641301627",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Sharpie Black Marker 2ct 1 $169",
+      "score": 0.84,
+      "evidenceLine": "15 071641301627 Sharpie Black Marker 2ct 1 $169 $0.00 $1.69",
+      "allCodes": [
+        [
+          "071641301627",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "5b91427f-b492-4538-a607-751cb0d884fd",
+      "productName": "Trim Emery Boards",
+      "productSku": "INV-5C56B1-TRIM-EMERY-BOARDS-YW3VOH",
+      "barcode": "071603625006",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Trim Emery Boards 3",
+      "score": 0.938,
+      "evidenceLine": "16 071603625006 Trim Emery Boards 3 $0.69 $0.00 $2.07",
+      "allCodes": [
+        [
+          "071603625006",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2f9092cd-856b-4393-979f-74d2e592ab4d",
+      "productName": "TRIM Slant tip Tweezer",
+      "productSku": "INV-5C56B1-TRIM-SLANT-TIP-TWE-142IE4",
+      "barcode": "071603529007",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "TRIM Slant tip Tweezer 3",
+      "score": 0.95,
+      "evidenceLine": "17 071603529007 TRIM Slant tip Tweezer 3 $0.89 $0.00 $2.67",
+      "allCodes": [
+        [
+          "071603529007",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e2ba8f4b-4e5e-4471-bda3-273eb57a0b0c",
+      "productName": "Trim Deluxe Fingernail Clipper Nail Care Single",
+      "productSku": "INV-5C56B1-TRIM-DELUXE-FINGER-1790VM",
+      "barcode": "071603150003",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Trim Deluxe Fingernail Clipper Nail Care Single 3",
+      "score": 0.976,
+      "evidenceLine": "18 071603150003 Trim Deluxe Fingernail Clipper Nail Care Single 3 $0.99 $0.00 $2.97",
+      "allCodes": [
+        [
+          "071603150003",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "abf82ed1-bfe0-4059-a475-adaba2436248",
+      "productName": "Trim Nail Clipper Big Single",
+      "productSku": "INV-5C56B1-TRIM-NAIL-CLIPPER-OTXNMR",
+      "barcode": "071603004481",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Trim Nail Clipper Big Single 3",
+      "score": 0.96,
+      "evidenceLine": "19 071603004481 Trim Nail Clipper Big Single 3 $0.99 $0.00 $2.97",
+      "allCodes": [
+        [
+          "071603004481",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "37fa97a6-e7ad-4572-9e70-5aee19d65f7b",
+      "productName": "Krazy Glue",
+      "productSku": "INV-5C56B1-KRAZY-GLUE-1T5YIT",
+      "barcode": "890246000472",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "—krazy Glue 3",
+      "score": 0.9,
+      "evidenceLine": "20 890246000472 —krazy Glue 3 $0.94 $0.00 $2.82",
+      "allCodes": [
+        [
+          "890246000472",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "bfb57d5e-8510-4c95-b08f-ecc3d4a6f2c3",
+      "productName": "Vaseline Lotion Pro Age Repair Lotion 100ml",
+      "productSku": "INV-5C56B1-VASELINE-LOTION-PR-1IB4VD",
+      "barcode": "8999999024772",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Vaseline Lotion Pro Age Repair Lotion 100m! 2",
+      "score": 0.714,
+      "evidenceLine": "21 8999999024772 Vaseline Lotion Pro Age Repair Lotion 100m! 2 $1.19 $0.00 $2.38",
+      "allCodes": [
+        [
+          "8999999024772",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "0277b141-294b-441f-8e89-2ff85663b2f4",
+      "productName": "Vaseline Intensive Care Lotion 100ml",
+      "productSku": "INV-5C56B1-VASELINE-INTENSIVE-9BHHFS",
+      "barcode": "8989999045562",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "__ Vaseline Intensive Care Lotion 100m! 2 $119",
+      "score": 0.667,
+      "evidenceLine": "22 8989999045562 __ Vaseline Intensive Care Lotion 100m! 2 $119 $0.00 $2.38",
+      "allCodes": [
+        [
+          "8989999045562",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "9c0ab6d4-67a5-4997-bf6e-98b7e446ca27",
+      "productName": "Banana Boat Sport Ultra 1.8oz",
+      "productSku": "INV-5C56B1-BANANA-BOAT-SPORT-F0NYZJ",
+      "barcode": "079656122213",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Banana Boat Sport Ultra 1.802 3",
+      "score": 0.8,
+      "evidenceLine": "23 079656122213 Banana Boat Sport Ultra 1.802 3 $2.50 $0.00 $7.50",
+      "allCodes": [
+        [
+          "079656122213",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "a91dcea3-2eb4-46f4-9c44-eb6dda47ad22",
+      "productName": "Envelop 80ct",
+      "productSku": "INV-5C56B1-ENVELOP-80CT-PD2YK8",
+      "barcode": "043100752127",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Envelop 80ct 1 $19",
+      "score": 0.786,
+      "evidenceLine": "28 043100752127 Envelop 80ct 1 $19 $0.00 sug",
+      "allCodes": [
+        [
+          "043100752127",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6d455e9d-96dd-46f8-8cfa-deeaaf7d8ae8",
+      "productName": "Envelop 100ct",
+      "productSku": "INV-5C56B1-ENVELOP-100CT-1JIJJD",
+      "barcode": "043100751007",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Envelop 100ct 1 $119",
+      "score": 0.75,
+      "evidenceLine": "27 043100751007 Envelop 100ct 1 $119 $0.00 slg",
+      "allCodes": [
+        [
+          "043100751007",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "65607beb-2297-4e59-a41f-be8f8c5e1c61",
+      "productName": "Colgate Classic Deep Clean Tooth Brush 12ct",
+      "productSku": "INV-5C56B1-COLGATE-CLASSIC-DE-X49YBW",
+      "barcode": "8714789823775",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Colgate Classic Deep Clean Tooth Brush l2ct 1",
+      "score": 0.75,
+      "evidenceLine": "28 8714789823775 Colgate Classic Deep Clean Tooth Brush l2ct 1 $8.99 $0.00 $8.99",
+      "allCodes": [
+        [
+          "8714789823775",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "60a961b3-e1c0-4082-ae40-090dc2192ee5",
+      "productName": "Colgate Tooth Paste Cavity Protection 4oz Single",
+      "productSku": "INV-5C56B1-COLGATE-TOOTH-PAST-1NCCJ2",
+      "barcode": "035000514066",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Colgate Tooth Paste Cavity Protection 40z Single 3",
+      "score": 0.75,
+      "evidenceLine": "29 035000514066 Colgate Tooth Paste Cavity Protection 40z Single 3 $1.89 $0.00 $5.67",
+      "allCodes": [
+        [
+          "035000514066",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "7180241c-9366-4952-8145-21af2eb087fa",
+      "productName": "Tape It Duct Tape Silver 10Yds",
+      "productSku": "INV-5C56B1-TAPE-IT-DUCT-TAPE-1PGVZF",
+      "barcode": "88168500266",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Tape It Duct Tape Silver 10Yds 3",
+      "score": 0.962,
+      "evidenceLine": "31 88168500266 Tape It Duct Tape Silver 10Yds 3 $0.99 $0.00 $2.97",
+      "allCodes": [
+        [
+          "88168500266",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "0f3f7188-dd0c-4287-87a4-55379aadc826",
+      "productName": "Corton Box Packing Brown Tape 50Yds",
+      "productSku": "INV-5C56B1-CORTON-BOX-PACKING-1X48RL",
+      "barcode": "852682506925",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Corton Box Packing Brown Tape 50Yds 3",
+      "score": 0.968,
+      "evidenceLine": "32 852682506925 Corton Box Packing Brown Tape 50Yds 3 $0.99 $0.00 $2.97",
+      "allCodes": [
+        [
+          "852682506925",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3040b743-4aee-45db-85c1-e35aac1b3587",
+      "productName": "Gillette Mach3 1 Razor",
+      "productSku": "INV-5C56B1-GILLETTE-MACH3-1-R-QHJMHF",
+      "barcode": "047400003439",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Gillette Mach3 1 Razor 2",
+      "score": 0.95,
+      "evidenceLine": "36 047400003439 Gillette Mach3 1 Razor 2 $3.49 $0.00 $6.98",
+      "allCodes": [
+        [
+          "047400003439",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f0bed463-adf2-4db2-88f1-9b782d049cf5",
+      "productName": "Gillette Good News Razors 30ct",
+      "productSku": "INV-5C56B1-GILLETTE-GOOD-NEWS-17OGEH",
+      "barcode": "852682506789",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Gillette Good News Razors 30ct 1",
+      "score": 0.963,
+      "evidenceLine": "37 852682506789 Gillette Good News Razors 30ct 1 $1.99 $0.00 $9",
+      "allCodes": [
+        [
+          "852682506789",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "a8634f11-973d-447d-9125-e5919c2c1e80",
+      "productName": "Blazy Susan 11/4 Size Pink Deluxe Rolling Kit 20ct",
+      "productSku": "INV-5C56B1-BLAZY-SUSAN-11-4-S-1B4QUZ",
+      "barcode": "051497315689",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Blazy Susan 11/4 Size Pink Deluxe Rolling Kit 20ct 1",
+      "score": 0.976,
+      "evidenceLine": "46 051497315689 Blazy Susan 11/4 Size Pink Deluxe Rolling Kit 20ct 1 $34.99 $0.00 $34.99",
+      "allCodes": [
+        [
+          "051497315689",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8f37c6b3-f84f-4575-8cef-2f2e34eeff75",
+      "productName": "EZ Wider 11/4 Size Papers 24ct",
+      "productSku": "INV-5C56B1-EZ-WIDER-11-4-SIZE-5JDAOR",
+      "barcode": "074460200645",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "£Z Wider 11/4 Size Papers 24ct 1",
+      "score": 0.8,
+      "evidenceLine": "47 074460200645 £Z Wider 11/4 Size Papers 24ct 1 $39.49 $0.00 $39.49",
+      "allCodes": [
+        [
+          "074460200645",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "781b0c6e-4e70-4e7d-bd72-afc5ec1d2c05",
+      "productName": "EZ Wider Rolling Papers 11/2 Size 24ct",
+      "productSku": "INV-5C56B1-EZ-WIDER-ROLLING-P-1RQ88H",
+      "barcode": "074460005073",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "EZ Wider ROlling Papers 11/2 Size 24ct 1",
+      "score": 0.969,
+      "evidenceLine": "48 074460005073 EZ Wider ROlling Papers 11/2 Size 24ct 1 $39.49 $0.00 $39.49",
+      "allCodes": [
+        [
+          "074460005073",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "74e3a375-5cff-4dab-9bce-87ae9f8e2d8b",
+      "productName": "EZ Wider Rolling Paper Double Wide 24ct",
+      "productSku": "INV-5C56B1-EZ-WIDER-ROLLING-P-1JIB33",
+      "barcode": "0744600050",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "EZ Wider Rolling Paper Double Wide 24ct 1",
+      "score": 0.971,
+      "evidenceLine": "49 0744600050 EZ Wider Rolling Paper Double Wide 24ct 1 $39.49 $0.00 $39.49",
+      "allCodes": [
+        [
+          "0744600050",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2d139f2f-e560-45a0-aea4-e89833430390",
+      "productName": "Grabba leaf Natural 10packs",
+      "productSku": "INV-5C56B1-GRABBA-LEAF-NATURA-107IP1",
+      "barcode": "855906007031",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Grabba leaf Natural 10packs 1",
+      "score": 0.96,
+      "evidenceLine": "50 855906007031 Grabba leaf Natural 10packs 1 $39.99 $0.00 $39.99",
+      "allCodes": [
+        [
+          "855906007031",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d82443a7-4618-45c3-8c08-efa8d1801528",
+      "productName": "Alien Grabba Tubes 30ct/Box",
+      "productSku": "INV-5C56B1-ALIEN-GRABBA-TUBES-TXLSF6",
+      "barcode": "9485348138522",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Alien Grabba Tubes 30ct/Box 1",
+      "score": 0.958,
+      "evidenceLine": "51 9485348138522 Alien Grabba Tubes 30ct/Box 1 $60.00 $0.00 $60.00",
+      "allCodes": [
+        [
+          "9485348138522",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "75ce27d6-9193-44fe-b1f3-4e3c2a478a9a",
+      "productName": "Hot Head Grabba 30ct",
+      "productSku": "INV-5C56B1-HOT-HEAD-GRABBA-30-TYH506",
+      "barcode": "5503152707803",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Hot Head Grabba 30ct 1",
+      "score": 0.944,
+      "evidenceLine": "52 5503152707803 Hot Head Grabba 30ct 1 $60.00 $0.00 $60.00",
+      "allCodes": [
+        [
+          "5503152707803",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "32764bdf-1cfb-426d-9ccc-45bfeca292ba",
+      "productName": "Glass Pipe LL 5ct RC",
+      "productSku": "INV-5C56B1-GLASS-PIPE-LL-5CT-19UOAG",
+      "barcode": "616663964933",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Glass Pipe LL Sct RC 1",
+      "score": 0.667,
+      "evidenceLine": "53 616663964933 Glass Pipe LL Sct RC 1 $55.00 $0.00 $55.00",
+      "allCodes": [
+        [
+          "616663964933",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "b08ffd1e-cf7a-4fd6-8c35-95556a02af34",
+      "productName": "Glass Pipe LL 5ct PD",
+      "productSku": "INV-5C56B1-GLASS-PIPE-LL-5CT-19UOAB",
+      "barcode": "742978846166",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Glass Pipe LL Sct PD 1",
+      "score": 0.667,
+      "evidenceLine": "54 742978846166 Glass Pipe LL Sct PD 1 $55.00 $0.00 $55.00",
+      "allCodes": [
+        [
+          "742978846166",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "1851b1fc-1ec7-4b21-aea6-5d2a6a7eb69a",
+      "productName": "Havana Leaf Wrap Strawberry Cream 5ct",
+      "productSku": "INV-5C56B1-HAVANA-LEAF-WRAP-S-OXQBOG",
+      "barcode": "657479515353",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Havana Leaf Wrap Strawberry Cream Sct 1",
+      "score": 0.714,
+      "evidenceLine": "57 657479515353 Havana Leaf Wrap Strawberry Cream Sct 1 $35.00 $0.00 $35.00",
+      "allCodes": [
+        [
+          "657479515353",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2f5cbc1a-9f4e-4419-b176-5dc0c42a9ddd",
+      "productName": "Havana Leaf Wrap Grape Soda 5ct",
+      "productSku": "INV-5C56B1-HAVANA-LEAF-WRAP-G-1HZ37V",
+      "barcode": "71578670008",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Havana Leaf Wrap Grape Soda Sct 1",
+      "score": 0.714,
+      "evidenceLine": "58 71578670008) Havana Leaf Wrap Grape Soda Sct 1 $35.00 $0.00 $35.00",
+      "allCodes": [
+        [
+          "71578670008",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d2fd385e-907b-4998-82b2-2eeb424bc368",
+      "productName": "Blazy Susan 11/4 Size Purple Deluxe Rolling Kit 20ct",
+      "productSku": "INV-5C56B1-BLAZY-SUSAN-11-4-S-Y9TKGU",
+      "barcode": "051497320232",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Blazy Susan 11/4 Size Purple Deluxe Rolling Kit 20ct 1",
+      "score": 0.977,
+      "evidenceLine": "60 051497320232 Blazy Susan 11/4 Size Purple Deluxe Rolling Kit 20ct 1 $34.99 $0.00 $34.99",
+      "allCodes": [
+        [
+          "051497320232",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d3286509-8b71-49e3-81b8-e42fb30e8e03",
+      "productName": "Blazy Susan King Size Slim Purple Rolling Papers 50ct",
+      "productSku": "INV-5C56B1-BLAZY-SUSAN-KING-S-19E2MT",
+      "barcode": "051497315535",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Blazy Susan King Size Slim Purple Rolling Papers 50ct 1",
+      "score": 0.978,
+      "evidenceLine": "61 051497315535 Blazy Susan King Size Slim Purple Rolling Papers 50ct 1 $33.99 $0.00 $33.99",
+      "allCodes": [
+        [
+          "051497315535",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "525ce58b-c6ca-410c-a96b-39c0dcc77a23",
+      "productName": "Raw Classic 1-1/2 Size Rolling-Papers 25ct",
+      "productSku": "INV-5C56B1-RAW-CLASSIC-1-1-2-EQSYB7",
+      "barcode": "716165178439",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Raw Classic I-1/2 Size Rolling-Papers 25ct 1",
+      "score": 1,
+      "evidenceLine": "64 716165178439 Raw Classic I-1/2 Size Rolling-Papers 25ct 1 $19.99 $0.00 $19.99",
+      "allCodes": [
+        [
+          "716165178439",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "7a2b7517-e26c-4bb8-a77e-f03d7123cb21",
+      "productName": "Raw Pre-Rolled Tips 20ct",
+      "productSku": "INV-5C56B1-RAW-PRE-ROLLED-TIP-1QV2U8",
+      "barcode": "716165179498",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Raw Pre-Rolled Tips 20ct 1",
+      "score": 0.952,
+      "evidenceLine": "65 716165179498 Raw Pre-Rolled Tips 20ct 1 $18.00 $0.00 $18.00",
+      "allCodes": [
+        [
+          "716165179498",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "522f2c0e-c748-4974-803e-ed0666cae440",
+      "productName": "Raw Pre Rolled Tips 20pk",
+      "productSku": "INV-5C56B1-RAW-PRE-ROLLED-TIP-1QV2UR",
+      "barcode": "716165253822",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Raw Pre Rolled Tips 20pk 1",
+      "score": 0.952,
+      "evidenceLine": "66 716165253822 Raw Pre Rolled Tips 20pk 1 $18.00 $0.00 $18.00",
+      "allCodes": [
+        [
+          "716165253822",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "87a5ee42-09d1-484c-9140-6a8380163413",
+      "productName": "Raw Classic Anniversary Rolling Papers 11/4 Size 24ct/Box",
+      "productSku": "INV-5C56B1-RAW-CLASSIC-ANNIVE-N76IA9",
+      "barcode": "716165177326",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Raw Classic Anniversary Rolling Papers 11/4 Size 24ct/Box 1",
+      "score": 0.98,
+      "evidenceLine": "67 716165177326 Raw Classic Anniversary Rolling Papers 11/4 Size 24ct/Box 1 $22.95 $0.00 $22.95",
+      "allCodes": [
+        [
+          "716165177326",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "de58502f-b8df-4ba5-98e4-dfdf872ee1cf",
+      "productName": "Raw Classic King Size Slim Rolling-Papers 50ct",
+      "productSku": "INV-5C56B1-RAW-CLASSIC-KING-S-V4EHMB",
+      "barcode": "716165177364",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Raw Classic King Size Slim Rolling-Papers 50ct 1",
+      "score": 0.975,
+      "evidenceLine": "68 716165177364 Raw Classic King Size Slim Rolling-Papers 50ct 1 $37.49 $0.00 $37.49",
+      "allCodes": [
+        [
+          "716165177364",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "0563992e-489f-4dbc-845e-a5c26595c159",
+      "productName": "Raw Connoisseur King Size Slim Rolling Papers + Tips 24ct",
+      "productSku": "INV-5C56B1-RAW-CONNOISSEUR-KI-FJ40UA",
+      "barcode": "716165174028",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Raw Connoisseur King Size Slim Rolling Papers + Tips 24ct 1",
+      "score": 0.979,
+      "evidenceLine": "69 716165174028 Raw Connoisseur King Size Slim Rolling Papers + Tips 24ct 1 $34.49 $0.00 $34.49",
+      "allCodes": [
+        [
+          "716165174028",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "27387dee-3ebe-4627-be35-53ac2098f296",
+      "productName": "Raw Classic Cone King Size 3pk 32ct",
+      "productSku": "INV-5C56B1-RAW-CLASSIC-CONE-K-T2WN23",
+      "barcode": "716165174585",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Raw Classic Cone King Size 3pk 32ct 1",
+      "score": 0.967,
+      "evidenceLine": "70 716165174585 Raw Classic Cone King Size 3pk 32ct 1 $40.00 $0.00 $40.00",
+      "allCodes": [
+        [
+          "716165174585",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "552aebad-24cd-4224-88a2-14ca4d984e45",
+      "productName": "Raw Classic 11/4 Size Cones 20ct",
+      "productSku": "INV-5C56B1-RAW-CLASSIC-11-4-S-1L59EE",
+      "barcode": "716165252948",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Raw Classic 11/4 Size Cones 20ct 1",
+      "score": 0.963,
+      "evidenceLine": "71 716165252948 Raw Classic 11/4 Size Cones 20ct 1 $45.99 $0.00 $45.99",
+      "allCodes": [
+        [
+          "716165252948",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6f1294c8-8b33-4eaf-bcbd-62c354c34e05",
+      "productName": "CHZ PROV SLC GL",
+      "productSku": "INV-8D099B-CHZ-PROV-SLC-GL-102RE1",
+      "barcode": "3651415264",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "322189c0-7253-40c3-bde7-4764d12fca75",
+      "invoiceNumber": "10565",
+      "description": "CHZ PROV SLC GL",
+      "score": 1,
+      "evidenceLine": "3651415264 CHZ PROV SLC GL",
+      "allCodes": [
+        [
+          "3651415264",
+          3
+        ]
+      ]
+    },
+    {
+      "productId": "bc082da9-bf6c-41b9-90e3-cd2369323fa9",
+      "productName": "CHZ CHED SLC GL 6/1.5L",
+      "productSku": "INV-8D099B-CHZ-CHED-SLC-GL-6-TVEXS6",
+      "barcode": "3651413050",
+      "source": "pdf_text",
+      "invoiceId": "322189c0-7253-40c3-bde7-4764d12fca75",
+      "invoiceNumber": "10565",
+      "description": "CHZ CHED SLC GL 6/1.5L",
+      "score": 1,
+      "evidenceLine": "3651413050 CHZ CHED SLC GL 6/1.5L",
+      "allCodes": [
+        [
+          "3651413050",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "5cb1d071-8511-483d-81af-a46a27ec0c23",
+      "productName": "CHZ SWISS SLCD 6/1.5L",
+      "productSku": "INV-8D099B-CHZ-SWISS-SLCD-6-1-1WC62Y",
+      "barcode": "3651411077",
+      "source": "pdf_text",
+      "invoiceId": "322189c0-7253-40c3-bde7-4764d12fca75",
+      "invoiceNumber": "10565",
+      "description": "CHZ SWISS SLCD 6/1.5L",
+      "score": 1,
+      "evidenceLine": "3651411077 CHZ SWISS SLCD 6/1.5L",
+      "allCodes": [
+        [
+          "3651411077",
+          3
+        ]
+      ]
+    },
+    {
+      "productId": "7223bd67-6cc0-4674-a532-c28fcda4517c",
+      "productName": "CHZ PEPJCK SLC GL 6/1.5L",
+      "productSku": "INV-8D099B-CHZ-PEPJCK-SLC-GL-11WA5Z",
+      "barcode": "3651414475",
+      "source": "pdf_text",
+      "invoiceId": "322189c0-7253-40c3-bde7-4764d12fca75",
+      "invoiceNumber": "10565",
+      "description": "CHZ PEPJCK SLC GL 6/1.5L 1",
+      "score": 0.947,
+      "evidenceLine": "3651414475 CHZ PEPJCK SLC GL 6/1.5L 1",
+      "allCodes": [
+        [
+          "3651414475",
+          3
+        ]
+      ]
+    },
+    {
+      "productId": "e1dce2cb-f274-420e-8ff8-1af964226a0b",
+      "productName": "CHZ MOZZ WM GLB 6/5LB",
+      "productSku": "INV-8D099B-CHZ-MOZZ-WM-GLB-6-138ENT",
+      "barcode": "7403000150",
+      "source": "pdf_text",
+      "invoiceId": "322189c0-7253-40c3-bde7-4764d12fca75",
+      "invoiceNumber": "10565",
+      "description": "CHZ MOZZ WM GLB 6/5LB",
+      "score": 1,
+      "evidenceLine": "7403000150 CHZ MOZZ WM GLB 6/5LB",
+      "allCodes": [
+        [
+          "7403000150",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "823613cf-62a5-43f3-b273-12387e51688d",
+      "productName": "PD RED GRAPES 3LB",
+      "productSku": "INV-8D099B-PD-RED-GRAPES-3LB-16KJIJ",
+      "barcode": "99949570056",
+      "source": "pdf_text",
+      "invoiceId": "322189c0-7253-40c3-bde7-4764d12fca75",
+      "invoiceNumber": "10565",
+      "description": "PD RED GRAPES 3LB",
+      "score": 1,
+      "evidenceLine": "99949570056 PD RED GRAPES 3LB",
+      "allCodes": [
+        [
+          "99949570056",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "9d64bdbd-8491-4920-a1fd-5efcdb43fbbe",
+      "productName": "TKY GOLDN RST BS",
+      "productSku": "INV-8D099B-TKY-GOLDN-RST-BS-106MM9",
+      "barcode": "20804020000",
+      "source": "pdf_text",
+      "invoiceId": "322189c0-7253-40c3-bde7-4764d12fca75",
+      "invoiceNumber": "10565",
+      "description": "TKY GOLDN RST BS",
+      "score": 1,
+      "evidenceLine": "20804020000 TKY GOLDN RST BS",
+      "allCodes": [
+        [
+          "20804020000",
+          4
+        ]
+      ]
+    },
+    {
+      "productId": "875b143a-c6ce-4093-8e83-5fab840d7754",
+      "productName": "EGGS LOOSE LRG WH 15DZ",
+      "productSku": "INV-8D099B-EGGS-LOOSE-LRG-WH-1GTQ52",
+      "barcode": "76069501074",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "fe6e2847-7225-4c52-bf71-dda8cb0b89ce",
+      "invoiceNumber": "10922",
+      "description": "EGGS LOOSE LRG WH 15DZ 1",
+      "score": 0.947,
+      "evidenceLine": "76069501074 EGGS LOOSE LRG WH 15DZ 1",
+      "allCodes": [
+        [
+          "76069501074",
+          3
+        ]
+      ]
+    },
+    {
+      "productId": "fbada990-4f24-4010-9acd-ecd46b113f64",
+      "productName": "FOIL INTERFOLD 21215",
+      "productSku": "INV-8D099B-FOIL-INTERFOLD-212-1V1TAX",
+      "barcode": "74938421215",
+      "source": "pdf_text",
+      "invoiceId": "fe6e2847-7225-4c52-bf71-dda8cb0b89ce",
+      "invoiceNumber": "10922",
+      "description": "FOIL INTERFOLD 21215",
+      "score": 1,
+      "evidenceLine": "74938421215 FOIL INTERFOLD 21215",
+      "allCodes": [
+        [
+          "74938421215",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d8f25210-4a92-48b3-aa4c-73adc1757425",
+      "productName": "BTR SALT JF TUB 5LB",
+      "productSku": "INV-8D099B-BTR-SALT-JF-TUB-5L-OZN2Y6",
+      "barcode": "76069501058",
+      "source": "pdf_text",
+      "invoiceId": "fe6e2847-7225-4c52-bf71-dda8cb0b89ce",
+      "invoiceNumber": "10922",
+      "description": "BTR SALT JF TUB 5LB",
+      "score": 1,
+      "evidenceLine": "76069501058 BTR SALT JF TUB 5LB",
+      "allCodes": [
+        [
+          "76069501058",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "46b9462e-20e6-4cb8-9d76-f13814446223",
+      "productName": "CHZ CREAM SOFT JF 5LB.",
+      "productSku": "INV-8D099B-CHZ-CREAM-SOFT-JF-W1Q5TW",
+      "barcode": "76069500013",
+      "source": "pdf_text",
+      "invoiceId": "fe6e2847-7225-4c52-bf71-dda8cb0b89ce",
+      "invoiceNumber": "10922",
+      "description": "CHZ CREAM SOFT JF 5LB.",
+      "score": 1,
+      "evidenceLine": "76069500013 CHZ CREAM SOFT JF 5LB.",
+      "allCodes": [
+        [
+          "76069500013",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "345e6fd5-e4f9-445f-83a0-8c79a82f1336",
+      "productName": "PORK ROLL 3LB CASE",
+      "productSku": "INV-8D099B-PORK-ROLL-3LB-CASE-1DS7HW",
+      "barcode": "7550548165",
+      "source": "pdf_text",
+      "invoiceId": "fe6e2847-7225-4c52-bf71-dda8cb0b89ce",
+      "invoiceNumber": "10922",
+      "description": "PORK ROLL 3LB",
+      "score": 0.733,
+      "evidenceLine": "7550548165 PORK ROLL 3LB CASE",
+      "allCodes": [
+        [
+          "7550548165",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "67204b21-a374-40ff-b0ad-c46c954ed8a7",
+      "productName": "BACON 1 HORMEL 20/24",
+      "productSku": "INV-8D099B-BACON-1-HORMEL-20-1GZ9CO",
+      "barcode": "3760045386",
+      "source": "pdf_text",
+      "invoiceId": "fe6e2847-7225-4c52-bf71-dda8cb0b89ce",
+      "invoiceNumber": "10922",
+      "description": "BACON 1 HORMEL 20/24",
+      "score": 1,
+      "evidenceLine": "3760045386 BACON 1 HORMEL 20/24",
+      "allCodes": [
+        [
+          "3760045386",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "7fb6898a-80ec-4556-aa34-6f98292a60e6",
+      "productName": "PLANTERS PEANUTS DRY ROASTED 18CT",
+      "productSku": "INV-369778-PLANTERS-PEANUTS-D-J226D4",
+      "barcode": "029000022096",
+      "source": "pdf_text",
+      "invoiceId": "2d31e69c-a59b-48c5-b98c-a73882a9dc07",
+      "invoiceNumber": "364269",
+      "description": "31) 107371 | PLANTERS PEANUTS DRY ROASTED 18CT",
+      "score": 0.784,
+      "evidenceLine": "31) 107371 | PLANTERS PEANUTS DRY ROASTED 18CT 029000022096 ~1 $6.74 $6.74",
+      "allCodes": [
+        [
+          "029000022096",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "1a0d371f-a5ff-40db-b812-342b33352b95",
+      "productName": "ALMA FUERTE ROBUSTO II 5 1/4X52",
+      "productSku": "INV-902CD7-ALMA-FUERTE-ROBUST-1DZNQZ",
+      "barcode": "810134310278",
+      "source": "pdf_text",
+      "invoiceId": "4da766a3-0608-49db-927e-521be951779e",
+      "invoiceNumber": "178",
+      "description": "ALMA FUERTE ROBUSTO II 5 1/4X52 (10",
+      "score": 0.926,
+      "evidenceLine": "810134310278 | ALMA FUERTE ROBUSTO II 5 1/4X52 (10) $156.94 $156.94",
+      "allCodes": [
+        [
+          "810134310278",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "25224c07-dd20-4d03-9b11-2aa6681c3b3b",
+      "productName": "MONTECRISTO WHITE - CHURCHILL 54 X 7",
+      "productSku": "INV-902CD7-MONTECRISTO-WHITE-1KZGSM",
+      "barcode": "071610926601",
+      "source": "pdf_text",
+      "invoiceId": "4da766a3-0608-49db-927e-521be951779e",
+      "invoiceNumber": "178",
+      "description": "MONTECRISTO WHITE - CHURCHILL 54 X 7 (10",
+      "score": 0.935,
+      "evidenceLine": "ee ‘071610926601 | MONTECRISTO WHITE - CHURCHILL 54 X 7 (10)",
+      "allCodes": [
+        [
+          "071610926601",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "73963ece-ca9d-45b8-b5db-6d8d19331e07",
+      "productName": "HAM HAT 10%",
+      "productSku": "INV-8D099B-HAM-HAT-10-MLXDXO",
+      "barcode": "20804520000",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "7c37f41e-f743-4c4f-891a-422e22ee0732",
+      "invoiceNumber": "8997",
+      "description": "HAM HAT 10%",
+      "score": 1,
+      "evidenceLine": "20804520000 HAM HAT 10%",
+      "allCodes": [
+        [
+          "20804520000",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "cfdd2a35-1276-45a2-82d7-f3adcc7b5275",
+      "productName": "BRD HB 4IN PLN RCK 12CT",
+      "productSku": "INV-8D099B-BRD-HB-4IN-PLN-RCK-EUWJHH",
+      "barcode": "3479128110",
+      "source": "pdf_text",
+      "invoiceId": "7c37f41e-f743-4c4f-891a-422e22ee0732",
+      "invoiceNumber": "8997",
+      "description": "BRD HB 4IN PLN RCK 12CT 1",
+      "score": 0.947,
+      "evidenceLine": "3479128110 BRD HB 4IN PLN RCK 12CT 1",
+      "allCodes": [
+        [
+          "3479128110",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "035e7dce-4427-47c0-8b05-f284b46626de",
+      "productName": "BRD HB SEED RCK 5\" 12CT",
+      "productSku": "INV-8D099B-BRD-HB-SEED-RCK-5-12VD9E",
+      "barcode": "73479128120",
+      "source": "pdf_text",
+      "invoiceId": "7c37f41e-f743-4c4f-891a-422e22ee0732",
+      "invoiceNumber": "8997",
+      "description": "BRD HB SEED RCK 5\" 12CT 1",
+      "score": 0.944,
+      "evidenceLine": "73479128120 BRD HB SEED RCK 5\" 12CT 1",
+      "allCodes": [
+        [
+          "73479128120",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "fde09934-64ce-4d3c-af51-bb838cbce95b",
+      "productName": "MAYO XTRA HVY CQ GAL",
+      "productSku": "INV-8D099B-MAYO-XTRA-HVY-CQ-G-15HBP5",
+      "barcode": "76069500326",
+      "source": "pdf_text",
+      "invoiceId": "7c37f41e-f743-4c4f-891a-422e22ee0732",
+      "invoiceNumber": "8997",
+      "description": "MAYO XTRA HVY CQ GAL",
+      "score": 1,
+      "evidenceLine": "76069500326 MAYO XTRA HVY CQ GAL",
+      "allCodes": [
+        [
+          "76069500326",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "5e4cddee-b93f-459e-a3c6-6f883dd1ace9",
+      "productName": "FIRECLS BEEF PATTY CKD SEA HMSTL",
+      "productSku": "INV-23333F-FIRECLS-BEEF-PATTY-1QCEMW",
+      "barcode": "10000061364",
+      "source": "pdf_text",
+      "invoiceId": "0e3c0d36-f772-42e7-a5c2-dbabd0a75a98",
+      "invoiceNumber": "102752436",
+      "description": "iF CS 404 OZ |FIRECLS BEEF PATTY CKD SEA HMSTL",
+      "score": 0.75,
+      "evidenceLine": "iF CS 404 OZ |FIRECLS BEEF PATTY CKD SEA HMSTL 10000061364| 1561364| 83.29 83.29 i",
+      "allCodes": [
+        [
+          "10000061364",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d687e766-11be-4afe-95e3-094e0603d5ad",
+      "productName": "PHIL CH CHICKEN PHILLY OP FLAT M",
+      "productSku": "INV-23333F-PHIL-CH-CHICKEN-PH-1Q3SXO",
+      "barcode": "10000039301",
+      "source": "pdf_text",
+      "invoiceId": "0e3c0d36-f772-42e7-a5c2-dbabd0a75a98",
+      "invoiceNumber": "102752436",
+      "description": "F Acs 276 OZ |PHIL CH CHICKEN PHILLY OP FLAT M",
+      "score": 0.743,
+      "evidenceLine": "F Acs 276 OZ |PHIL CH CHICKEN PHILLY OP FLAT M 10000039301| 5076633| 39.99 39.99 g",
+      "allCodes": [
+        [
+          "10000039301",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4474bcc1-a88b-4712-927e-3ddab2a50873",
+      "productName": "BTRBALL BACON TURKEY LAYFLT",
+      "productSku": "INV-23333F-BTRBALL-BACON-TURK-1X6GCZ",
+      "barcode": "2265530302",
+      "source": "pdf_text",
+      "invoiceId": "0e3c0d36-f772-42e7-a5c2-dbabd0a75a98",
+      "invoiceNumber": "102752436",
+      "description": "C25 f s 276 LB |BTRBALL BACON TURKEY LAYFLT",
+      "score": 0.706,
+      "evidenceLine": "C25 f s 276 LB |BTRBALL BACON TURKEY LAYFLT 2265530302| 7008537| 57.95 57.95",
+      "allCodes": [
+        [
+          "2265530302",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "b590801e-b346-4f90-be8e-7e6955030f6a",
+      "productName": "SYS PRM APTZR PEPPER JAL CRM CHS",
+      "productSku": "INV-23333F-SYS-PRM-APTZR-PEPP-IDCZDN",
+      "barcode": "1000008459",
+      "source": "pdf_text",
+      "invoiceId": "0e3c0d36-f772-42e7-a5c2-dbabd0a75a98",
+      "invoiceNumber": "102752436",
+      "description": "F 5 44 LB |SYS PRM APTZR PEPPER JAL CRM CHS",
+      "score": 0.812,
+      "evidenceLine": "F 5 44 LB |SYS PRM APTZR PEPPER JAL CRM CHS 1000008459| 7107838| 107.11 107.11 i",
+      "allCodes": [
+        [
+          "1000008459",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "39b2699f-11b1-4ab8-a672-fd7f5c8f492c",
+      "productName": "TYSONRL CHICKEN BRST BRD PCK CSP",
+      "productSku": "INV-23333F-TYSONRL-CHICKEN-BR-1NPV0M",
+      "barcode": "10383610928",
+      "source": "pdf_text",
+      "invoiceId": "0e3c0d36-f772-42e7-a5c2-dbabd0a75a98",
+      "invoiceNumber": "102752436",
+      "description": "IF © JfC$ 43.5 OFTYSONRL CHICKEN BRST BRD PCK CSP",
+      "score": 0.73,
+      "evidenceLine": "IF © JfC$ 43.5 OFTYSONRL CHICKEN BRST BRD PCK CSP 10383610928| 8402170) 33.99 33.99",
+      "allCodes": [
+        [
+          "10383610928",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "832f3ab7-5e73-4567-9713-3112a987ece3",
+      "productName": "MILK WHOLE 1/2GAL",
+      "productSku": "INV-8D099B-MILK-WHOLE-1-2GAL-17JGGC",
+      "barcode": "7774136004",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "d3a58378-427a-45b5-b259-a394787f4086",
+      "invoiceNumber": "21782",
+      "description": "MILK WHOLE 1/2GAL",
+      "score": 1,
+      "evidenceLine": "7774136004 MILK WHOLE 1/2GAL",
+      "allCodes": [
+        [
+          "7774136004",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "528efd2b-d2d2-4eb3-a93f-a531891d681f",
+      "productName": "CHZ MOZZ W/M GALB R/W",
+      "productSku": "INV-8D099B-CHZ-MOZZ-W-M-GALB-MRURSG",
+      "barcode": "20505310000",
+      "source": "pdf_text",
+      "invoiceId": "d3a58378-427a-45b5-b259-a394787f4086",
+      "invoiceNumber": "21782",
+      "description": "CHZ MOZZ W/M GALB R/W",
+      "score": 1,
+      "evidenceLine": "20505310000 CHZ MOZZ W/M GALB R/W 4.96",
+      "allCodes": [
+        [
+          "20505310000",
+          4
+        ]
+      ]
+    },
+    {
+      "productId": "c7759e96-56a0-42cd-b8f2-d3eeae0a2564",
+      "productName": "BRD PANINI 81 GRIL 10CT",
+      "productSku": "INV-8D099B-BRD-PANINI-81-GRIL-MWT76M",
+      "barcode": "3239490099",
+      "source": "pdf_text",
+      "invoiceId": "d3a58378-427a-45b5-b259-a394787f4086",
+      "invoiceNumber": "21782",
+      "description": "BRD PANINI 8I GRIL 10CT 1",
+      "score": 0.8,
+      "evidenceLine": "3239490099 BRD PANINI 8I GRIL 10CT 1",
+      "allCodes": [
+        [
+          "3239490099",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3fa052eb-6c8e-4043-86f4-4d77cd3119c8",
+      "productName": "AZ 22OZ CAN ZERO GREEN 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-ZERO-G-1HQFWJ",
+      "barcode": "613008720728",
+      "source": "pdf_text",
+      "invoiceId": "8317788b-a105-491e-a5c8-ef66f57a91d6",
+      "invoiceNumber": "809201990",
+      "description": "1 1646 AZ 2202 CAN ZERO GREEN 24PK",
+      "score": 0.833,
+      "evidenceLine": "1 1646 AZ 2202 CAN ZERO GREEN 24PK 613008720728 | 20.99 5.49 | 0.00 0.00 15.50",
+      "allCodes": [
+        [
+          "613008720728",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "46206b05-e8e2-4708-bf7f-bbae5ef5265d",
+      "productName": "AZ 22OZ CAN SWEET 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-SWEET-OQ9X4A",
+      "barcode": "613008717704",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 fie41 Az 2202 CAN SWEET 24PK",
+      "score": 0.667,
+      "evidenceLine": "1 fie41 Az 2202 CAN SWEET 24PK 613008717704 | 2099 |. 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008717704",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e59a4389-ef99-4d20-8a39-a03afe19891b",
+      "productName": "AZ 22OZ CAN GRAPEADE 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-GRAPEA-1TRFIU",
+      "barcode": "613008719340",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 '637_ Az 2202 CAN GRAPEADE 24PK",
+      "score": 0.8,
+      "evidenceLine": "1 '637_ Az 2202 CAN GRAPEADE 24PK 613008719340 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008719340",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "30be70cd-737a-4906-b7fb-1629706f4767",
+      "productName": "AZ 22OZ CAN LEMONADE 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-LEMONA-7LZHSV",
+      "barcode": "613008716103",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 '634_ Az 2202 CAN LEMONADE 24PK",
+      "score": 0.8,
+      "evidenceLine": "1 '634_ Az 2202 CAN LEMONADE 24PK 613008716103 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008716103",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "90bc664b-5ec6-4a43-bf7d-d85167830bb7",
+      "productName": "AZ 22OZ CAN FRUIT PUNCH 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-FRUIT-1IXJL1",
+      "barcode": "613008718770",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 i628 Az 2202 CAN FRUIT PUNCH 24PK",
+      "score": 0.714,
+      "evidenceLine": "1 i628 Az 2202 CAN FRUIT PUNCH 24PK 613008718770 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008718770",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c842494f-4d41-430d-9eb4-3c3a68f29ddd",
+      "productName": "AZ 22OZ CAN ORANGEADE 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-ORANGE-104MOU",
+      "barcode": "613008715618",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 1627 Az 2202 CAN ORANGEADE 24PK",
+      "score": 0.8,
+      "evidenceLine": "1 1627 Az 2202 CAN ORANGEADE 24PK 613008715618 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008715618",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "365c3817-f01f-4143-a9ee-fa27d5a7ff29",
+      "productName": "AZ 22OZ CAN WATERMELON 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-WATERM-M6H56Y",
+      "barcode": "613008720216",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 fts24 [Az 2202 CAN WATERMELON 24PK",
+      "score": 0.667,
+      "evidenceLine": "1 fts24 [Az 2202 CAN WATERMELON 24PK 613008720216 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008720216",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "adfa378f-b945-4644-878e-e672dd1c7704",
+      "productName": "AZ 22OZ CAN KIWI STRAW 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-KIWI-S-1FWIWA",
+      "barcode": "613008736449",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 1623. Az 2202 CAN KIWI STRAW 24PK",
+      "score": 0.833,
+      "evidenceLine": "1 1623. Az 2202 CAN KIWI STRAW 24PK 613008736449 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008736449",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4e263051-ec5f-479b-a377-b17a4524f5b5",
+      "productName": "AZ 22OZ CAN MANGO 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-MANGO-12329P",
+      "barcode": "613008735425",
+      "source": "pdf_text",
+      "invoiceId": "8317788b-a105-491e-a5c8-ef66f57a91d6",
+      "invoiceNumber": "809201990",
+      "description": "1 }622. |Az 2202 CAN MANGO 24PK",
+      "score": 0.8,
+      "evidenceLine": "1 }622. |Az 2202 CAN MANGO 24PK 613008735425 | 20.99 5.49 | 0.00 0.00 15.50",
+      "allCodes": [
+        [
+          "613008735425",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "15a8a0dc-f64c-429c-ad79-5c8279678d66",
+      "productName": "AZ 22OZ CAN RASPBERRY 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-RASPBE-N72FEC",
+      "barcode": "613008735487",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 f'621 Az 2202 CAN RASPBERRY 24PK",
+      "score": 0.8,
+      "evidenceLine": "1 f'621 Az 2202 CAN RASPBERRY 24PK 613008735487 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008735487",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "623d4e2b-e18b-4b59-b788-ee9617863b88",
+      "productName": "AZ 22OZ CAN DRAGONFRT MANGO NP 2",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-DRAGON-KSD45S",
+      "barcode": "613008773021",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 1442 Az 2202 CAN DRAGONFRT MANGO NP 2",
+      "score": 0.833,
+      "evidenceLine": "1 1442 Az 2202 CAN DRAGONFRT MANGO NP 2 |613008773021 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008773021",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f47b95a9-0596-4207-bcbb-dcf587cb0fa9",
+      "productName": "AZ GALLON RASPBERRY 4PK",
+      "productSku": "INV-2D697F-AZ-GALLON-RASPBERR-1LL1UG",
+      "barcode": "613008724399",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "~ 1 i081 |Az GALLON RASPBERRY 4PK",
+      "score": 0.8,
+      "evidenceLine": "~ 1 i081 |Az GALLON RASPBERRY 4PK 613008724399 | 12.99 1.00 | 0.00 0.00 11.99",
+      "allCodes": [
+        [
+          "613008724399",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "92d956c0-837e-4898-8c1a-69d2eec3d590",
+      "productName": "AZ GALLON UNSWEETENED 4PK",
+      "productSku": "INV-2D697F-AZ-GALLON-UNSWEETE-VM0UFR",
+      "barcode": "613008719821",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "~ 1 ho72 )AZ GALLON UNSWEETENED 4PK",
+      "score": 0.815,
+      "evidenceLine": "~ 1 ho72 )AZ GALLON UNSWEETENED 4PK 613008719821 | 12.99 1.00 | 0.00 0.00 11.99",
+      "allCodes": [
+        [
+          "613008719821",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "0ab6d9ab-90e7-49b5-bfc5-f4d9c06f0f04",
+      "productName": "AZ GALLON SWEET 4PK",
+      "productSku": "INV-2D697F-AZ-GALLON-SWEET-4P-Z8OMCM",
+      "barcode": "613008719807",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 fo71_ AZ GALLON SWEET 4PK",
+      "score": 0.762,
+      "evidenceLine": "1 fo71_ AZ GALLON SWEET 4PK 613008719807 | 12.99 1.00 | 0.00 0.00 11.99",
+      "allCodes": [
+        [
+          "613008719807",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "a9be2c54-f382-46dd-a11f-611f8e51ca53",
+      "productName": "AZ GALLON GREEN 4PK",
+      "productSku": "INV-2D697F-AZ-GALLON-GREEN-4P-RX8NXP",
+      "barcode": "613008715113",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "~1 1063 [Az GALLON GREEN 4PK",
+      "score": 0.762,
+      "evidenceLine": "~1 1063 [Az GALLON GREEN 4PK 613008715113 | 12.99 1.00 | 0.00 0.00 11.99",
+      "allCodes": [
+        [
+          "613008715113",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "b26b79a3-3671-40e6-a62c-f81ff0a5e74b",
+      "productName": "AZ GALLON MUCHO MANGO 4PK",
+      "productSku": "INV-2D697F-AZ-GALLON-MUCHO-MA-1U6CWS",
+      "barcode": "613008740399",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "~1 #022 AZ GALLON MUCHO MANGO 4PK",
+      "score": 0.84,
+      "evidenceLine": "~1 #022 AZ GALLON MUCHO MANGO 4PK 613008740399 | 12.99 1.00 | 0.00 0.00 11.99",
+      "allCodes": [
+        [
+          "613008740399",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "bf4a9e18-651b-4ed3-9539-d6f2551d9aeb",
+      "productName": "AZ GALLON LEMON 4PK",
+      "productSku": "INV-2D697F-AZ-GALLON-LEMON-4P-1M2XX0",
+      "barcode": "613008725142",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "E ~ 1 #060 )AZGALLON LEMON 4PK",
+      "score": 0.762,
+      "evidenceLine": "E ~ 1 #060 )AZGALLON LEMON 4PK 613008725142 | 12.99 1.00 | 0.00 0.00 11.99",
+      "allCodes": [
+        [
+          "613008725142",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "1473768e-ea89-4afe-996b-57d00e69310f",
+      "productName": "AZ 20 OZ TALLBOY PEACH N.P. TEA",
+      "productSku": "INV-2D697F-AZ-20-OZ-TALLBOY-P-1JPICP",
+      "barcode": "613008751449",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "~1 945. |Az 20 OZ TALLBOY PEACH N.P. TEA",
+      "score": 0.852,
+      "evidenceLine": "~1 945. |Az 20 OZ TALLBOY PEACH N.P. TEA 613008751449 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008751449",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "0c43886a-d53a-4721-9372-62ebf011a9f4",
+      "productName": "AZ 20 OZ TALLBOY MUCHO MANGO 24P",
+      "productSku": "INV-2D697F-AZ-20-OZ-TALLBOY-M-13RT6Y",
+      "barcode": "613008725808",
+      "source": "pdf_text",
+      "invoiceId": "8317788b-a105-491e-a5c8-ef66f57a91d6",
+      "invoiceNumber": "809201990",
+      "description": "1 622 AZ 20 0Z TALLBOY MUCHO MANGO 24P",
+      "score": 0.714,
+      "evidenceLine": "1 622 AZ 20 0Z TALLBOY MUCHO MANGO 24P |613008725808 | 20.99 5.49 | 0.00 0.00 15.50",
+      "allCodes": [
+        [
+          "613008725808",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "65c6bcae-5cc3-44f0-bb27-f3961d0e1408",
+      "productName": "AZ 20 OZ TALLBOY GREEN 24PK",
+      "productSku": "INV-2D697F-AZ-20-OZ-TALLBOY-G-159WS3",
+      "barcode": "613008725723",
+      "source": "pdf_text",
+      "invoiceId": "8317788b-a105-491e-a5c8-ef66f57a91d6",
+      "invoiceNumber": "809201990",
+      "description": "1 B608 [AZ 20 OZ TALLBOY GREEN 24PK",
+      "score": 0.815,
+      "evidenceLine": "1 B608 [AZ 20 OZ TALLBOY GREEN 24PK 613008725723 | 20.99 5.49 | 0.00 0.00 18.50",
+      "allCodes": [
+        [
+          "613008725723",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "dcb5fabe-48ac-4e04-a26f-564c9e4a0ea2",
+      "productName": "PALMER 24/22OZ BLACK",
+      "productSku": "INV-2D697F-PALMER-24-22OZ-BLA-USDM46",
+      "barcode": "613008719319",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 [400 PALMER 24/2202 BLACK",
+      "score": 0.667,
+      "evidenceLine": "1 [400 PALMER 24/2202 BLACK 613008719319 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008719319",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "31e2b5db-0d0a-4c27-9910-f734afbe5f3b",
+      "productName": "HUBBA BUBBA BUBBLE TAPE ORIGINAL 6CT",
+      "productSku": "INV-369778-HUBBA-BUBBA-BUBBLE-19U3H3",
+      "barcode": "022000121134",
+      "source": "pdf_text",
+      "invoiceId": "88747bc4-f4b8-4143-b74d-fe28d2bcca59",
+      "invoiceNumber": "357567",
+      "description": "~ \"BUBBLE TAPE ORIGINAL 6CT",
+      "score": 0.677,
+      "evidenceLine": "~ \"BUBBLE TAPE ORIGINAL 6CT | 022000121134 | 1 $7.17 $7.17",
+      "allCodes": [
+        [
+          "022000121134",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "cd2e6843-e7d9-4a79-a16b-5a98fd1c945c",
+      "productName": "ICE BREAKER MINTS COOL MINT 8",
+      "productSku": "INV-369778-ICE-BREAKER-MINTS-11U47A",
+      "barcode": "034000720606",
+      "source": "pdf_text",
+      "invoiceId": "88747bc4-f4b8-4143-b74d-fe28d2bcca59",
+      "invoiceNumber": "357567",
+      "description": "~ AKER MINTS COOL MINT 8",
+      "score": 0.75,
+      "evidenceLine": "~ AKER MINTS COOL MINT 8 | 034000720606 1 $17.52 | $17.52",
+      "allCodes": [
+        [
+          "034000720606",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6131bdc2-c6aa-4567-976a-73d5f24d2b71",
+      "productName": "AMERICAN SPIRIT LIGHT BLUE BOX",
+      "productSku": "INV-369778-AMERICAN-SPIRIT-LI-UW8NEE",
+      "barcode": "047995855086",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "3ef9b632-1f78-49df-9277-091ab881a3d5",
+      "invoiceNumber": "360291",
+      "description": "he 616 | AMERICAN SPIRIT LIGHT BLUE BOX",
+      "score": 0.839,
+      "evidenceLine": "he 616 | AMERICAN SPIRIT LIGHT BLUE BOX 047995855086 1| $128.00 $ 128.00",
+      "allCodes": [
+        [
+          "047995855086",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "a48472a8-2470-490c-b532-ed5c876035cc",
+      "productName": "STP Power Stearing Fluid 12oz",
+      "productSku": "INV-5C56B1-STP-POWER-STEARING-EEL67L",
+      "barcode": "07153002043",
+      "source": "pdf_text",
+      "invoiceId": "530628ae-f8f1-4bcc-acbd-b493492ea3dd",
+      "invoiceNumber": "25490",
+      "description": "‘STP Power Stearing Fluid 120z 3",
+      "score": 0.667,
+      "evidenceLine": "1 07153002043 ‘STP Power Stearing Fluid 120z 3 $2.29 $0.00 $6.87",
+      "allCodes": [
+        [
+          "07153002043",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e8bad6c6-a974-4ee0-b346-ff241eda7fc1",
+      "productName": "Glass Bong",
+      "productSku": "INV-5C56B1-GLASS-BONG-1NME23",
+      "barcode": "810125435935",
+      "source": "pdf_text",
+      "invoiceId": "530628ae-f8f1-4bcc-acbd-b493492ea3dd",
+      "invoiceNumber": "25490",
+      "description": "Glass Bong 1",
+      "score": 0.9,
+      "evidenceLine": "5 810125435935 Glass Bong 1 $45.00 $0.00 $45.00",
+      "allCodes": [
+        [
+          "810125435935",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e8708dfd-a1bd-462a-a2f9-4463a7f633fd",
+      "productName": "Trim Nail Clipper Single",
+      "productSku": "INV-5C56B1-TRIM-NAIL-CLIPPER-1DQAWY",
+      "barcode": "071603125001",
+      "source": "pdf_text",
+      "invoiceId": "530628ae-f8f1-4bcc-acbd-b493492ea3dd",
+      "invoiceNumber": "25490",
+      "description": "Trim Nail Clipper Single 3",
+      "score": 0.955,
+      "evidenceLine": "7 071603125001 Trim Nail Clipper Single 3 $0.99 $0.00 $2.97",
+      "allCodes": [
+        [
+          "071603125001",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f1b97f6d-1eba-4591-a924-5d6f872b3596",
+      "productName": "Gasoline Fuel Can Red 2 Gallon",
+      "productSku": "INV-5C56B1-GASOLINE-FUEL-CAN-KK38W8",
+      "barcode": "060534840237",
+      "source": "pdf_text",
+      "invoiceId": "530628ae-f8f1-4bcc-acbd-b493492ea3dd",
+      "invoiceNumber": "25490",
+      "description": "Gasoline Fuel Can Red 2 Galion 6",
+      "score": 0.667,
+      "evidenceLine": "8 060534840237 Gasoline Fuel Can Red 2 Galion 6 $14.49 $0.00 $86.94",
+      "allCodes": [
+        [
+          "060534840237",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "b866703b-f44e-42f5-8544-fbb339ef96cc",
+      "productName": "Prime Guard -20F PowerBlast WW 1Gallon 6ct",
+      "productSku": "INV-5C56B1-PRIME-GUARD-20F-PO-8AWFZI",
+      "barcode": "10840530132225",
+      "source": "pdf_text",
+      "invoiceId": "530628ae-f8f1-4bcc-acbd-b493492ea3dd",
+      "invoiceNumber": "25490",
+      "description": "Prime Guard -20F PowerBlast WW IGallon 6ct 1",
+      "score": 0.75,
+      "evidenceLine": "9 10840530132225 Prime Guard -20F PowerBlast WW IGallon 6ct 1 $26.99 $0.00 $26.99",
+      "allCodes": [
+        [
+          "10840530132225",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "a64e9006-9201-4070-b58a-2f91376c15db",
+      "productName": "MINUTE MAID PINK LEMONADE 20oz",
+      "productSku": "INV-0C2321-MINUTE-MAID-PINK-L-1WKQR7",
+      "barcode": "15300064",
+      "source": "pdf_text",
+      "invoiceId": "5ad06abd-4175-4d9b-a88c-ca810268a379",
+      "invoiceNumber": "200226460",
+      "description": "MINUTE MAID PINK LEMONADE 200z u 1",
+      "score": 0.667,
+      "evidenceLine": "“15300064 | MINUTE MAID PINK LEMONADE 200z u 1 $0.00 $27.75 $27.75",
+      "allCodes": [
+        [
+          "15300064",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8073feb0-7e01-4132-a82b-8bff20c45d52",
+      "productName": "TROP ORANGE BLEND 15.2Z",
+      "productSku": "INV-8D099B-TROP-ORANGE-BLEND-BK5GUO",
+      "barcode": "4850020692",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "d21093d9-0da0-411f-bac4-468714ab29b7",
+      "invoiceNumber": "19979",
+      "description": "TROP ORANGE BLEND 15.2Z 1",
+      "score": 0.95,
+      "evidenceLine": "4850020692 TROP ORANGE BLEND 15.2Z 1",
+      "allCodes": [
+        [
+          "4850020692",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3c46213d-e0e7-4bd7-b517-0680af3ac483",
+      "productName": "COCA COLA CLASSIC 20Z",
+      "productSku": "INV-8D099B-COCA-COLA-CLASSIC-1V2QEI",
+      "barcode": "4900003745",
+      "source": "pdf_text",
+      "invoiceId": "d21093d9-0da0-411f-bac4-468714ab29b7",
+      "invoiceNumber": "19979",
+      "description": "COCA COLA CLASSIC 20Z",
+      "score": 1,
+      "evidenceLine": "4900003745 COCA COLA CLASSIC 20Z",
+      "allCodes": [
+        [
+          "4900003745",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "78824f49-c98d-4445-ab3c-26371c653ec5",
+      "productName": "LINDEN BUTTR CRUNH 1.75Z",
+      "productSku": "INV-8D099B-LINDEN-BUTTR-CRUNH-OB157I",
+      "barcode": "7680930029",
+      "source": "pdf_text",
+      "invoiceId": "d21093d9-0da0-411f-bac4-468714ab29b7",
+      "invoiceNumber": "19979",
+      "description": "LINDEN BUTTR CRUNH 1.75Z 1",
+      "score": 0.952,
+      "evidenceLine": "7680930029 LINDEN BUTTR CRUNH 1.75Z 1",
+      "allCodes": [
+        [
+          "7680930029",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "fdf2d05a-654b-453b-8ed7-95f64840cc7b",
+      "productName": "VITAMIN WTR ENERGY 20Z",
+      "productSku": "INV-8D099B-VITAMIN-WTR-ENERGY-FQBEPR",
+      "barcode": "78616210106",
+      "source": "pdf_text",
+      "invoiceId": "d21093d9-0da0-411f-bac4-468714ab29b7",
+      "invoiceNumber": "19979",
+      "description": "VITAMIN WTR ENERGY 20Z",
+      "score": 1,
+      "evidenceLine": "78616210106 VITAMIN WTR ENERGY 20Z",
+      "allCodes": [
+        [
+          "78616210106",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "0d7f5017-38ea-4d3f-ad7d-d1ad81256209",
+      "productName": "SQEZ BOT CLEAR 32Z 6PK",
+      "productSku": "INV-8D099B-SQEZ-BOT-CLEAR-32Z-1SAQWN",
+      "barcode": "76069501109",
+      "source": "pdf_text",
+      "invoiceId": "d21093d9-0da0-411f-bac4-468714ab29b7",
+      "invoiceNumber": "19979",
+      "description": "SQEZ BOT CLEAR 32Z 6PK",
+      "score": 1,
+      "evidenceLine": "76069501109 SQEZ BOT CLEAR 32Z 6PK",
+      "allCodes": [
+        [
+          "76069501109",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e4cc2c0e-d2c2-4a9c-a0b3-31882eb0661a",
+      "productName": "QC GRIDDLE LIQUID 701",
+      "productSku": "INV-8D099B-QC-GRIDDLE-LIQUID-1N2U56",
+      "barcode": "4801126012",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "aa6a09b0-1309-448e-8f3c-fc94081c591b",
+      "invoiceNumber": "9877",
+      "description": "QC GRIDDLE LIQUID 701",
+      "score": 1,
+      "evidenceLine": "4801126012 QC GRIDDLE LIQUID 701",
+      "allCodes": [
+        [
+          "4801126012",
+          3
+        ]
+      ]
+    },
+    {
+      "productId": "7f323843-fc38-47f9-8f10-945fb882d149",
+      "productName": "BRD PNTD WEDGE 6PK 18Z",
+      "productSku": "INV-8D099B-BRD-PNTD-WEDGE-6PK-U413WK",
+      "barcode": "7220125172",
+      "source": "pdf_text",
+      "invoiceId": "d21093d9-0da0-411f-bac4-468714ab29b7",
+      "invoiceNumber": "19979",
+      "description": "BRD PNTD WEDGE 6PK 18Z",
+      "score": 1,
+      "evidenceLine": "7220125172 BRD PNTD WEDGE 6PK 18Z",
+      "allCodes": [
+        [
+          "7220125172",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "fbc7e698-ed84-4d6b-8597-96ef3ef8ce5e",
+      "productName": "GRILL BRICK GB12",
+      "productSku": "INV-8D099B-GRILL-BRICK-GB12-8UPWM7",
+      "barcode": "9041505238",
+      "source": "pdf_text",
+      "invoiceId": "dace9f5f-4fb6-4d49-a86c-62897c5904de",
+      "invoiceNumber": "6083",
+      "description": "GRILL BRICK GB12",
+      "score": 1,
+      "evidenceLine": "9041505238 GRILL BRICK GB12",
+      "allCodes": [
+        [
+          "9041505238",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "59d45189-68b2-471c-b592-e7862665979a",
+      "productName": "AIRHEADS 5 BAR ASSORTED FLAVORS 18 CT",
+      "productSku": "INV-369778-AIRHEADS-5-BAR-ASS-QGV6IH",
+      "barcode": "073390023324",
+      "source": "pdf_text",
+      "invoiceId": "f5281ca7-a1b6-406e-bef4-99666436d5b1",
+      "invoiceNumber": "358359",
+      "description": "1) 103641 | AIRHEADS 5 BAR ASSORTED FLAVORS 18 CT",
+      "score": 0.816,
+      "evidenceLine": "1) 103641 | AIRHEADS 5 BAR ASSORTED FLAVORS 18 CT 073390023324 1 $17.92 $17.92",
+      "allCodes": [
+        [
+          "073390023324",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8da9c72e-25a6-497b-89d8-37338ce02126",
+      "productName": "MILK COCONUT #10",
+      "productSku": "INV-8D099B-MILK-COCONUT-10-N88MS9",
+      "barcode": "4473807514",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "632c1129-4d18-4b27-a74a-7f7fc9fdbed2",
+      "invoiceNumber": "20647",
+      "description": "MILK COCONUT #10",
+      "score": 1,
+      "evidenceLine": "4473807514 MILK COCONUT #10",
+      "allCodes": [
+        [
+          "4473807514",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4c548e86-24b1-4024-8d46-c2868246cd3b",
+      "productName": "RS PINK DISH 4/1GAL",
+      "productSku": "INV-8D099B-RS-PINK-DISH-4-1GA-1MRF7D",
+      "barcode": "76069566703",
+      "source": "pdf_text",
+      "invoiceId": "632c1129-4d18-4b27-a74a-7f7fc9fdbed2",
+      "invoiceNumber": "20647",
+      "description": "RS PINK DISH 4/1GAL",
+      "score": 1,
+      "evidenceLine": "76069566703 RS PINK DISH 4/1GAL",
+      "allCodes": [
+        [
+          "76069566703",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "b289b1bc-38e3-4b3d-9d18-5ce6438d54e0",
+      "productName": "BLACK & MILD CIGARS 10/5PK - PLASTIC TIP WINE",
+      "productSku": "INV-902CD7-BLACK-MILD-CIGARS-9S2FD4",
+      "barcode": "070137500186",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "BLACK & MILD CIGARS 10/5PK-PLASTIC TIP",
+      "score": 0.882,
+      "evidenceLine": "8 7.50 | 070137500186 | BLACK & MILD CIGARS 10/5PK-PLASTIC TIP | 1.00 48.18 48.18",
+      "allCodes": [
+        [
+          "070137500186",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "9ab6b697-6e5c-4a2b-b7c8-8089f224db4d",
+      "productName": "ENTOURAGE PALMA CIGAR 25",
+      "productSku": "INV-902CD7-ENTOURAGE-PALMA-CI-1YZ0SF",
+      "barcode": "819721010669",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "ENTOURAGE PALMA CIGAR 25 [100 | aso]",
+      "score": 0.778,
+      "evidenceLine": "\" 819721010669 | ENTOURAGE PALMA CIGAR 25 [100 | aso] | 20.50",
+      "allCodes": [
+        [
+          "819721010669",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e7d76004-f156-4f19-9a57-f6d92c81f59d",
+      "productName": "ENTOURAGE PINK VANILLA CIGAR 25",
+      "productSku": "INV-902CD7-ENTOURAGE-PINK-VAN-1V6E3O",
+      "barcode": "819721010676",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "_| ENTOURAGE PINK VANILLA CIGAR 25 [ 100 [oso]",
+      "score": 0.818,
+      "evidenceLine": "12 |__| __ 819721010676 _| ENTOURAGE PINK VANILLA CIGAR 25 [ 100 [oso] | 20.50",
+      "allCodes": [
+        [
+          "819721010676",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "de0431de-4ac1-4564-b9ec-6a0c465df8e8",
+      "productName": "ENTOURAGE VANILLA CIGAR 25",
+      "productSku": "INV-902CD7-ENTOURAGE-VANILLA-16T19M",
+      "barcode": "819721010683",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "_| ENTOURAGE VANILLA CIGAR 25 econ | ase]",
+      "score": 0.767,
+      "evidenceLine": "13 |_| __ 819721010683 _| ENTOURAGE VANILLA CIGAR 25 econ | ase] | 20.50",
+      "allCodes": [
+        [
+          "819721010683",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "ff70db0d-aca1-4ba9-a382-97ef4e367fdd",
+      "productName": "SWISHER SWEET CIGRILLOS 1.39/2-GRAPE",
+      "productSku": "INV-902CD7-SWISHER-SWEET-CIGR-1XGDFN",
+      "barcode": "025900345549",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "SWISHER SWEET CIGRILLOS",
+      "score": 0.7,
+      "evidenceLine": "15 1.39 | 025900345549 | SWISHER SWEET CIGRILLOS 1.39/2- 25.99",
+      "allCodes": [
+        [
+          "025900345549",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3c978066-ece6-4f38-91b6-c7b00196ec6d",
+      "productName": "BUGLER CIGARETTE TOBACCO ORIGINAL 6PK/BOX",
+      "productSku": "INV-902CD7-BUGLER-CIGARETTE-T-KV0WAY",
+      "barcode": "761073426219",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "BUGLER CIGARETTE TOBACCO ORIGINAL",
+      "score": 0.833,
+      "evidenceLine": "16 733 761073426219 | BUGLER CIGARETTE TOBACCO ORIGINAL 26.00",
+      "allCodes": [
+        [
+          "761073426219",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "87299bf2-201c-43e1-8739-c6765911417b",
+      "productName": "BLUNTVILLE PINK DIVA 25CT",
+      "productSku": "INV-902CD7-BLUNTVILLE-PINK-DI-8E76CK",
+      "barcode": "919721011789",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "BLUNTVILLE PINK DIVA 25cT",
+      "score": 1,
+      "evidenceLine": "19 | 130 | 919721011789 | BLUNTVILLE PINK DIVA 25cT | 1.00 | 1999] | 19.99",
+      "allCodes": [
+        [
+          "919721011789",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e48c1ad6-682c-4abd-a44b-8a33d7fe99e4",
+      "productName": "GAME WHITE GRAPE 2 CIGARS 1.29",
+      "productSku": "INV-902CD7-GAME-WHITE-GRAPE-2-TZRZ5W",
+      "barcode": "031700237922",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "GAME WHITE GRAPE 2 CIGARS",
+      "score": 0.875,
+      "evidenceLine": "21 | 129 | 031700237922 GAME WHITE GRAPE 2 CIGARS 1.29 [| 100 [| aae5f | 24.95",
+      "allCodes": [
+        [
+          "031700237922",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "79eccdf7-879e-46a4-b886-1f20378007ca",
+      "productName": "ZYN 3MG SPERMINT $1 OFF*",
+      "productSku": "INV-902CD7-ZYN-3MG-SPERMINT-1-14ORH6",
+      "barcode": "609249902245",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "ZYN 3MG - SPERMINT $1 OFF*",
+      "score": 1,
+      "evidenceLine": "28 609249902245 | ZYN 3MG - SPERMINT $1 OFF* ( 47.99",
+      "allCodes": [
+        [
+          "609249902245",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c88d15d2-6d9f-4e7d-8f73-cf2d3e70262c",
+      "productName": "ZYN 6MG SPEARMINT $1 OFF*",
+      "productSku": "INV-902CD7-ZYN-6MG-SPEARMINT-10G3WV",
+      "barcode": "609249902252",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "ZYN 6MG - SPEARMINT $1 OFF* [+00 | avo]",
+      "score": 0.792,
+      "evidenceLine": "29 609249902252 | ZYN 6MG - SPEARMINT $1 OFF* [+00 | avo] | 17.99",
+      "allCodes": [
+        [
+          "609249902252",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "f90c517c-f211-46b6-9ac3-b007942b2cc0",
+      "productName": "GOOD STUFF PREMIUM PIPE TOBACCO RED 6OZ",
+      "productSku": "INV-902CD7-GOOD-STUFF-PREMIUM-1VSQ22",
+      "barcode": "94135001175",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "GOOD STUFF PREMIUM PIPE TOBACCO RED pete) ernment] °",
+      "score": 0.667,
+      "evidenceLine": "32 le | 94135001175 | GOOD STUFF PREMIUM PIPE TOBACCO RED pete) ernment] °| 5.15",
+      "allCodes": [
+        [
+          "94135001175",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "09590c48-1749-4da3-857d-23c7bb4631e4",
+      "productName": "PLATINUM 2X BLUNT WRAP - CHOCOLATE",
+      "productSku": "INV-902CD7-PLATINUM-2X-BLUNT-1RP9CD",
+      "barcode": "644596227120",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "_| PLATINUM 2x BLUNT WRAP - CHOCOLATE ee ee",
+      "score": 0.875,
+      "evidenceLine": "34 | 099 | 644596227120 _| PLATINUM 2x BLUNT WRAP - CHOCOLATE ee ee 13.99",
+      "allCodes": [
+        [
+          "644596227120",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "582ad8ed-5f36-4a8b-9b7b-a9704c3d579e",
+      "productName": "PLATINUM 2X BLUNT WRAP - FRENCH VANILLA",
+      "productSku": "INV-902CD7-PLATINUM-2X-BLUNT-D1P7ID",
+      "barcode": "644596226826",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "_| PLATINUM 2X BLUNT WRAP - FRENCH",
+      "score": 0.781,
+      "evidenceLine": "35 644596226826 _| PLATINUM 2X BLUNT WRAP - FRENCH 13.99",
+      "allCodes": [
+        [
+          "644596226826",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "0c96f0d7-aab8-4844-865b-bb655193a7c0",
+      "productName": "PLATINUM 2X BLUNT WRAP - GRAPE",
+      "productSku": "INV-902CD7-PLATINUM-2X-BLUNT-KUM2RL",
+      "barcode": "644536226123",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "_| PLATINUM 2X BLUNT WRAP - GRAPE [ooo ft goo",
+      "score": 0.75,
+      "evidenceLine": "36 | 099 | 644536226123 _| PLATINUM 2X BLUNT WRAP - GRAPE [ooo ft goo 13.99",
+      "allCodes": [
+        [
+          "644536226123",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "b35f6c70-dbd3-403c-b996-5d73000ac560",
+      "productName": "ZIG ZAG CIGAR WRAPS - 2PC/25PK - GRAPE",
+      "productSku": "INV-902CD7-ZIG-ZAG-CIGAR-WRAP-1HQ05L",
+      "barcode": "784762072009",
+      "source": "pdf_text",
+      "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+      "invoiceNumber": "SL12623",
+      "description": "_| ZIG ZAG CIGARWRAPS - 2PC/25PK - GRAPE [100 | t5s0[",
+      "score": 0.8,
+      "evidenceLine": "3a | 110 | 784762072009 _| ZIG ZAG CIGARWRAPS - 2PC/25PK - GRAPE [100 | t5s0[ | 15.50",
+      "allCodes": [
+        [
+          "784762072009",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f5f4b2ff-3dcf-4866-99ed-6e89b7930fbe",
+      "productName": "ASHTON MAGNUM",
+      "productSku": "INV-902CD7-ASHTON-MAGNUM-1ABKOU",
+      "barcode": "819577011865",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "ASHTON MAGNUM (25",
+      "score": 0.857,
+      "evidenceLine": "3 | 1333 | 819577011865 | ASHTON MAGNUM (25) | 1.00 | 202.15 sero 202.15",
+      "allCodes": [
+        [
+          "819577011865",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4efb329a-25b9-4307-a935-cbb21e8100e7",
+      "productName": "CAO FLATHEAD V770 Big Block 7 x 70Box",
+      "productSku": "INV-902CD7-CAO-FLATHEAD-V770-6EKO0D",
+      "barcode": "689674062929",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "_| CAO FLATHEAD V770 Big Block 7 x",
+      "score": 0.833,
+      "evidenceLine": "4 689674062929 _| CAO FLATHEAD V770 Big Block 7 x 180.00 180.00",
+      "allCodes": [
+        [
+          "689674062929",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "9c917703-035b-4ac6-afc0-3ab98537ef69",
+      "productName": "DEADWOOD FAT BOTTOM BETTY TORO 6X50",
+      "productSku": "INV-902CD7-DEADWOOD-FAT-BOTTO-QN26PD",
+      "barcode": "818578013908",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "DEADWOOD FAT BOTTOM BETTY TORO",
+      "score": 0.867,
+      "evidenceLine": "6 818578013908 | DEADWOOD FAT BOTTOM BETTY TORO 65.00",
+      "allCodes": [
+        [
+          "818578013908",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d087baff-30aa-419d-af21-14ea1dcc38ff",
+      "productName": "DIESEL WHISKEY ROW ROB 5 1/2X52",
+      "productSku": "INV-902CD7-DIESEL-WHISKEY-ROW-8IUEVP",
+      "barcode": "689674095163",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "DIESEL WHISKEY ROW ROB 5 1/2X52 (25) [100 | ss t",
+      "score": 0.758,
+      "evidenceLine": "Ls | 10.69 | 689674095163 DIESEL WHISKEY ROW ROB 5 1/2X52 (25) [100 | ss t45.00| | 145.00",
+      "allCodes": [
+        [
+          "689674095163",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f0762251-822c-4bf3-9f32-8dbb04b4abab",
+      "productName": "FACTORY SMOKES SUNGROWN Robusto",
+      "productSku": "INV-902CD7-FACTORY-SMOKES-SUN-1HL70V",
+      "barcode": "818578010181",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "FACTORY SMOKES SUNGROWN",
+      "score": 0.75,
+      "evidenceLine": "8 818578010181 | FACTORY SMOKES SUNGROWN 40.02",
+      "allCodes": [
+        [
+          "818578010181",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6f14966d-74cb-4adc-9677-01364a5e3b74",
+      "productName": "FACTORY SMOKES SWEETS Belicoso",
+      "productSku": "INV-902CD7-FACTORY-SMOKES-SWE-10MFO8",
+      "barcode": "818578011676",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "__| FACTORY SMOKES SWEETS",
+      "score": 0.704,
+      "evidenceLine": "9 818578011676 __| FACTORY SMOKES SWEETS 4.00 46.81 46.81",
+      "allCodes": [
+        [
+          "818578011676",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "ae76942c-9e08-42a0-a4a4-6ba57ec56454",
+      "productName": "MACANUDO Diplomat 41/2 x 38/60/44Box",
+      "productSku": "INV-902CD7-MACANUDO-DIPLOMAT-1VC821",
+      "barcode": "689674023111",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "MACANUDO Diplomat 41/2 x",
+      "score": 0.69,
+      "evidenceLine": "10 689674023111 | MACANUDO Diplomat 41/2 x 175.00 175.00",
+      "allCodes": [
+        [
+          "689674023111",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d5e15a86-f3cb-4122-bc96-89c49df23443",
+      "productName": "MACANUDO INSPIRADO RED Robusto 5 x 50Box",
+      "productSku": "INV-902CD7-MACANUDO-INSPIRADO-FBN6JY",
+      "barcode": "689674094609",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "MACANUDO INSPIRADO RED Robusto 5x",
+      "score": 0.853,
+      "evidenceLine": "\" 689674094609 | MACANUDO INSPIRADO RED Robusto 5x | 1.00 90.00 90.00",
+      "allCodes": [
+        [
+          "689674094609",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "624f6f1a-d083-4fb8-9f71-2959c70b8fb4",
+      "productName": "MFC La Gran Oferta Toro 6X50",
+      "productSku": "INV-902CD7-MFC-LA-GRAN-OFERTA-M4BAEO",
+      "barcode": "817673012113",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "MFC La Gran Oferta Toro 6X50 (20) [ 100 | tosis]",
+      "score": 0.697,
+      "evidenceLine": "12 | 910 | 817673012113 | MFC La Gran Oferta Toro 6X50 (20) [ 100 | tosis] | 405.34",
+      "allCodes": [
+        [
+          "817673012113",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "df48a3e0-6bc0-4d0f-a507-b527bc25675f",
+      "productName": "Miami Tatiana Classic - Groovy Blue",
+      "productSku": "INV-902CD7-MIAMI-TATIANA-CLAS-GUUODQ",
+      "barcode": "788135060082",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "Miami Tatiana Classic - Groovy Blue (25) | 10 | ——es00| ~—o",
+      "score": 0.763,
+      "evidenceLine": "13 | 499 | 788135060082 | Miami Tatiana Classic - Groovy Blue (25) | 10 | ——es00| ~—o | 65.00",
+      "allCodes": [
+        [
+          "788135060082",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "5262fbf8-bfae-4137-becf-d95c439b3d21",
+      "productName": "Montecristo 1935 Anniversary - Robusto 54x5",
+      "productSku": "INV-902CD7-MONTECRISTO-1935-A-E45STW",
+      "barcode": "071610526785",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "Montecristo 1935 Anniversary - Robusto",
+      "score": 0.892,
+      "evidenceLine": "14 071610526785 | Montecristo 1935 Anniversary - Robusto 95.00",
+      "allCodes": [
+        [
+          "071610526785",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d02a8c0b-7e7e-4e93-83c0-deaee9030c8b",
+      "productName": "NEW WORLD - CORONA DOUBLE 7 1/2X55",
+      "productSku": "INV-902CD7-NEW-WORLD-CORONA-D-EYG8GG",
+      "barcode": "810194080128",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "NEW WORLD - CORONA DOUBLE 7",
+      "score": 0.808,
+      "evidenceLine": "17 810194080128 NEW WORLD - CORONA DOUBLE 7 1.00 105.00",
+      "allCodes": [
+        [
+          "810194080128",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f811f433-6188-49bf-b92e-35bfbc918ad7",
+      "productName": "NUB CONNECTICUT 460",
+      "productSku": "INV-902CD7-NUB-CONNECTICUT-46-RH7DEF",
+      "barcode": "814539010887",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "NUB CONNECTICUT 460 (24) [ 10 | tse]",
+      "score": 0.708,
+      "evidenceLine": "18 814539010887 | NUB CONNECTICUT 460 (24) [ 10 | tse] | 115.96",
+      "allCodes": [
+        [
+          "814539010887",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6362ed8a-8021-4847-868a-a93bc0792d40",
+      "productName": "ODYSSEY MADURO Toro 6 x 50Bundle",
+      "productSku": "INV-902CD7-ODYSSEY-MADURO-TOR-3B80M6",
+      "barcode": "689674095507",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "ODYSSEY MADURO Toro 6 x 50Bundle(20) [ 10 | aan]",
+      "score": 0.794,
+      "evidenceLine": "19 meu 689674095507 | ODYSSEY MADURO Toro 6 x 50Bundle(20) [ 10 | aan] | 24.60",
+      "allCodes": [
+        [
+          "689674095507",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "62c17fbe-d638-4fe7-9554-58895c24ec66",
+      "productName": "PARTAGAS BLACK LABELCrystal",
+      "productSku": "INV-902CD7-PARTAGAS-BLACK-LAB-JUWMVD",
+      "barcode": "689674028093",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "PARTAGAS BLACK LABELCrystal (Tubo) 5",
+      "score": 0.833,
+      "evidenceLine": "20 12.49 689674028093 PARTAGAS BLACK LABELCrystal (Tubo) 5 1.00 70.00 70.00",
+      "allCodes": [
+        [
+          "689674028093",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "845ed44b-01fa-40c7-b8d6-1b9936e48d65",
+      "productName": "QUORUM MADURO CHURCHILL BDL 20",
+      "productSku": "INV-902CD7-QUORUM-MADURO-CHUR-1NP4N2",
+      "barcode": "076622875401",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "QUORUM MADURO CHURCHILL BDL",
+      "score": 0.923,
+      "evidenceLine": "23 3.34 076622875401 | QUORUM MADURO CHURCHILL BDL 41.00 43.93 0 43.93",
+      "allCodes": [
+        [
+          "076622875401",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "73fa26b2-e427-4692-aa11-c731577ebf26",
+      "productName": "ROMEO Y JULIETA MINI TIN - AROMA",
+      "productSku": "INV-902CD7-ROMEO-Y-JULIETA-MI-1D3G9N",
+      "barcode": "196043002214",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "ROMEO Y JULIETA MINI TIN - AROMA",
+      "score": 1,
+      "evidenceLine": "25 196043002214 ROMEO Y JULIETA MINI TIN - AROMA 1.00 45.00",
+      "allCodes": [
+        [
+          "196043002214",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6150e0a5-adde-45c2-98b0-593dc976e0ac",
+      "productName": "Romeo y Julieta Reserva Real Churchill",
+      "productSku": "INV-902CD7-ROMEO-Y-JULIETA-RE-YVLE8",
+      "barcode": "076452352394",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "Romeo y Julieta Reserva Real Churchill",
+      "score": 1,
+      "evidenceLine": "26 11.50 076452352394 | Romeo y Julieta Reserva Real Churchill 150.00",
+      "allCodes": [
+        [
+          "076452352394",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e4160152-f825-435d-9311-dfb92bfa51e6",
+      "productName": "RP Vintage 1999 Robusto 5-1/2x50",
+      "productSku": "INV-902CD7-RP-VINTAGE-1999-RO-1O96PJ",
+      "barcode": "846261000430",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "_| RP Vintage 1999 Robusto 5-1/2x50 (20) [10 | staat] ~—",
+      "score": 0.743,
+      "evidenceLine": "27 41.40 846261000430 _| RP Vintage 1999 Robusto 5-1/2x50 (20) [10 | staat] ~— | 130.81",
+      "allCodes": [
+        [
+          "846261000430",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "bd074d42-429b-48b4-8ff7-3a452e390e43",
+      "productName": "TABAK ESPECIAL DULC Robusto",
+      "productSku": "INV-902CD7-TABAK-ESPECIAL-DUL-22G0Y4",
+      "barcode": "876742000680",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "_| TABAK ESPECIAL DULC Robusto(5x54)(24",
+      "score": 0.8,
+      "evidenceLine": "28 | 10.30 | 876742000680 _| TABAK ESPECIAL DULC Robusto(5x54)(24) | 1.00 | 145.00 [9] 145.00",
+      "allCodes": [
+        [
+          "876742000680",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2c737a4b-ed8c-4a1b-bfa6-162037f992ad",
+      "productName": "AMERICAN SPIRIT DARK GREEN BOX",
+      "productSku": "INV-369778-AMERICAN-SPIRIT-DA-15KO8O",
+      "barcode": "04795855222",
+      "source": "pdf_text",
+      "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+      "invoiceNumber": "359580",
+      "description": "1) 447~ AMERICAN SPIRIT DARK GREEN BOX",
+      "score": 0.867,
+      "evidenceLine": "1) 447~ AMERICAN SPIRIT DARK GREEN BOX 04795855222 1 $ 133.09 $ 133.09",
+      "allCodes": [
+        [
+          "04795855222",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "df5bb246-60db-4db6-b8f8-1760d3e2efb7",
+      "productName": "AMERICAN SPIRIT YELLOW BOX",
+      "productSku": "INV-369778-AMERICAN-SPIRIT-YE-1MCEKF",
+      "barcode": "047995855192",
+      "source": "pdf_text",
+      "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+      "invoiceNumber": "359580",
+      "description": "2) 636\\_ AMERICAN SPIRIT YELLOW BOX",
+      "score": 0.852,
+      "evidenceLine": "2) 636\\_ AMERICAN SPIRIT YELLOW BOX 047995855192 1 $ 128.00 $ 128.00",
+      "allCodes": [
+        [
+          "047995855192",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4b470fca-02ad-4185-9146-e6bff2a6470d",
+      "productName": "MARLBORO GOLD 100 BOX",
+      "productSku": "INV-369778-MARLBORO-GOLD-100-16COU9",
+      "barcode": "02838423",
+      "source": "pdf_text",
+      "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+      "invoiceNumber": "359580",
+      "description": "3) 50. MARLBORO GOLD BOX",
+      "score": 1,
+      "evidenceLine": "3) 50. MARLBORO GOLD BOX 02838423 1 $119.62 $ 119.62",
+      "allCodes": [
+        [
+          "02838423",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "671bfeca-6a5a-4e52-a733-30313efc3e87",
+      "productName": "AMOS PEELERZ GUMMY PEACH PEG 1CT",
+      "productSku": "INV-369778-AMOS-PEELERZ-GUMMY-1W4HWW",
+      "barcode": "810051807530",
+      "source": "pdf_text",
+      "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+      "invoiceNumber": "359580",
+      "description": "11) 109896 AMOS PEELERZ GUMMY PEACH PEG 1CT",
+      "score": 0.771,
+      "evidenceLine": "11) 109896 AMOS PEELERZ GUMMY PEACH PEG 1CT 810051807530 2 $2.45 $4.90",
+      "allCodes": [
+        [
+          "810051807530",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "98327ebe-68b4-4fc0-bb93-504f0cd91eee",
+      "productName": "CHEETOS PUFFS 2OZ 1CT",
+      "productSku": "INV-369778-CHEETOS-PUFFS-2OZ-1O1WWB",
+      "barcode": "028400355827",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "15) | *107113. | CHEETOS PUFFS 202 1cT",
+      "score": 0.75,
+      "evidenceLine": "15) | *107113. | CHEETOS PUFFS 202 1cT 028400355827 4 $1.49 $5.96",
+      "allCodes": [
+        [
+          "028400355827",
+          2
+        ]
+      ]
+    },
+    {
+      "productId": "3f47758b-7f70-416c-8f87-149fec42b475",
+      "productName": "SMARTFOOD WHITE CHEDDAR 1.75OZ 1CT",
+      "productSku": "INV-369778-SMARTFOOD-WHITE-CH-173322",
+      "barcode": "028400357753",
+      "source": "pdf_text",
+      "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+      "invoiceNumber": "359580",
+      "description": "16) 113039 SMARTFOOD WHITE CHEDDAR 1.750Z 1CT",
+      "score": 0.667,
+      "evidenceLine": "16) 113039 SMARTFOOD WHITE CHEDDAR 1.750Z 1CT 028400357753 2 $1.49 $2.98",
+      "allCodes": [
+        [
+          "028400357753",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "582b7bd1-f42b-4c78-a311-afcb1ad91630",
+      "productName": "AMERICAN SPIRIT PALE GREEN BOX",
+      "productSku": "INV-369778-AMERICAN-SPIRIT-PA-7TFQNP",
+      "barcode": "047995855154",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "1) ‘ 619 AMERICAN SPIRIT PALE GREEN BOX",
+      "score": 0.867,
+      "evidenceLine": "1) ‘ 619 AMERICAN SPIRIT PALE GREEN BOX 047995855154 1 $ 133.09 $ 133.09",
+      "allCodes": [
+        [
+          "047995855154",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c488b06b-0b3d-4401-88a5-64faf41f25f1",
+      "productName": "MARLBORO BLEND 27 BOX",
+      "productSku": "INV-369778-MARLBORO-BLEND-27-1G2ZN3",
+      "barcode": "02826428",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "2) 555 | MARLBORO BLEND 27 BOX",
+      "score": 0.818,
+      "evidenceLine": "2) 555 | MARLBORO BLEND 27 BOX 02826428 1 $ 119.62 $119.62",
+      "allCodes": [
+        [
+          "02826428",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3f6330c1-6d28-4195-8a90-324c38b8ba48",
+      "productName": "NEWPORT MENTHOL BOX",
+      "productSku": "INV-369778-NEWPORT-MENTHOL-BO-1CF5F0",
+      "barcode": "02657512",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "4) 67 NEWPORT MENTHOL BOX",
+      "score": 0.85,
+      "evidenceLine": "4) 67 NEWPORT MENTHOL BOX 02657512 1 $ 123.92 $ 123.92",
+      "allCodes": [
+        [
+          "02657512",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "368a8ba9-93ac-4385-9887-8326c139e615",
+      "productName": "PARLIAMENT WHITE BOX",
+      "productSku": "INV-369778-PARLIAMENT-WHITE-B-FCBXHB",
+      "barcode": "02878421",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "5) 74 PARLIAMENT WHITE BOX",
+      "score": 0.857,
+      "evidenceLine": "5) 74 PARLIAMENT WHITE BOX 02878421 1 $ 134,99 $ 134.99",
+      "allCodes": [
+        [
+          "02878421",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6d677a53-a8f9-46f0-a475-ab580ae5a9f2",
+      "productName": "MARLBORO SILVER 100 BOX",
+      "productSku": "INV-369778-MARLBORO-SILVER-10-1VSXRB",
+      "barcode": "028200147806",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "6) 602 MARLBORO SILVER 100 BOX",
+      "score": 0.833,
+      "evidenceLine": "6) 602 MARLBORO SILVER 100 BOX 028200147806 1 $119.62 $ 119.62",
+      "allCodes": [
+        [
+          "028200147806",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f351e00e-76a8-40be-94a5-ed2555c60916",
+      "productName": "COPENHAGEN SNUFF",
+      "productSku": "INV-369778-COPENHAGEN-SNUFF-TL09EQ",
+      "barcode": "073100001079",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "8) 3110 | COPENHAGEN SNUFF",
+      "score": 0.75,
+      "evidenceLine": "8) 3110 | COPENHAGEN SNUFF 073100001079 1 $34.10 $34.10",
+      "allCodes": [
+        [
+          "073100001079",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c386b252-b05d-4bda-846d-28da03c1f78d",
+      "productName": "GRIZZLY LONG CUT WINTERGREEN",
+      "productSku": "INV-369778-GRIZZLY-LONG-CUT-W-1DU77U",
+      "barcode": "04287212",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "9) 43117 | GRIZZLY LONG CUT WINTERGREEN",
+      "score": 0.806,
+      "evidenceLine": "9) 43117 | GRIZZLY LONG CUT WINTERGREEN 04287212 1 $ 28.91 $28.91",
+      "allCodes": [
+        [
+          "04287212",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "a9c126dd-5073-4979-8c1f-7f2997088319",
+      "productName": "GRIZZLY POUCH WINTERGREEN",
+      "productSku": "INV-369778-GRIZZLY-POUCH-WINT-Q7V3NC",
+      "barcode": "04254418",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "10) 3195 GRIZZLY POUCH WINTERGREEN",
+      "score": 0.793,
+      "evidenceLine": "10) 3195 GRIZZLY POUCH WINTERGREEN 04254418 1 $27.41 $27.41",
+      "allCodes": [
+        [
+          "04254418",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2ac37dd3-3641-4079-ae3d-36ab223dea1e",
+      "productName": "SKOAL LC CLASSIC MINT 5CT",
+      "productSku": "INV-369778-SKOAL-LC-CLASSIC-M-QZN80L",
+      "barcode": "07308811",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "11) , 3137 SKOAL LC CLASSIC MINT SCT",
+      "score": 0.667,
+      "evidenceLine": "11) , 3137 SKOAL LC CLASSIC MINT SCT 07308811 1 $34.00 $34.00",
+      "allCodes": [
+        [
+          "07308811",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "7394b8e5-9222-460a-b97f-256c99a3398c",
+      "productName": "SKOAL POUCH CLASSIC MINT 5CT",
+      "productSku": "INV-369778-SKOAL-POUCH-CLASSI-19RUB0",
+      "barcode": "073100011856",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "12) 3165 SKOAL POUCH CLASSIC MINT SCT",
+      "score": 0.667,
+      "evidenceLine": "12) 3165 SKOAL POUCH CLASSIC MINT SCT 073100011856 1 $ 34.00 $34.00",
+      "allCodes": [
+        [
+          "073100011856",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6fb74301-64e0-454f-ab72-72f96441153f",
+      "productName": "CHEETOS 2.75OZ FLAMIN HOT LIMON 1CT",
+      "productSku": "INV-369778-CHEETOS-2-75OZ-FLA-L9NY77",
+      "barcode": "028400356732",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "13) | \\413111_| CHEETOS 2.7502 FLAMIN HOT LIMON 1CT",
+      "score": 0.833,
+      "evidenceLine": "13) | \\413111_| CHEETOS 2.7502 FLAMIN HOT LIMON 1CT 028400356732 4 $1.49 $5.96",
+      "allCodes": [
+        [
+          "028400356732",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "eb2eccbf-109c-4b0e-987d-9627b157b453",
+      "productName": "COMBOS PEG BAG NACHO CHEESE 1CT",
+      "productSku": "INV-369778-COMBOS-PEG-BAG-NAC-RG9BVL",
+      "barcode": "040000584933",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "16) | 106596 COMBOS PEG BAG NACHO CHEESE 1CT",
+      "score": 0.765,
+      "evidenceLine": "16) | 106596 COMBOS PEG BAG NACHO CHEESE 1CT 040000584933 3 $2.53 $7.59",
+      "allCodes": [
+        [
+          "040000584933",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f70f02da-1627-4785-8c50-97f870f5cfdd",
+      "productName": "COMBOS PEG BAG PIZZERIA PRETZEL 1CT",
+      "productSku": "INV-369778-COMBOS-PEG-BAG-PIZ-1E6XXQ",
+      "barcode": "041419420065",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "17) ‘106337 COMBOS PEG BAG PIZZERIA PRETZEL 1CT",
+      "score": 0.789,
+      "evidenceLine": "17) ‘106337 COMBOS PEG BAG PIZZERIA PRETZEL 1CT 041419420065 3 $2.53 $7.59",
+      "allCodes": [
+        [
+          "041419420065",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d0fc3508-9b15-4dda-850f-5ce3d7e20e67",
+      "productName": "DORITOS COOL RANCH 1CT",
+      "productSku": "INV-369778-DORITOS-COOL-RANCH-YX2Z33",
+      "barcode": "028400356787",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "18) 107109 | DORITOS COOL RANCH 1CT",
+      "score": 0.704,
+      "evidenceLine": "18) 107109 | DORITOS COOL RANCH 1CT 028400356787 3 $1.49 $4.47",
+      "allCodes": [
+        [
+          "028400356787",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "1110009c-ea59-465d-8287-d3e4b60100b0",
+      "productName": "DORITOS NACHO 1CT",
+      "productSku": "INV-369778-DORITOS-NACHO-1CT-1KVAAR",
+      "barcode": "028400357012",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "19) 107107 | DORITOS NACHO 1CT",
+      "score": 0.652,
+      "evidenceLine": "19) 107107 | DORITOS NACHO 1CT 028400357012 2 $1.49 $2.98",
+      "allCodes": [
+        [
+          "028400357012",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "818456f1-8648-4dcf-9da3-b91abe7ef6f9",
+      "productName": "EXTRA 35 STICKS SPEARMINT 6CT",
+      "productSku": "INV-369778-EXTRA-35-STICKS-SP-1427O2",
+      "barcode": "022000017871",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "20) 405755 EXTRA 35 STICKS SPEARMINT 6CT",
+      "score": 0.758,
+      "evidenceLine": "20) 405755 EXTRA 35 STICKS SPEARMINT 6CT 022000017871 1 $ 18.48 $ 18.48",
+      "allCodes": [
+        [
+          "022000017871",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "24714020-2f98-4f87-b6ec-71c127ad7a3a",
+      "productName": "HARIBO PEACHES PEG BAG 1CT",
+      "productSku": "INV-369778-HARIBO-PEACHES-PEG-UV9LGE",
+      "barcode": "042238380868",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "21) 106538 HARIBO PEACHES PEG BAG 1CT",
+      "score": 0.733,
+      "evidenceLine": "21) 106538 HARIBO PEACHES PEG BAG 1CT 042238380868 3 $1.34 $4.02",
+      "allCodes": [
+        [
+          "042238380868",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6cea003c-ec82-4546-902d-02e037dd572b",
+      "productName": "MENTOS GUM BIG BOTTLE SPEARMINT 50PC 4CT",
+      "productSku": "INV-369778-MENTOS-GUM-BIG-BOT-1VCSJ2",
+      "barcode": "073390012250",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "23) 103829 MENTOS GUM BIG BOTTLE SPEARMINT SOPC 4CT",
+      "score": 0.75,
+      "evidenceLine": "23) 103829 MENTOS GUM BIG BOTTLE SPEARMINT SOPC 4CT 073390012250 1 $13.42 $ 13.42",
+      "allCodes": [
+        [
+          "073390012250",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "db298c5e-2ecb-4404-a6ba-6750bb9732c6",
+      "productName": "PLANTERS SALTED CASHEWS 3OZ 1CT",
+      "productSku": "INV-369778-PLANTERS-SALTED-CA-49TQP4",
+      "barcode": "029000074361",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "24) 4106888 PLANTERS SALTED CASHEWS 30Z 1CT",
+      "score": 0.667,
+      "evidenceLine": "24) 4106888 PLANTERS SALTED CASHEWS 30Z 1CT 029000074361 4 $2.04 $8.16",
+      "allCodes": [
+        [
+          "029000074361",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "832d828a-ec20-43e1-9279-bf4db0466a3c",
+      "productName": "SKINNY POP POPCORN WHITE CHEDDAR 1CT",
+      "productSku": "INV-369778-SKINNY-POP-POPCORN-1JU4VW",
+      "barcode": "850251004438",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "25) 412075 | SKINNY POP POPCORN WHITE CHEDDAR 1CT",
+      "score": 0.795,
+      "evidenceLine": "25) 412075 | SKINNY POP POPCORN WHITE CHEDDAR 1CT 850251004438 3 $1.37 $4.11",
+      "allCodes": [
+        [
+          "850251004438",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "b38e0fc7-7159-4ed2-adf8-00507bd20b85",
+      "productName": "WRIGLEY 5 35 STICK RAIN SM 6CT",
+      "productSku": "INV-369778-WRIGLEY-5-35-STICK-53IT31",
+      "barcode": "022000135636",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "26) #105966 WRIGLEY 5 35 STICK RAIN SM 6CT",
+      "score": 0.75,
+      "evidenceLine": "26) #105966 WRIGLEY 5 35 STICK RAIN SM 6CT 022000135636 1 $23.99 $ 23.99",
+      "allCodes": [
+        [
+          "022000135636",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c99a50ad-1508-4cec-bce9-67fa27e81622",
+      "productName": "MET-RX BIG 100 APPLE PIE 9CT",
+      "productSku": "INV-369778-MET-RX-BIG-100-APP-EZJQ4P",
+      "barcode": "786560557023",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "27) \\106017 MET-RX BIG 100 APPLE PIE SCT",
+      "score": 0.714,
+      "evidenceLine": "27) \\106017 MET-RX BIG 100 APPLE PIE SCT 786560557023 1 $ 22.89 $ 22.89",
+      "allCodes": [
+        [
+          "786560557023",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "1feda948-77ac-4650-8dbb-b006d425a40f",
+      "productName": "MET-RX BIG 100 COOKIE CRUNCH 9CT",
+      "productSku": "INV-369778-MET-RX-BIG-100-COO-1HCTKT",
+      "barcode": "786560557016",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "28) 106018 MET-RX BIG 100 COOKIE CRUNCH 9CT",
+      "score": 0.765,
+      "evidenceLine": "28) 106018 MET-RX BIG 100 COOKIE CRUNCH 9CT 786560557016 1 $ 22.89 $22.89",
+      "allCodes": [
+        [
+          "786560557016",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3075c94a-fa8f-47a8-bfba-6f54c9089068",
+      "productName": "Hunks Quartz Banger Set MXY-002 10ct",
+      "productSku": "INV-5C56B1-HUNKS-QUARTZ-BANGE-1H9PPM",
+      "barcode": "069007101808",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "fafe7614-bc5d-4c3e-a5f5-03ce59a508bd",
+      "invoiceNumber": "26992",
+      "description": "Hunks Quartz Banger Set MxY-002 10ct 1",
+      "score": 0.968,
+      "evidenceLine": "1 069007101808 Hunks Quartz Banger Set MxY-002 10ct 1 $60.00 $0.00 $60.00",
+      "allCodes": [
+        [
+          "069007101808",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "eb88d37f-44ca-4468-93e9-39001df55edf",
+      "productName": "VIP Royal Honey 12ct/Box",
+      "productSku": "INV-5C56B1-VIP-ROYAL-HONEY-12-1X46WA",
+      "barcode": "9855755800036",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "fafe7614-bc5d-4c3e-a5f5-03ce59a508bd",
+      "invoiceNumber": "26992",
+      "description": "—_VIP Royal Honey T2ct/Box 4",
+      "score": 0.667,
+      "evidenceLine": "2. 9855755800036 —_VIP Royal Honey T2ct/Box 4 $8.00 $0.00 $32.00",
+      "allCodes": [
+        [
+          "9855755800036",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "635e8c34-688b-41d6-a287-feb0105c96b7",
+      "productName": "NAP CCKTL SUN WHT 1PLY",
+      "productSku": "INV-8D099B-NAP-CCKTL-SUN-WHT-I77XAN",
+      "barcode": "76069501110",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "4f189efa-9d27-41ef-8ce6-b2d03d598bcc",
+      "invoiceNumber": "18637",
+      "description": "NAP CCKTL SUN WHT 1PLY",
+      "score": 1,
+      "evidenceLine": "76069501110 NAP CCKTL SUN WHT 1PLY",
+      "allCodes": [
+        [
+          "76069501110",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "db6804ad-4168-470a-9b06-3e75baf82643",
+      "productName": "WAX DRY MASTER HVY 12x101",
+      "productSku": "INV-8D099B-WAX-DRY-MASTER-HVY-HFPIO5",
+      "barcode": "78787900009",
+      "source": "pdf_text",
+      "invoiceId": "4f189efa-9d27-41ef-8ce6-b2d03d598bcc",
+      "invoiceNumber": "18637",
+      "description": "WAX DRY MASTER HVY 12X10 1",
+      "score": 1,
+      "evidenceLine": "78787900009 WAX DRY MASTER HVY 12X10 1",
+      "allCodes": [
+        [
+          "78787900009",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6aa0f131-6127-4117-970d-fd0e3ee6f07e",
+      "productName": "CHZ MOZZ P/S GALB R/W",
+      "productSku": "INV-8D099B-CHZ-MOZZ-P-S-GALB-SPG9VT",
+      "barcode": "20505590000",
+      "source": "pdf_text",
+      "invoiceId": "4f189efa-9d27-41ef-8ce6-b2d03d598bcc",
+      "invoiceNumber": "18637",
+      "description": "CHZ MOZZ P/S GALB R/W",
+      "score": 1,
+      "evidenceLine": "20505590000 CHZ MOZZ P/S GALB R/W",
+      "allCodes": [
+        [
+          "20505590000",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "ce35b208-639b-47f6-ae7e-0b5ae74236af",
+      "productName": "PIZZA PEEL WOOD 42 20X20",
+      "productSku": "INV-8D099B-PIZZA-PEEL-WOOD-42-XRYEOT",
+      "barcode": "80096092721",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "2a4674ca-cb5c-4b18-98ba-48171f82f88f",
+      "invoiceNumber": "3055",
+      "description": "PIZZA PEEL WOOD 42 20X20 1",
+      "score": 0.952,
+      "evidenceLine": "80096092721 PIZZA PEEL WOOD 42 20X20 1",
+      "allCodes": [
+        [
+          "80096092721",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "20b3d23d-f333-445b-a489-0b2d0728d9b3",
+      "productName": "LID DOME12/16/20BK",
+      "productSku": "INV-8D099B-LID-DOME12-16-20BK-1JO3PU",
+      "barcode": "9429787144",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "LID DOME12/16/20BK",
+      "score": 1,
+      "evidenceLine": "9429787144 LID DOME12/16/20BK",
+      "allCodes": [
+        [
+          "9429787144",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2be57ae3-0486-4b65-9c99-5a3d7b14acb8",
+      "productName": "CUP HOT 16 WHT SUN",
+      "productSku": "INV-8D099B-CUP-HOT-16-WHT-SUN-XKC83P",
+      "barcode": "76069502854",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "CUP HOT 16 WHT SUN",
+      "score": 1,
+      "evidenceLine": "76069502854 CUP HOT 16 WHT SUN",
+      "allCodes": [
+        [
+          "76069502854",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "9807a45a-6d53-4dd2-ae1e-03b5c5f07379",
+      "productName": "COKE MEXICAN VP 12Z",
+      "productSku": "INV-8D099B-COKE-MEXICAN-VP-12-IFW3G",
+      "barcode": "4900005845",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "COKE MEXICAN VP 12Z",
+      "score": 1,
+      "evidenceLine": "4900005845 COKE MEXICAN VP 12Z",
+      "allCodes": [
+        [
+          "4900005845",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "31bb3fd6-f50c-46e7-9246-eacc72928714",
+      "productName": "COCA COLA DIET 20Z",
+      "productSku": "INV-8D099B-COCA-COLA-DIET-20Z-OEKU2N",
+      "barcode": "4900003819",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "COCA COLA DIET 20Z",
+      "score": 1,
+      "evidenceLine": "4900003819 COCA COLA DIET 20Z",
+      "allCodes": [
+        [
+          "4900003819",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "630fa837-3c7e-4f04-8a1d-4715e101b97c",
+      "productName": "A&W ROOT BEER 20Z",
+      "productSku": "INV-8D099B-A-W-ROOT-BEER-20Z-KDSICS",
+      "barcode": "7800005240",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "A&W ROOT BEER 20Z",
+      "score": 1,
+      "evidenceLine": "7800005240 A&W ROOT BEER 20Z",
+      "allCodes": [
+        [
+          "7800005240",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "47a75b37-e7fc-4381-9844-d2341953cdbc",
+      "productName": "POWERADE SR CHERRY 28Z",
+      "productSku": "INV-8D099B-POWERADE-SR-CHERRY-1BLK75",
+      "barcode": "4900055909",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "POWERADE SR CHERRY 28Z 1",
+      "score": 0.95,
+      "evidenceLine": "4900055909 POWERADE SR CHERRY 28Z 1",
+      "allCodes": [
+        [
+          "4900055909",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "b162c55f-dc18-44d2-b6f4-9494e13dc6ca",
+      "productName": "POWERADE FRT PUNCH 28Z",
+      "productSku": "INV-8D099B-POWERADE-FRT-PUNCH-12U9BH",
+      "barcode": "4900007938",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "POWERADE FRT PUNCH 28Z 1",
+      "score": 0.95,
+      "evidenceLine": "4900007938 POWERADE FRT PUNCH 28Z 1",
+      "allCodes": [
+        [
+          "4900007938",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "12e08400-9823-4172-b7c5-618e1de80704",
+      "productName": "POWERADE LEM LIME 28Z",
+      "productSku": "INV-8D099B-POWERADE-LEM-LIME-1BLC5B",
+      "barcode": "4900017937",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "POWERADE LEM LIME 28Z",
+      "score": 1,
+      "evidenceLine": "4900017937 POWERADE LEM LIME 28Z",
+      "allCodes": [
+        [
+          "4900017937",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "34a822d8-728e-48ac-aff9-c01c7827f09e",
+      "productName": "JARRITOS VP MIXER 12.5Z",
+      "productSku": "INV-8D099B-JARRITOS-VP-MIXER-WOF19B",
+      "barcode": "9047800936",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "JARRITOS VP MIXER 12.5Z",
+      "score": 1,
+      "evidenceLine": "9047800936 JARRITOS VP MIXER 12.5Z",
+      "allCodes": [
+        [
+          "9047800936",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "5a87423d-9b5b-4481-b5a0-818f1d9a4348",
+      "productName": "MISTIC LOTTACOLADA 15.9Z",
+      "productSku": "INV-8D099B-MISTIC-LOTTACOLADA-JE17X8",
+      "barcode": "8939600068",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "MISTIC LOTTACOLADA 15.9Z 1",
+      "score": 0.955,
+      "evidenceLine": "8939600068 MISTIC LOTTACOLADA 15.9Z 1",
+      "allCodes": [
+        [
+          "8939600068",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "213ae469-6dcb-46d2-be9b-e2b200e60c0f",
+      "productName": "MISTIC MANG/CARROT 15.9Z",
+      "productSku": "INV-8D099B-MISTIC-MANG-CARROT-M11UAU",
+      "barcode": "8939600048",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "MISTIC MANG/CARROT 15.9Z 1",
+      "score": 0.952,
+      "evidenceLine": "8939600048 MISTIC MANG/CARROT 15.9Z 1",
+      "allCodes": [
+        [
+          "8939600048",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "ccbd56ad-d793-4387-8934-152fd2392fa7",
+      "productName": "FZ POP JAL CHDR 7LB",
+      "productSku": "INV-8D099B-FZ-POP-JAL-CHDR-7L-1L5Y8R",
+      "barcode": "76069500432",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "FZ POP JAL CHDR 7LB",
+      "score": 1,
+      "evidenceLine": "76069500432 FZ POP JAL CHDR 7LB",
+      "allCodes": [
+        [
+          "76069500432",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f8669d6d-5fa7-4f82-bf98-e281bb68eb97",
+      "productName": "POWERADE MTN BLAST 28Z",
+      "productSku": "INV-8D099B-POWERADE-MTN-BLAST-MVUI90",
+      "barcode": "4900007935",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "POWERADE MTN BLAST 28Z 1",
+      "score": 0.95,
+      "evidenceLine": "4900007935 POWERADE MTN BLAST 28Z 1",
+      "allCodes": [
+        [
+          "4900007935",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "693a4dcf-70de-42b3-8559-7d6ba4799f78",
+      "productName": "JARRITOS VP GLASS 12Z",
+      "productSku": "INV-8D099B-JARRITOS-VP-GLASS-16V6KY",
+      "barcode": "9047823320",
+      "source": "pdf_text",
+      "invoiceId": "67eae08a-32c0-4722-8539-472bfe08c8df",
+      "invoiceNumber": "1198",
+      "description": "JARRITOS VP GLASS 12Z",
+      "score": 1,
+      "evidenceLine": "9047823320 JARRITOS VP GLASS 12Z",
+      "allCodes": [
+        [
+          "9047823320",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "ba7a590c-6164-4dcf-8351-ea7a63759981",
+      "productName": "CHZ AMER Y200 JF 5LB",
+      "productSku": "INV-8D099B-CHZ-AMER-Y200-JF-5-1JY604",
+      "barcode": "76069501722",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "CHZ AMER Y200 JF 5LB",
+      "score": 1,
+      "evidenceLine": "76069501722 CHZ AMER Y200 JF 5LB",
+      "allCodes": [
+        [
+          "76069501722",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "090cf520-2c59-414f-beb9-fe3a43d4de37",
+      "productName": "HNZ KETCHUP JUG 114Z",
+      "productSku": "INV-8D099B-HNZ-KETCHUP-JUG-11-257J1M",
+      "barcode": "1300051491",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "HNZ KETCHUP JUG 114Z",
+      "score": 1,
+      "evidenceLine": "1300051491 HNZ KETCHUP JUG 114Z",
+      "allCodes": [
+        [
+          "1300051491",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "61355c91-7a76-4c09-beba-4e9943578f7a",
+      "productName": "FOIL 10.75X12 200S",
+      "productSku": "INV-8D099B-FOIL-10-75X12-200S-1NE4SF",
+      "barcode": "76069503188",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "FOIL 10.75X12 200S",
+      "score": 1,
+      "evidenceLine": "76069503188 FOIL 10.75X12 200S",
+      "allCodes": [
+        [
+          "76069503188",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "ae3912dc-5ff5-4a71-ba1e-4df060c0a6db",
+      "productName": "PPR ROLL MG 15X900",
+      "productSku": "INV-8D099B-PPR-ROLL-MG-15X900-1IWNFV",
+      "barcode": "76069501571",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "PPR ROLL MG 15X900",
+      "score": 1,
+      "evidenceLine": "76069501571 PPR ROLL MG 15X900",
+      "allCodes": [
+        [
+          "76069501571",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3179c8f9-c9c2-48df-b62a-f7ddee1609e3",
+      "productName": "SAUCE HOT CQ 1GAL",
+      "productSku": "INV-8D099B-SAUCE-HOT-CQ-1GAL-E8DFRJ",
+      "barcode": "76069502173",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "SAUCE HOT CQ 1GAL",
+      "score": 1,
+      "evidenceLine": "76069502173 SAUCE HOT CQ 1GAL",
+      "allCodes": [
+        [
+          "76069502173",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c23c87cd-abfc-4061-94b1-bd6f10f82d36",
+      "productName": "MIKE HOT HONEY 24Z",
+      "productSku": "INV-8D099B-MIKE-HOT-HONEY-24Z-1YWBLS",
+      "barcode": "86537200003",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "MIKE HOT HONEY 24Z",
+      "score": 1,
+      "evidenceLine": "86537200003 MIKE HOT HONEY 24Z",
+      "allCodes": [
+        [
+          "86537200003",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "1f1af882-dfdf-445f-8fb6-17b65f3f0024",
+      "productName": "VINEGAR RED CQ GAL",
+      "productSku": "INV-8D099B-VINEGAR-RED-CQ-GAL-1I0ADF",
+      "barcode": "76069503403",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "VINEGAR RED CQ GAL",
+      "score": 1,
+      "evidenceLine": "76069503403 VINEGAR RED CQ GAL",
+      "allCodes": [
+        [
+          "76069503403",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "dce817aa-ea4d-42ea-865e-a796db5d0730",
+      "productName": "B&G PCKL CHP KOSH 1GAL",
+      "productSku": "INV-8D099B-B-G-PCKL-CHP-KOSH-1BAFXY",
+      "barcode": "3150000942",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "B&G PCKL CHP KOSH 1GAL 1",
+      "score": 0.944,
+      "evidenceLine": "3150000942 B&G PCKL CHP KOSH 1GAL 1",
+      "allCodes": [
+        [
+          "3150000942",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "43215c99-b060-4a8a-b701-763bdc4ea7ee",
+      "productName": "PEPP JALA SLICED GAL",
+      "productSku": "INV-8D099B-PEPP-JALA-SLICED-G-9IT1X5",
+      "barcode": "3150000986",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "PEPP JALA SLICED GAL",
+      "score": 1,
+      "evidenceLine": "3150000986 PEPP JALA SLICED GAL",
+      "allCodes": [
+        [
+          "3150000986",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "89dfb87a-f07e-473e-94be-5ecd7ba4e222",
+      "productName": "TUL AIOLI CHPTLE 8/18Z",
+      "productSku": "INV-8D099B-TUL-AIOLI-CHPTLE-8-1LOZ2K",
+      "barcode": "7060790091",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "TUL AIOLI CHPTLE 8/18Z",
+      "score": 1,
+      "evidenceLine": "7060790091 TUL AIOLI CHPTLE 8/18Z",
+      "allCodes": [
+        [
+          "7060790091",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "cb4187d5-da84-4ea0-91f7-d83ded034458",
+      "productName": "SAUC GARL PRM SBR 64Z",
+      "productSku": "INV-8D099B-SAUC-GARL-PRM-SBR-1MD0PC",
+      "barcode": "1340951630",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "SAUC GARL PRM SBR 64Z",
+      "score": 1,
+      "evidenceLine": "1340951630 SAUC GARL PRM SBR 64Z",
+      "allCodes": [
+        [
+          "1340951630",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4627ab59-ccb9-4954-aebd-b67fe8170638",
+      "productName": "PEPPERONI 5LB ISAB",
+      "productSku": "INV-8D099B-PEPPERONI-5LB-ISAB-10JZ73",
+      "barcode": "76069501430",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "PEPPERONI 5LB ISAB",
+      "score": 1,
+      "evidenceLine": "76069501430 PEPPERONI 5LB ISAB",
+      "allCodes": [
+        [
+          "76069501430",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "07b73093-d775-4282-af51-43d2b1ab8940",
+      "productName": "EGGS LOOSE XLG WH 15DZ",
+      "productSku": "INV-8D099B-EGGS-LOOSE-XLG-WH-JLJAB2",
+      "barcode": "76069501077",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "EGGS LOOSE XLG WH 15DZ 1",
+      "score": 0.947,
+      "evidenceLine": "76069501077 EGGS LOOSE XLG WH 15DZ 1",
+      "allCodes": [
+        [
+          "76069501077",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8ea8f84a-eb54-4019-8ddd-3a6d922f9eed",
+      "productName": "BACON ONE HORMEL 18/22",
+      "productSku": "INV-8D099B-BACON-ONE-HORMEL-1-1D06SP",
+      "barcode": "3760082827",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "BACON ONE HORMEL 18/22 1",
+      "score": 0.947,
+      "evidenceLine": "3760082827 BACON ONE HORMEL 18/22 1",
+      "allCodes": [
+        [
+          "3760082827",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6ed87539-db5f-4a4e-a3fd-ff63757f410c",
+      "productName": "ROAST BF BK STEER",
+      "productSku": "INV-8D099B-ROAST-BF-BK-STEER-10Z7N9",
+      "barcode": "20706430000",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "ROAST BF BK STEER",
+      "score": 1,
+      "evidenceLine": "20706430000 ROAST BF BK STEER",
+      "allCodes": [
+        [
+          "20706430000",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "1c930b25-cb5d-4091-a6ad-bdcc1e0d9cca",
+      "productName": "RED BULL ENERGY 12Z",
+      "productSku": "INV-8D099B-RED-BULL-ENERGY-12-1DV22Y",
+      "barcode": "61126991747",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "RED BULL ENERGY 12Z",
+      "score": 1,
+      "evidenceLine": "61126991747 RED BULL ENERGY 12Z",
+      "allCodes": [
+        [
+          "61126991747",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "c7d6cfc8-b2d2-453b-864f-570eeccd138a",
+      "productName": "RED BULL 8.3Z",
+      "productSku": "INV-8D099B-RED-BULL-8-3Z-1QA3F3",
+      "barcode": "61126999124",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "RED BULL 8.3Z",
+      "score": 1,
+      "evidenceLine": "61126999124 RED BULL 8.3Z",
+      "allCodes": [
+        [
+          "61126999124",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4e49544a-927f-4bf9-b5a7-492761e4dc21",
+      "productName": "HAM 1/2 BLK STEER",
+      "productSku": "INV-8D099B-HAM-1-2-BLK-STEER-HD80W3",
+      "barcode": "20773760000",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "HAM 1/2 BLK STEER",
+      "score": 1,
+      "evidenceLine": "20773760000 HAM 1/2 BLK STEER",
+      "allCodes": [
+        [
+          "20773760000",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "f2a28c38-b7c9-415a-9f4e-01ba7d78179a",
+      "productName": "PASTRMI BLK STR SL",
+      "productSku": "INV-8D099B-PASTRMI-BLK-STR-SL-ZPV6OR",
+      "barcode": "20706300000",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "PASTRMI BLK STR SL",
+      "score": 1,
+      "evidenceLine": "20706300000 PASTRMI BLK STR SL",
+      "allCodes": [
+        [
+          "20706300000",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8648129a-7242-47f6-b0ed-62c8eed0f9f5",
+      "productName": "PD LETTUCE CELLO",
+      "productSku": "INV-8D099B-PD-LETTUCE-CELLO-1LPM3K",
+      "barcode": "3338365020",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "PD LETTUCE CELLO",
+      "score": 1,
+      "evidenceLine": "3338365020 PD LETTUCE CELLO",
+      "allCodes": [
+        [
+          "3338365020",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "a4a4151c-eb31-459c-8a2d-2c798b756045",
+      "productName": "SUGAR DOM BULK 25#",
+      "productSku": "INV-8D099B-SUGAR-DOM-BULK-25-AFVQS7",
+      "barcode": "4920004870",
+      "source": "pdf_text",
+      "invoiceId": "f21d85d2-bd07-4346-97ac-f62fc8853b4f",
+      "invoiceNumber": "20705",
+      "description": "SUGAR DOM BULK 25#",
+      "score": 1,
+      "evidenceLine": "4920004870 SUGAR DOM BULK 25#",
+      "allCodes": [
+        [
+          "4920004870",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e457399b-b2ed-4042-915a-d059b0e8e108",
+      "productName": "AMOS PEELERZ GUMMY MANGO PEG 6OZ 1CT",
+      "productSku": "INV-369778-AMOS-PEELERZ-GUMMY-L0CGVJ",
+      "barcode": "810051807974",
+      "source": "pdf_text",
+      "invoiceId": "e6ab0eb8-acb3-46d1-a65b-b3f721373fc0",
+      "invoiceNumber": "361439",
+      "description": "1) | \\ 109895 | AMOS PEELERZ GUMMY MANGO PEG 602 1CT",
+      "score": 0.857,
+      "evidenceLine": "1) | \\ 109895 | AMOS PEELERZ GUMMY MANGO PEG 602 1CT 810051807974 2 $2.45 $4.90",
+      "allCodes": [
+        [
+          "810051807974",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "1127f508-43e1-4396-881c-34883bd54890",
+      "productName": "SWEET WOODS LEAF - RUSSIAN CREAM $1.49",
+      "productSku": "INV-902CD7-SWEET-WOODS-LEAF-R-11Z8HC",
+      "barcode": "842426155076",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "__ | SWEET WOODS LEAF - RUSSIAN CREAM Raa oo",
+      "score": 0.714,
+      "evidenceLine": "15 842426155076 __ | SWEET WOODS LEAF - RUSSIAN CREAM Raa oo 14.74",
+      "allCodes": [
+        [
+          "842426155076",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "ed09499e-7fe2-462b-a428-56bce1d3a40d",
+      "productName": "GAME CIGARILLOS 2/1.29 30CT-HONEY",
+      "productSku": "INV-902CD7-GAME-CIGARILLOS-2-I3DQTH",
+      "barcode": "031700237915",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "GAMECIGARILLOS 2/1.2930cT-HONEy | 100 | 240",
+      "score": 0.818,
+      "evidenceLine": "20 031700237915 | GAMECIGARILLOS 2/1.2930cT-HONEy | 100 | 240) | 24.30",
+      "allCodes": [
+        [
+          "031700237915",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "cfd184c6-795d-481d-8cb3-759708e7f9e0",
+      "productName": "GAME CIGARILLOS 2/1.29 30CT- MANGO",
+      "productSku": "INV-902CD7-GAME-CIGARILLOS-2-I5J7RU",
+      "barcode": "031700237984",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "GAME CIGARILLOS 2/1.2930cT-MaNGO",
+      "score": 1,
+      "evidenceLine": "21 031700237984 | GAME CIGARILLOS 2/1.2930cT-MaNGO | 1.00 | = 2490| | 24.30",
+      "allCodes": [
+        [
+          "031700237984",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2c21da11-3327-42c8-a6e2-b6e0f57dc67d",
+      "productName": "SWISHER SWEETS CIGARILLOS 2/1.39- ORIGINAL",
+      "productSku": "INV-902CD7-SWISHER-SWEETS-CIG-ZXVQ5S",
+      "barcode": "025900345525",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "—_| SWISHER SWEETS CIGARILLOS 2/ 1,39",
+      "score": 0.771,
+      "evidenceLine": "24 | 0.99 | 025900345525 —_| SWISHER SWEETS CIGARILLOS 2/ 1,39 - 4.00 23.50 0 23.50",
+      "allCodes": [
+        [
+          "025900345525",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "30113a36-1ea7-4ccc-97cf-3fdc4cf13d53",
+      "productName": "ZYN 3MG-COOL MINT $1 OFF*",
+      "productSku": "INV-902CD7-ZYN-3MG-COOL-MINT-1NUX64",
+      "barcode": "609249900432",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "—_| ZYN 3MG - COOL MINT $1 OFF* | 100 | tga] od",
+      "score": 0.692,
+      "evidenceLine": "28 609249900432 —_| ZYN 3MG - COOL MINT $1 OFF* | 100 | tga] od | 17.99",
+      "allCodes": [
+        [
+          "609249900432",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "7033117e-3d7a-4cc9-b6f7-bd33351d4901",
+      "productName": "ZYN 6MG PEPPERMINT $1 OFF*",
+      "productSku": "INV-902CD7-ZYN-6MG-PEPPERMINT-1PNBN8",
+      "barcode": "609249901248",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "ZYN 6MG - PEPPERMINT $1 OFF* [100 | azg9[",
+      "score": 0.741,
+      "evidenceLine": "30 609249901248 | ZYN 6MG - PEPPERMINT $1 OFF* [100 | azg9[ | 17.99",
+      "allCodes": [
+        [
+          "609249901248",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8485f0ba-52d2-401a-9b73-69ce5a8eadd2",
+      "productName": "ZYN 6MG-WINTERGREEN $1 OFF*",
+      "productSku": "INV-902CD7-ZYN-6MG-WINTERGREE-1C039W",
+      "barcode": "609249903389",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "_| ZYN 6MG - WINTERGREEN $1 OFF* ee a ery",
+      "score": 0.778,
+      "evidenceLine": "32 609249903389 _| ZYN 6MG - WINTERGREEN $1 OFF* ee a ery 17.99",
+      "allCodes": [
+        [
+          "609249903389",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e152ffb3-92b8-4220-aa42-bf954ccac40b",
+      "productName": "NEW WORLD - GORDO 6X58",
+      "productSku": "INV-902CD7-NEW-WORLD-GORDO-6X-AI4RNP",
+      "barcode": "810194080104",
+      "source": "pdf_text",
+      "invoiceId": "e9a85211-8d7f-413f-8569-0b0f981b26a8",
+      "invoiceNumber": "460",
+      "description": "NEW WORLD - GORDO 6X58 (21",
+      "score": 0.895,
+      "evidenceLine": "810194080104 | NEW WORLD - GORDO 6X58 (21) $293.42",
+      "allCodes": [
+        [
+          "810194080104",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "7a71fb93-6b9a-4f56-85bb-d27191dc15f9",
+      "productName": "AZ 22OZ CAN PEACH 24PK",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-PEACH-1B56AC",
+      "barcode": "613008719517",
+      "source": "pdf_text",
+      "invoiceId": "8317788b-a105-491e-a5c8-ef66f57a91d6",
+      "invoiceNumber": "809201990",
+      "description": "2 645 az 2202 CAN PEACH 24PK",
+      "score": 0.8,
+      "evidenceLine": "2 645 az 2202 CAN PEACH 24PK 613008719517 | 20.99 5.49 | 0.00 0.00 31.00",
+      "allCodes": [
+        [
+          "613008719517",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "7680c98b-5f7e-4676-88db-1a07635f4d47",
+      "productName": "AZ 20 OZ TALLBOY BLUEBERRY WHITE",
+      "productSku": "INV-2D697F-AZ-20-OZ-TALLBOY-B-1XVTPS",
+      "barcode": "613008731038",
+      "source": "pdf_text",
+      "invoiceId": "8317788b-a105-491e-a5c8-ef66f57a91d6",
+      "invoiceNumber": "809201990",
+      "description": "2 p661 |Az 2002 TALLBOY BLUEBERRY WHITE",
+      "score": 0.667,
+      "evidenceLine": "2 p661 |Az 2002 TALLBOY BLUEBERRY WHITE 613008731038 | 20.99 5.49 | 0.00 0.00 31.00",
+      "allCodes": [
+        [
+          "613008731038",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "e692ecf1-8b77-4a83-a704-41fb95fb816b",
+      "productName": "CHZ AMER Y160 JF 5LB",
+      "productSku": "INV-8D099B-CHZ-AMER-Y160-JF-5-19P22D",
+      "barcode": "76069501721",
+      "source": "pdf_text",
+      "invoiceId": "aa6a09b0-1309-448e-8f3c-fc94081c591b",
+      "invoiceNumber": "9877",
+      "description": "CHZ AMER Y160 JF 5LB",
+      "score": 1,
+      "evidenceLine": "76069501721 CHZ AMER Y160 JF 5LB",
+      "allCodes": [
+        [
+          "76069501721",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "de41aac7-417e-4cad-b469-4e394cf75579",
+      "productName": "BTR CLARIFIED LOL 5LB",
+      "productSku": "INV-8D099B-BTR-CLARIFIED-LOL-EOCWGV",
+      "barcode": "3450019898",
+      "source": "pdf_text",
+      "invoiceId": "aa6a09b0-1309-448e-8f3c-fc94081c591b",
+      "invoiceNumber": "9877",
+      "description": "BTR CLARIFIED LOL 5LB",
+      "score": 1,
+      "evidenceLine": "3450019898 BTR CLARIFIED LOL 5LB",
+      "allCodes": [
+        [
+          "3450019898",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "ba18eeab-75ac-4407-b656-e373a9106ba9",
+      "productName": "CUP PL SOUF 2Z",
+      "productSku": "INV-8D099B-CUP-PL-SOUF-2Z-1AMYIG",
+      "barcode": "4159438386",
+      "source": "pdf_text",
+      "invoiceId": "aa6a09b0-1309-448e-8f3c-fc94081c591b",
+      "invoiceNumber": "9877",
+      "description": "CUP PL SOUF 2Z",
+      "score": 1,
+      "evidenceLine": "4159438386 CUP PL SOUF 2Z",
+      "allCodes": [
+        [
+          "4159438386",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4b6c87d5-77d5-49ff-9e3c-a6b35817a03a",
+      "productName": "LID PL SOUF 1.5Z2Z PL200N",
+      "productSku": "INV-8D099B-LID-PL-SOUF-1-5Z2Z-1WSAO1",
+      "barcode": "4159407454",
+      "source": "pdf_text",
+      "invoiceId": "aa6a09b0-1309-448e-8f3c-fc94081c591b",
+      "invoiceNumber": "9877",
+      "description": "LID PL SOUF 1.5Z2Z PL200N 1",
+      "score": 0.952,
+      "evidenceLine": "4159407454 LID PL SOUF 1.5Z2Z PL200N 1",
+      "allCodes": [
+        [
+          "4159407454",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "4b5824fc-56eb-4919-97ed-aeb89ec18ec3",
+      "productName": "TUL AIOLI CHIPOLT 32Z",
+      "productSku": "INV-8D099B-TUL-AIOLI-CHIPOLT-1ERRJZ",
+      "barcode": "7060790092",
+      "source": "pdf_text",
+      "invoiceId": "aa6a09b0-1309-448e-8f3c-fc94081c591b",
+      "invoiceNumber": "9877",
+      "description": "TUL AIOLI CHIPOLT 32Z",
+      "score": 1,
+      "evidenceLine": "7060790092 TUL AIOLI CHIPOLT 32Z",
+      "allCodes": [
+        [
+          "7060790092",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "9d6f56e1-4c48-4477-8792-6e25bdb06fb8",
+      "productName": "CHZ AMER Y120 JF 5LB",
+      "productSku": "INV-8D099B-CHZ-AMER-Y120-JF-5-1O3ELC",
+      "barcode": "76069501720",
+      "source": "pdf_text_upc_header",
+      "invoiceId": "f3cbcbbe-8973-45a0-ae4f-e255759e52ef",
+      "invoiceNumber": "8786",
+      "description": "CHZ AMER Y120 JF 5LB",
+      "score": 1,
+      "evidenceLine": "76069501720 CHZ AMER Y120 JF 5LB",
+      "allCodes": [
+        [
+          "76069501720",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "5e795baa-9aa9-47d9-8958-34851c3cf0c0",
+      "productName": "BRD WHT CLUB SAND 18SLC",
+      "productSku": "INV-8D099B-BRD-WHT-CLUB-SAND-1VXSU3",
+      "barcode": "7028766301",
+      "source": "pdf_text",
+      "invoiceId": "f3cbcbbe-8973-45a0-ae4f-e255759e52ef",
+      "invoiceNumber": "8786",
+      "description": "BRD WHT CLUB SAND 18SLC 1",
+      "score": 0.95,
+      "evidenceLine": "7028766301 BRD WHT CLUB SAND 18SLC 1",
+      "allCodes": [
+        [
+          "7028766301",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8f84377b-960a-41ef-9f8d-231796e636cf",
+      "productName": "BRD WHEAT CLUB 18SLC",
+      "productSku": "INV-8D099B-BRD-WHEAT-CLUB-18S-2YOEIQ",
+      "barcode": "7028763401",
+      "source": "pdf_text",
+      "invoiceId": "f3cbcbbe-8973-45a0-ae4f-e255759e52ef",
+      "invoiceNumber": "8786",
+      "description": "BRD WHEAT CLUB 18SLC",
+      "score": 1,
+      "evidenceLine": "7028763401 BRD WHEAT CLUB 18SLC",
+      "allCodes": [
+        [
+          "7028763401",
+          1
+        ]
+      ]
+    }
+  ],
+  "heldLowConfidence": [
+    {
+      "productId": "c607c265-f9ba-4721-93fc-f18c2c69b8b3",
+      "productName": "Elmers School Glue 4oz",
+      "productSku": "INV-5C56B1-ELMERS-SCHOOL-GLUE-31TFB6",
+      "barcode": "026000003049",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "—_Elmers S¢hool Glue 4oz 3 $109",
+      "score": 0.6,
+      "evidenceLine": "24 026000003049 —_Elmers S¢hool Glue 4oz 3 $109 $0.00 $3.27",
+      "allCodes": [
+        [
+          "026000003049",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "a733aaa1-40e3-45a6-b0d7-2334e919656f",
+      "productName": "Envelop 50ct",
+      "productSku": "INV-5C56B1-ENVELOP-50CT-PCUFV9",
+      "barcode": "043100750505",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Envelop 50ct lee : $119",
+      "score": 0.647,
+      "evidenceLine": "26 043100750505 Envelop 50ct lee : $119 $0.00 19",
+      "allCodes": [
+        [
+          "043100750505",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "071b8c9d-e43e-4b54-bf25-05570ac119c1",
+      "productName": "Aveeno Body Lotion 2.5oz",
+      "productSku": "INV-5C56B1-AVEENO-BODY-LOTION-LU7U5J",
+      "barcode": "381370036029",
+      "source": "pdf_text",
+      "invoiceId": "864b4313-5d67-4f8d-bc12-54063ee516e8",
+      "invoiceNumber": "23154",
+      "description": "Aveeno Body Lotion 2.50z 3",
+      "score": 0.6,
+      "evidenceLine": "30 381370036029 Aveeno Body Lotion 2.50z 3 $3.24 $0.00 $9.72",
+      "allCodes": [
+        [
+          "381370036029",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "2cb046a3-bc8e-4c79-992c-1375739da517",
+      "productName": "AZ 22OZ CAN GREEN TEA CUCUMBER 2",
+      "productSku": "INV-2D697F-AZ-22OZ-CAN-GREEN-1KK2P4",
+      "barcode": "613008745912",
+      "source": "pdf_text",
+      "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+      "invoiceNumber": "809009651",
+      "description": "1 [aze |az 220Z CAN GREEN TEA CUCUMBER 2",
+      "score": 0.625,
+      "evidenceLine": "1 [aze |az 220Z CAN GREEN TEA CUCUMBER 2 |613008745912 | 20.99 6.00 | 0.00 0.00 14.99",
+      "allCodes": [
+        [
+          "613008745912",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "aaf6238b-5bcb-4a53-8aa5-72760b9d35ff",
+      "productName": "SKITTLES SOUR WILDBERRY KING 24CT",
+      "productSku": "INV-369778-SKITTLES-SOUR-WILD-2K4XBU",
+      "barcode": "022000297860",
+      "source": "pdf_text",
+      "invoiceId": "88747bc4-f4b8-4143-b74d-fe28d2bcca59",
+      "invoiceNumber": "357567",
+      "description": "~ < WILDBERRY KING 24CT",
+      "score": 0.586,
+      "evidenceLine": "~ < WILDBERRY KING 24CT 022000297860",
+      "allCodes": [
+        [
+          "022000297860",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "88b5352a-d645-4135-93ea-d3f7151848e7",
+      "productName": "STP Brake Fluid 12oz",
+      "productSku": "INV-5C56B1-STP-BRAKE-FLUID-12-1HG7DC",
+      "barcode": "071153002036",
+      "source": "pdf_text",
+      "invoiceId": "530628ae-f8f1-4bcc-acbd-b493492ea3dd",
+      "invoiceNumber": "25490",
+      "description": "STP Brake Fluid 120z 3 $239",
+      "score": 0.6,
+      "evidenceLine": "2 071153002036 STP Brake Fluid 120z 3 $239 $0.00 $717",
+      "allCodes": [
+        [
+          "071153002036",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3d3a157d-b811-4875-808e-9f923ab0838e",
+      "productName": "PLASENCIA RESERVA ORIGINAL ROBUSTO 4 3/4X52",
+      "productSku": "INV-902CD7-PLASENCIA-RESERVA-HEP5UC",
+      "barcode": "810134310667",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "_ | PLASENCIA RESERVA ORIGINAL",
+      "score": 0.649,
+      "evidenceLine": "Pa 371 810134310667 _ | PLASENCIA RESERVA ORIGINAL 63.77 63.77",
+      "allCodes": [
+        [
+          "810134310667",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "6a09cdd5-f5d3-4b28-9e94-bb85c97e0536",
+      "productName": "PRD RSV 10TH ANNIV CHAMP CT FIGUARDO 4 3/4X56",
+      "productSku": "INV-902CD7-PRD-RSV-10TH-ANNIV-1GN7U1",
+      "barcode": "816229010528",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "PRD RSV 10TH ANNIV CHAMP CT",
+      "score": 0.611,
+      "evidenceLine": "22 9.25 816229010528 PRD RSV 10TH ANNIV CHAMP CT 1.00 140.00 140.00",
+      "allCodes": [
+        [
+          "816229010528",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "8c8827d3-576c-42c9-ba1d-b0e9032ea432",
+      "productName": "Romeo y Julieta 1875 Bully",
+      "productSku": "INV-902CD7-ROMEO-Y-JULIETA-18-1XYQA2",
+      "barcode": "076452350338",
+      "source": "pdf_text",
+      "invoiceId": "f27d3717-00ba-494e-8c3d-a7b46054aeed",
+      "invoiceNumber": "SL12624",
+      "description": "Romeo y Julieta 1875 Bully (50X5) 25ct [too [= t",
+      "score": 0.647,
+      "evidenceLine": "24 | 94a | 076452350338 | Romeo y Julieta 1875 Bully (50X5) 25ct [too [= t55.00| | 155.00",
+      "allCodes": [
+        [
+          "076452350338",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "3938bcc5-0169-43c3-8e61-de8c932c0e39",
+      "productName": "CHEETOS CRUNCHY 2OZ 1CT",
+      "productSku": "INV-369778-CHEETOS-CRUNCHY-2O-YWOXPE",
+      "barcode": "028400356145",
+      "source": "pdf_text",
+      "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+      "invoiceNumber": "360986",
+      "description": "14) \"107115 | CHEETOS CRUNCHY 20Z 1CT",
+      "score": 0.6,
+      "evidenceLine": "14) \"107115 | CHEETOS CRUNCHY 20Z 1CT 028400356145 2 $1.49 $2.98",
+      "allCodes": [
+        [
+          "028400356145",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "7af2826f-be84-4621-88a9-6195b9aacf6f",
+      "productName": "DUTCH MASTER 3/2 PALMA",
+      "productSku": "INV-902CD7-DUTCH-MASTER-3-2-P-7DJ33F",
+      "barcode": "071610502413",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "DUTCH MASTER 5/4 PALMA (VANILLA) | 100 | $7, ey 2406]",
+      "score": 0.6,
+      "evidenceLine": "12 071610502413 | DUTCH MASTER 5/4 PALMA (VANILLA) | 100 | $7, ey 2406] | 24.96",
+      "allCodes": [
+        [
+          "071610502413",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "d93a3c5e-1ce2-410f-8588-2e185c06f9fa",
+      "productName": "GAME CIGARILLOS 2/1.29 30CT-GRAPE",
+      "productSku": "INV-902CD7-GAME-CIGARILLOS-2-I3JZIP",
+      "barcode": "031700237939",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "GAME CIGARILLOS 2/1.29900T-GRAPE",
+      "score": 0.6,
+      "evidenceLine": "19 031700237939 | GAME CIGARILLOS 2/1.29900T-GRAPE | 1.00 | 2490/0 | 24.30",
+      "allCodes": [
+        [
+          "031700237939",
+          1
+        ]
+      ]
+    },
+    {
+      "productId": "359aa658-3002-43af-ba64-5ff3b0d8f5e8",
+      "productName": "ZYN 15PC/5PK-6MG-COOL MINT",
+      "productSku": "INV-902CD7-ZYN-15PC-5PK-6MG-C-1NV0CN",
+      "barcode": "609249900425",
+      "source": "pdf_text",
+      "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+      "invoiceNumber": "SL12456",
+      "description": "_| ZYN 15PC/5PK - 6MG - COOL MINT [200 ie eat oOlon 0",
+      "score": 0.6,
+      "evidenceLine": "27 | 699 | 609249900425 _| ZYN 15PC/5PK - 6MG - COOL MINT [200 ie eat oOlon 0 43.00",
+      "allCodes": [
+        [
+          "609249900425",
+          1
+        ]
+      ]
+    }
+  ],
+  "conflicts": [
+    {
+      "productId": "92ce842b-0577-447a-b508-57c46baadd99",
+      "productName": "AZ 22OZ CAN LEMON 24PK",
+      "candidateCodes": [
+        [
+          "613008735463",
+          1
+        ],
+        [
+          "613008745463",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "73dc168f-ffc3-4319-8976-d689aa373605",
+          "invoiceNumber": "809264635",
+          "code": "613008735463",
+          "description": "1 620 [az 2202 CAN LEMON 24PK",
+          "source": "pdf_text",
+          "line": "1 620 [az 2202 CAN LEMON 24PK 613008735463 | 20.99 0.00 0.00",
+          "productId": "92ce842b-0577-447a-b508-57c46baadd99",
+          "productName": "AZ 22OZ CAN LEMON 24PK",
+          "productSku": "INV-2D697F-AZ-22OZ-CAN-LEMON-5VKCXR",
+          "existingBarcode": null,
+          "score": 0.8
+        },
+        {
+          "invoiceId": "ec838f42-83c2-45fb-9a6c-77d964f9a779",
+          "invoiceNumber": "809009651",
+          "code": "613008745463",
+          "description": "1 i620 Az 2202 CAN LEMON 24PK",
+          "source": "pdf_text",
+          "line": "1 i620 Az 2202 CAN LEMON 24PK 613008745463 | 20.99 6.00 | 0.00 0.00 14.99",
+          "productId": "92ce842b-0577-447a-b508-57c46baadd99",
+          "productName": "AZ 22OZ CAN LEMON 24PK",
+          "productSku": "INV-2D697F-AZ-22OZ-CAN-LEMON-5VKCXR",
+          "existingBarcode": null,
+          "score": 0.667
+        }
+      ]
+    },
+    {
+      "productId": "d73722d3-7b63-491d-9deb-d8b65a4da488",
+      "productName": "MARLBORO GOLD BOX",
+      "candidateCodes": [
+        [
+          "02838423",
+          2
+        ],
+        [
+          "02846529",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "1c888eea-e0cc-49f5-a9dc-d930573e2415",
+          "invoiceNumber": "363452",
+          "code": "02838423",
+          "description": "1) 50 | MARLBORO GOLD BOX",
+          "source": "pdf_text",
+          "line": "1) 50 | MARLBORO GOLD BOX 02838423 1 $121.74 $121.74",
+          "productId": "d73722d3-7b63-491d-9deb-d8b65a4da488",
+          "productName": "MARLBORO GOLD BOX",
+          "productSku": "INV-369778-MARLBORO-GOLD-BOX-6NVJXR",
+          "existingBarcode": null,
+          "score": 0.833
+        },
+        {
+          "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+          "invoiceNumber": "359580",
+          "code": "02846529",
+          "description": "8) 172 MARLBORO GOLD 100 BOX",
+          "source": "pdf_text",
+          "line": "8) 172 MARLBORO GOLD 100 BOX 02846529 1 $ 119.62 $119.62",
+          "productId": "d73722d3-7b63-491d-9deb-d8b65a4da488",
+          "productName": "MARLBORO GOLD BOX",
+          "productSku": "INV-369778-MARLBORO-GOLD-BOX-6NVJXR",
+          "existingBarcode": null,
+          "score": 1
+        },
+        {
+          "invoiceId": "9b6df63f-b748-4e6c-ac1b-9a1909e547f0",
+          "invoiceNumber": "360986",
+          "code": "02838423",
+          "description": "3) 50 | MARLBORO GOLD BOX",
+          "source": "pdf_text",
+          "line": "3) 50 | MARLBORO GOLD BOX 02838423 1 $119.62 $119.62",
+          "productId": "d73722d3-7b63-491d-9deb-d8b65a4da488",
+          "productName": "MARLBORO GOLD BOX",
+          "productSku": "INV-369778-MARLBORO-GOLD-BOX-6NVJXR",
+          "existingBarcode": null,
+          "score": 0.833
+        }
+      ]
+    },
+    {
+      "productId": "f1081f72-2311-4a4f-b2f8-05279e44fa85",
+      "productName": "MARLBORO RED BOX",
+      "candidateCodes": [
+        [
+          "02835727",
+          2
+        ],
+        [
+          "02836328",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "6ffacefe-590c-478a-94f2-ef5cee89ce9f",
+          "invoiceNumber": "361438",
+          "code": "02835727",
+          "description": "1) \\ 48 | MARLBORO RED BOX",
+          "source": "pdf_text_upc_header",
+          "line": "1) \\ 48 | MARLBORO RED BOX 02835727 1 $ 119.62 $119.62",
+          "productId": "f1081f72-2311-4a4f-b2f8-05279e44fa85",
+          "productName": "MARLBORO RED BOX",
+          "productSku": "INV-369778-MARLBORO-RED-BOX-11ODVL",
+          "existingBarcode": null,
+          "score": 0.824
+        },
+        {
+          "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+          "invoiceNumber": "359580",
+          "code": "02835727",
+          "description": "4) 48 MARLBORO RED BOX",
+          "source": "pdf_text",
+          "line": "4) 48 MARLBORO RED BOX 02835727 1 $119.62 $119.62",
+          "productId": "f1081f72-2311-4a4f-b2f8-05279e44fa85",
+          "productName": "MARLBORO RED BOX",
+          "productSku": "INV-369778-MARLBORO-RED-BOX-11ODVL",
+          "existingBarcode": null,
+          "score": 0.824
+        },
+        {
+          "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+          "invoiceNumber": "359580",
+          "code": "02836328",
+          "description": "7) 17Q_ MARLBORO BOX (RED) 100",
+          "source": "pdf_text",
+          "line": "7) 17Q_ MARLBORO BOX (RED) 100 02836328 1 $119.62 $119.62",
+          "productId": "f1081f72-2311-4a4f-b2f8-05279e44fa85",
+          "productName": "MARLBORO RED BOX",
+          "productSku": "INV-369778-MARLBORO-RED-BOX-11ODVL",
+          "existingBarcode": null,
+          "score": 0.75
+        }
+      ]
+    },
+    {
+      "productId": "d1b097bf-4d78-4ca4-ab2b-2b75c63c3940",
+      "productName": "AL CAPONE SWEETS FILTER COGNAC DIPPED 10/10CIGARS",
+      "candidateCodes": [
+        [
+          "717519011105",
+          1
+        ],
+        [
+          "717519011143",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+          "invoiceNumber": "SL12623",
+          "code": "717519011105",
+          "description": "AL CAPONE SWEETS COGNAC DIPPED",
+          "source": "pdf_text",
+          "line": "1 717519011105 | AL CAPONE SWEETS COGNAC DIPPED 60.00 60.00",
+          "productId": "d1b097bf-4d78-4ca4-ab2b-2b75c63c3940",
+          "productName": "AL CAPONE SWEETS FILTER COGNAC DIPPED 10/10CIGARS",
+          "productSku": "INV-902CD7-AL-CAPONE-SWEETS-F-2SDNNB",
+          "existingBarcode": null,
+          "score": 0.714
+        },
+        {
+          "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+          "invoiceNumber": "SL12623",
+          "code": "717519011143",
+          "description": "AL CAPONE SWEETS FILTER COGNAC",
+          "source": "pdf_text",
+          "line": "2 717519011143 | AL CAPONE SWEETS FILTER COGNAC 66.94 66.94",
+          "productId": "d1b097bf-4d78-4ca4-ab2b-2b75c63c3940",
+          "productName": "AL CAPONE SWEETS FILTER COGNAC DIPPED 10/10CIGARS",
+          "productSku": "INV-902CD7-AL-CAPONE-SWEETS-F-2SDNNB",
+          "existingBarcode": null,
+          "score": 0.619
+        }
+      ]
+    },
+    {
+      "productId": "5d0a6a77-c8f2-4acd-9ad9-dac846f53ab2",
+      "productName": "BACKWOOD CIGARS 5/8 PACK-VANILLA",
+      "candidateCodes": [
+        [
+          "071610302808",
+          1
+        ],
+        [
+          "071610301931",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+          "invoiceNumber": "SL12623",
+          "code": "071610302808",
+          "description": "_ | BACKWOOD CIGARS 5/8",
+          "source": "pdf_text",
+          "line": "3 699 | 071610302808 _ | BACKWOOD CIGARS 5/8 PACK-RUSSIAN 35.00 35.00",
+          "productId": "5d0a6a77-c8f2-4acd-9ad9-dac846f53ab2",
+          "productName": "BACKWOOD CIGARS 5/8 PACK-VANILLA",
+          "productSku": "INV-902CD7-BACKWOOD-CIGARS-5-1SII5A",
+          "existingBarcode": null,
+          "score": 0.593
+        },
+        {
+          "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+          "invoiceNumber": "SL12623",
+          "code": "071610301931",
+          "description": "BACKWOOD CIGARS 5/8",
+          "source": "pdf_text",
+          "line": "4 071610301931 BACKWOOD CIGARS 5/8 PACK-SWEET 35.00",
+          "productId": "5d0a6a77-c8f2-4acd-9ad9-dac846f53ab2",
+          "productName": "BACKWOOD CIGARS 5/8 PACK-VANILLA",
+          "productSku": "INV-902CD7-BACKWOOD-CIGARS-5-1SII5A",
+          "existingBarcode": null,
+          "score": 0.593
+        }
+      ]
+    },
+    {
+      "productId": "ba39e1ca-a410-46cb-8b76-caa1e0842948",
+      "productName": "WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - SILVER OL",
+      "candidateCodes": [
+        [
+          "031700237724",
+          1
+        ],
+        [
+          "031700237700",
+          1
+        ],
+        [
+          "031700237861",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+          "invoiceNumber": "SL12623",
+          "code": "031700237724",
+          "description": "WHITE OWLCIGARILLOS 2/FOR 1.1930cT",
+          "source": "pdf_text",
+          "line": "23 031700237724 | WHITE OWLCIGARILLOS 2/FOR 1.1930cT- | 1.00 2250",
+          "productId": "ba39e1ca-a410-46cb-8b76-caa1e0842948",
+          "productName": "WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - SILVER OL",
+          "productSku": "INV-902CD7-WHITE-OWL-CIGARILL-U1D4V5",
+          "existingBarcode": null,
+          "score": 0.784
+        },
+        {
+          "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+          "invoiceNumber": "SL12623",
+          "code": "031700237700",
+          "description": "__ | WHITE OWL CIGARILLOS 2/ FOR",
+          "source": "pdf_text",
+          "line": "24 031700237700 __ | WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - 22.50",
+          "productId": "ba39e1ca-a410-46cb-8b76-caa1e0842948",
+          "productName": "WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - SILVER OL",
+          "productSku": "INV-902CD7-WHITE-OWL-CIGARILL-U1D4V5",
+          "existingBarcode": null,
+          "score": 0.595
+        },
+        {
+          "invoiceId": "d27a7790-3813-41d4-9c41-9ca0ae4fdf2b",
+          "invoiceNumber": "SL12623",
+          "code": "031700237861",
+          "description": "WHITE OWL CIGARILLOS 2/ FOR",
+          "source": "pdf_text",
+          "line": "5 031700237861 | WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - 22.50",
+          "productId": "ba39e1ca-a410-46cb-8b76-caa1e0842948",
+          "productName": "WHITE OWL CIGARILLOS 2/ FOR 1.19 30CT - SILVER OL",
+          "productSku": "INV-902CD7-WHITE-OWL-CIGARILL-U1D4V5",
+          "existingBarcode": null,
+          "score": 0.595
+        }
+      ]
+    },
+    {
+      "productId": "c39fbad3-d607-4857-b642-c8b38ad93bf5",
+      "productName": "NEWPORT MENTHOL BOX 100",
+      "candidateCodes": [
+        [
+          "02657512",
+          1
+        ],
+        [
+          "02657318",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+          "invoiceNumber": "359580",
+          "code": "02657512",
+          "description": "5) ~6# NEWPORT MENTHOL BOX",
+          "source": "pdf_text",
+          "line": "5) ~6# NEWPORT MENTHOL BOX 02657512 1 $ 123.92 $123.92",
+          "productId": "c39fbad3-d607-4857-b642-c8b38ad93bf5",
+          "productName": "NEWPORT MENTHOL BOX 100",
+          "productSku": "INV-369778-NEWPORT-MENTHOL-BO-1JTZPS",
+          "existingBarcode": null,
+          "score": 1
+        },
+        {
+          "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+          "invoiceNumber": "359580",
+          "code": "02657318",
+          "description": "9) 792 NEWPORT MENTHOL BOX 100",
+          "source": "pdf_text",
+          "line": "9) 792 NEWPORT MENTHOL BOX 100 02657318 1 $ 123,92 $ 123.92",
+          "productId": "c39fbad3-d607-4857-b642-c8b38ad93bf5",
+          "productName": "NEWPORT MENTHOL BOX 100",
+          "productSku": "INV-369778-NEWPORT-MENTHOL-BO-1JTZPS",
+          "existingBarcode": null,
+          "score": 0.833
+        }
+      ]
+    },
+    {
+      "productId": "0f5a9824-e3eb-41a3-9dd3-c68c59fd50d5",
+      "productName": "PARLIAMENT WHITE BOX 100",
+      "candidateCodes": [
+        [
+          "02878421",
+          1
+        ],
+        [
+          "02879129",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+          "invoiceNumber": "359580",
+          "code": "02878421",
+          "description": "6) 74 PARLIAMENT WHITE BOX",
+          "source": "pdf_text",
+          "line": "6) 74 PARLIAMENT WHITE BOX 02878421 1 $ 134.99 $ 134.99",
+          "productId": "0f5a9824-e3eb-41a3-9dd3-c68c59fd50d5",
+          "productName": "PARLIAMENT WHITE BOX 100",
+          "productSku": "INV-369778-PARLIAMENT-WHITE-B-MWVK4U",
+          "existingBarcode": null,
+          "score": 1
+        },
+        {
+          "invoiceId": "cc0820e8-7ab6-47d3-80ab-ea35a33d67ff",
+          "invoiceNumber": "359580",
+          "code": "02879129",
+          "description": "10) oo PARLIAMENT WHITE BOX 100",
+          "source": "pdf_text",
+          "line": "10) oo PARLIAMENT WHITE BOX 100 02879129 1 $ 134,99 $ 134.99",
+          "productId": "0f5a9824-e3eb-41a3-9dd3-c68c59fd50d5",
+          "productName": "PARLIAMENT WHITE BOX 100",
+          "productSku": "INV-369778-PARLIAMENT-WHITE-B-MWVK4U",
+          "existingBarcode": null,
+          "score": 0.84
+        }
+      ]
+    },
+    {
+      "productId": "5648a20a-37ed-4ed2-a8d3-5aefe92ce8f1",
+      "productName": "SWEET WOODS CIGARS 2F1.49 15/2CT",
+      "candidateCodes": [
+        [
+          "842426154956",
+          1
+        ],
+        [
+          "842426174909",
+          1
+        ]
+      ],
+      "rows": [
+        {
+          "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+          "invoiceNumber": "SL12456",
+          "code": "842426154956",
+          "description": "SWEET WOODS CIGARS 2/",
+          "source": "pdf_text",
+          "line": "13 842426154956 | SWEET WOODS CIGARS 2/ 1.49 - SWEET 1.00 14.75 14.75",
+          "productId": "5648a20a-37ed-4ed2-a8d3-5aefe92ce8f1",
+          "productName": "SWEET WOODS CIGARS 2F1.49 15/2CT",
+          "productSku": "INV-902CD7-SWEET-WOODS-CIGARS-104FX",
+          "existingBarcode": null,
+          "score": 0.654
+        },
+        {
+          "invoiceId": "0067cf1d-425b-421f-9c5f-35d49d702c0c",
+          "invoiceNumber": "SL12456",
+          "code": "842426174909",
+          "description": "SWEET WOODS CIGARS 2F",
+          "source": "pdf_text",
+          "line": "14 | 149 | 842426174909 | SWEET WOODS CIGARS 2F1.49 15/2CT 1.00 14.75 14.75",
+          "productId": "5648a20a-37ed-4ed2-a8d3-5aefe92ce8f1",
+          "productName": "SWEET WOODS CIGARS 2F1.49 15/2CT",
+          "productSku": "INV-902CD7-SWEET-WOODS-CIGARS-104FX",
+          "existingBarcode": null,
+          "score": 0.692
+        }
+      ]
+    }
+  ]
+}
