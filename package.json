@@ -18,7 +18,7 @@
     "backup:storage": "node scripts/backup-supabase.mjs --storage-only",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "node --test --experimental-strip-types src/lib/vendors/accounting.test.ts src/lib/vendors/adjustments.test.ts src/lib/vendors/invoice-processing.test.ts src/lib/vendors/payments.test.ts src/lib/accounting/period-locks.test.ts src/lib/auth/login-activity.test.ts src/lib/auth/route-access.test.ts src/lib/date-time.test.ts src/lib/expenses/expense-records.test.ts src/lib/lottery/cash.test.ts src/lib/lottery/eft-paid-amount.test.ts src/lib/lottery/eft.test.ts src/lib/lottery/reporting.test.ts src/lib/products/pricing.test.ts",
+    "test": "node --test --experimental-strip-types src/lib/vendors/accounting.test.ts src/lib/vendors/adjustments.test.ts src/lib/vendors/invoice-processing.test.ts src/lib/vendors/payments.test.ts src/lib/accounting/period-locks.test.ts src/lib/auth/login-activity.test.ts src/lib/auth/route-access.test.ts src/lib/date-time.test.ts src/lib/expenses/expense-records.test.ts src/lib/lottery/cash.test.ts src/lib/lottery/eft-paid-amount.test.ts src/lib/lottery/eft.test.ts src/lib/lottery/reporting.test.ts src/lib/owner-command-center.test.ts src/lib/products/pricing.test.ts",
     "invoice:push:playwright": "node scripts/push-invoice-playwright.mjs"
   },
   "dependencies": {

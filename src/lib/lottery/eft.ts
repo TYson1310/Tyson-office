@@ -291,6 +291,7 @@ export type LotteryEftData = {
 };
 
 type LoadLotteryEftOptions = {
+  ledgerEndSweepDate?: string;
   sweepDate?: string;
   weeks?: number;
 };
@@ -1636,13 +1637,21 @@ export async function loadLotteryEftData(
     maxSweepDate: runningSweepDate,
     value: options.sweepDate,
   });
+  const ledgerEndSweepDate = options.ledgerEndSweepDate
+    ? resolveLotteryEftSelectedSweepDate({
+        fallback: runningSweepDate,
+        maxSweepDate: runningSweepDate,
+        value: options.ledgerEndSweepDate,
+      })
+    : latestSweepDate;
   const selectedPeriod = getLotteryEftSweepPeriod(selectedSweepDate);
   const ledgerPeriods = getLedgerPeriods({
-    latestSweepDate,
+    latestSweepDate: ledgerEndSweepDate,
     selectedSweepDate,
     weeks,
   });
   if (
+    !options.ledgerEndSweepDate &&
     !ledgerPeriods.some((period) => period.sweepDate === runningSweepDate)
   ) {
     ledgerPeriods.push(runningPeriod);

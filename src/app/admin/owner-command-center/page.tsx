@@ -10,6 +10,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { OwnerReportingMonthSelector } from "@/components/dashboard/owner-reporting-month-selector";
 import { OperationsCompatibilityNotice } from "@/components/erp/operations-compatibility-notice";
 import { SectionCard } from "@/components/erp/section-card";
 import { StatCard } from "@/components/erp/stat-card";
@@ -26,7 +27,6 @@ import { listAuditEventsForActiveStore } from "@/lib/audit/events";
 import {
   formatDateOnly,
   formatDateTime,
-  getCurrentMonthStartIsoDateInTimeZone,
   getTodayIsoDateInTimeZone,
   toIsoDateKey,
 } from "@/lib/date-time";
@@ -40,6 +40,13 @@ import {
   calculateCashOnHand,
 } from "@/lib/erp/reporting";
 import { loadLotteryEftData } from "@/lib/lottery/eft";
+import { getLatestLotteryEftSweepDate } from "@/lib/lottery/eft-periods";
+import {
+  filterRowsThroughOwnerReportingPeriod,
+  filterRowsToOwnerReportingPeriod,
+  getOwnerReportingPeriod,
+  resolveOwnerReportingMonth,
+} from "@/lib/owner-command-center";
 import { requireActiveStoreContext } from "@/lib/stores/server";
 
 export const metadata: Metadata = {
@@ -62,6 +69,12 @@ type ChecklistItem = {
   label: string;
   tone: Tone;
   value: string;
+};
+
+type PageProps = {
+  searchParams: Promise<{
+    month?: string | string[];
+  }>;
 };
 
 const NET_SALE_KEY = "net_sale";
@@ -90,7 +103,7 @@ function formatDateKey(value: string) {
 
 function formatOptionalDate(value: Date | undefined, timeZone: string) {
   if (!value) {
-    return "Today";
+    return "Current";
   }
 
   return formatDateTime(value, {
@@ -116,28 +129,6 @@ function getNetSale(summary: {
     getBreakdownAmount(summary.productBreakdown, NET_SALE_KEY) ||
     summary.grossSales
   );
-}
-
-function sumByDate<T>(
-  rows: T[],
-  getDate: (row: T) => Date,
-  getAmount: (row: T) => number,
-  dateKey: string,
-) {
-  return rows
-    .filter((row) => toDateKey(getDate(row)) === dateKey)
-    .reduce((sum, row) => sum + getAmount(row), 0);
-}
-
-function sumSinceDate<T>(
-  rows: T[],
-  getDate: (row: T) => Date,
-  getAmount: (row: T) => number,
-  startDateKey: string,
-) {
-  return rows
-    .filter((row) => toDateKey(getDate(row)) >= startDateKey)
-    .reduce((sum, row) => sum + getAmount(row), 0);
 }
 
 function attentionTone(severity: OwnerAttention["severity"]): Tone {
@@ -168,70 +159,142 @@ function checklistTextTone(tone: Tone) {
   return "text-primary";
 }
 
-export default async function OwnerCommandCenterPage() {
+export default async function OwnerCommandCenterPage({
+  searchParams,
+}: PageProps) {
   const { activeStore } = await requireActiveStoreContext();
+  const timeZone = activeStore.timeZone;
+  const todayDateKey = getTodayIsoDateInTimeZone(timeZone);
+  const currentMonthKey = todayDateKey.slice(0, 7);
+  const { month } = await searchParams;
+  const selectedMonthKey = resolveOwnerReportingMonth(month, todayDateKey);
+  const reportingPeriod = getOwnerReportingPeriod(selectedMonthKey);
+  const selectedMonthLabel = formatDateOnly(
+    reportingPeriod.startDateKey,
+    { month: "long", year: "numeric" },
+    selectedMonthKey,
+  );
+  const moneyPositionAsOfDateKey =
+    selectedMonthKey === currentMonthKey
+      ? todayDateKey
+      : reportingPeriod.endDateKey;
+  const cashPositionPeriod = {
+    ...reportingPeriod,
+    endDateKey: moneyPositionAsOfDateKey,
+  };
+  const eftLedgerEndSweepDate = getLatestLotteryEftSweepDate(
+    reportingPeriod.endDateKey,
+  );
   const [dataset, auditLedger, lotteryEft] = await Promise.all([
     getOperationsDataset(),
     listAuditEventsForActiveStore(200),
-    loadLotteryEftData({ weeks: 8 }),
+    loadLotteryEftData({
+      ledgerEndSweepDate: eftLedgerEndSweepDate,
+      sweepDate: eftLedgerEndSweepDate,
+      weeks: 6,
+    }),
   ]);
-  const timeZone = activeStore.timeZone;
-  const todayDateKey = getTodayIsoDateInTimeZone(timeZone);
-  const monthStartDateKey = getCurrentMonthStartIsoDateInTimeZone(timeZone);
-  const todaySummary =
-    dataset.salesSummaries.find(
-      (summary) => toDateKey(summary.date) === todayDateKey,
-    ) ?? null;
-  const todayReconciliation =
-    dataset.salesReconciliations.find(
-      (reconciliation) => toDateKey(reconciliation.date) === todayDateKey,
-    ) ?? null;
   const postedBankDeposits = dataset.bankDeposits.filter(
     (deposit) => deposit.status !== "void",
   );
-  const todayDeposits = sumByDate(
-    postedBankDeposits,
-    (deposit) => deposit.date,
-    (deposit) => deposit.amount,
-    todayDateKey,
-  );
-  const todayNetSales = todaySummary ? getNetSale(todaySummary) : 0;
-  const todayTax = getBreakdownAmount(todaySummary?.productBreakdown, TAX_KEY);
-  const todayCardCharge = getBreakdownAmount(
-    todaySummary?.productBreakdown,
-    CARD_CHARGE_KEY,
-  );
-  const todayOtherFees = getBreakdownAmount(
-    todaySummary?.productBreakdown,
-    OTHER_FEES_KEY,
-  );
-  const todayCashSales = todaySummary?.cashSales ?? 0;
-  const todayCashGap = todayCashSales - todayDeposits;
-  const todayVariance = todayReconciliation?.variance ?? 0;
-  const monthNetSales = dataset.salesSummaries
-    .filter((summary) => toDateKey(summary.date) >= monthStartDateKey)
-    .reduce((sum, summary) => sum + getNetSale(summary), 0);
-  const monthCashSales = sumSinceDate(
+  const monthSalesSummaries = filterRowsToOwnerReportingPeriod(
     dataset.salesSummaries,
     (summary) => summary.date,
-    (summary) => summary.cashSales,
-    monthStartDateKey,
+    reportingPeriod,
   );
-  const monthDeposits = sumSinceDate(
+  const monthReconciliations = filterRowsToOwnerReportingPeriod(
+    dataset.salesReconciliations,
+    (reconciliation) => reconciliation.date,
+    reportingPeriod,
+  );
+  const monthBankDeposits = filterRowsToOwnerReportingPeriod(
     postedBankDeposits,
     (deposit) => deposit.date,
-    (deposit) => deposit.amount,
-    monthStartDateKey,
+    reportingPeriod,
   );
-  const cashOnHand = calculateCashOnHand(dataset);
-  const approvalQueue = buildApprovalQueueRows(dataset);
-  const openVendorInvoices = dataset.vendorInvoices
-    .map((invoice) => ({
-      ...invoice,
-      openBalance: getOutstandingInvoiceBalance(invoice),
-    }))
-    .filter((invoice) => invoice.openBalance > 0)
-    .sort((left, right) => left.dueDate.getTime() - right.dueDate.getTime());
+  const monthNetSales = monthSalesSummaries.reduce(
+    (sum, summary) => sum + getNetSale(summary),
+    0,
+  );
+  const monthTax = monthSalesSummaries.reduce(
+    (sum, summary) =>
+      sum + getBreakdownAmount(summary.productBreakdown, TAX_KEY),
+    0,
+  );
+  const monthFees = monthSalesSummaries.reduce(
+    (sum, summary) =>
+      sum +
+      getBreakdownAmount(summary.productBreakdown, CARD_CHARGE_KEY) +
+      getBreakdownAmount(summary.productBreakdown, OTHER_FEES_KEY),
+    0,
+  );
+  const monthCashSales = monthSalesSummaries.reduce(
+    (sum, summary) => sum + summary.cashSales,
+    0,
+  );
+  const monthDeposits = monthBankDeposits.reduce(
+    (sum, deposit) => sum + deposit.amount,
+    0,
+  );
+  const monthCashGap = monthCashSales - monthDeposits;
+  const monthVariance = monthReconciliations.reduce(
+    (sum, reconciliation) => sum + reconciliation.variance,
+    0,
+  );
+  const cashOnHand = calculateCashOnHand({
+    ...dataset,
+    bankDeposits: filterRowsThroughOwnerReportingPeriod(
+      dataset.bankDeposits,
+      (deposit) => deposit.date,
+      cashPositionPeriod,
+    ),
+    cashPayrollPayments: filterRowsThroughOwnerReportingPeriod(
+      dataset.cashPayrollPayments,
+      (payment) => payment.payDate,
+      cashPositionPeriod,
+    ),
+    cashVaultTransactions: filterRowsThroughOwnerReportingPeriod(
+      dataset.cashVaultTransactions,
+      (transaction) => transaction.businessDate,
+      cashPositionPeriod,
+    ),
+    expenses: filterRowsThroughOwnerReportingPeriod(
+      dataset.expenses,
+      (expense) => expense.date,
+      cashPositionPeriod,
+    ),
+    salesReconciliations: filterRowsThroughOwnerReportingPeriod(
+      dataset.salesReconciliations,
+      (reconciliation) => reconciliation.date,
+      cashPositionPeriod,
+    ),
+    salesSummaries: filterRowsThroughOwnerReportingPeriod(
+      dataset.salesSummaries,
+      (summary) => summary.date,
+      cashPositionPeriod,
+    ),
+    vendorPayments: filterRowsThroughOwnerReportingPeriod(
+      dataset.vendorPayments,
+      (payment) => payment.paymentDate,
+      cashPositionPeriod,
+    ),
+  });
+  const approvalQueue = filterRowsToOwnerReportingPeriod(
+    buildApprovalQueueRows(dataset),
+    (item) => item.entryDate,
+    reportingPeriod,
+  );
+  const openVendorInvoices = filterRowsToOwnerReportingPeriod(
+    dataset.vendorInvoices
+      .map((invoice) => ({
+        ...invoice,
+        openBalance: getOutstandingInvoiceBalance(invoice),
+      }))
+      .filter((invoice) => invoice.openBalance > 0)
+      .sort((left, right) => left.dueDate.getTime() - right.dueDate.getTime()),
+    (invoice) => invoice.dueDate,
+    reportingPeriod,
+  );
   const overdueInvoices = openVendorInvoices.filter(
     (invoice) => invoice.status === "overdue",
   );
@@ -239,16 +302,28 @@ export default async function OwnerCommandCenterPage() {
     (sum, invoice) => sum + invoice.openBalance,
     0,
   );
-  const payrollDue = dataset.payrollDues.reduce(
-    (sum, due) => sum + due.netPay,
+  const monthPayrollDues = filterRowsToOwnerReportingPeriod(
+    dataset.payrollDues,
+    (due) => due.payDate,
+    reportingPeriod,
+  );
+  const payrollDue = monthPayrollDues.reduce((sum, due) => sum + due.netPay, 0);
+  const monthEftWeeks = filterRowsToOwnerReportingPeriod(
+    lotteryEft.weeklyLedger,
+    (week) => week.sweepDate,
+    reportingPeriod,
+  );
+  const unpaidEftWeeks = monthEftWeeks.filter(
+    (week) => week.paymentStatus === "unpaid",
+  );
+  const unpaidEftDue = unpaidEftWeeks.reduce(
+    (sum, week) => sum + week.netEftDue,
     0,
   );
-  const unpaidEftDue =
-    lotteryEft.source === "database"
-      ? lotteryEft.weeklySummary.unpaidNetEftDue
-      : 0;
-  const currentWeekEft =
-    lotteryEft.source === "database" ? lotteryEft.summary.netEftDue : 0;
+  const monthEftDue = monthEftWeeks.reduce(
+    (sum, week) => sum + week.netEftDue,
+    0,
+  );
   const totalMoneyDue = vendorDue + payrollDue + Math.max(unpaidEftDue, 0);
   const lowStockProducts = dataset.products.filter(
     (product) => getInventoryStatus(product) !== "Healthy",
@@ -256,64 +331,50 @@ export default async function OwnerCommandCenterPage() {
   const criticalStockCount = lowStockProducts.filter(
     (product) => getInventoryStatus(product) === "Critical",
   ).length;
-  const unreconciledSales = dataset.salesSummaries
+  const unreconciledSales = monthSalesSummaries
     .filter((summary) => !summary.reconciled)
     .sort((left, right) => right.date.getTime() - left.date.getTime());
-  const varianceRows = dataset.salesReconciliations
+  const varianceRows = monthReconciliations
     .filter((reconciliation) => Math.abs(reconciliation.variance) >= 1)
     .sort((left, right) => Math.abs(right.variance) - Math.abs(left.variance));
-  const salesAuditEvents = auditLedger.events.filter((event) =>
-    ["sales.updated", "sales.reversed"].includes(event.action),
+  const salesAuditEvents = filterRowsToOwnerReportingPeriod(
+    auditLedger.events.filter((event) =>
+      ["sales.updated", "sales.reversed"].includes(event.action),
+    ),
+    (event) => event.createdAt,
+    reportingPeriod,
   );
-  const reportExportEvents = auditLedger.events.filter(
-    (event) => event.action === "reports.exported",
+  const reportExportEvents = filterRowsToOwnerReportingPeriod(
+    auditLedger.events.filter((event) => event.action === "reports.exported"),
+    (event) => event.createdAt,
+    reportingPeriod,
   );
   const attentionItems: OwnerAttention[] = [];
 
-  if (!todaySummary) {
+  if (monthSalesSummaries.length === 0) {
     attentionItems.push({
-      detail: `No daily sales summary has been recorded for ${formatDateKey(todayDateKey)}.`,
+      detail: `No daily sales summaries were recorded for ${selectedMonthLabel}.`,
       href: "/sales/daily-entry",
       severity: "High",
-      title: "Today's sales missing",
-    });
-  } else if (!todaySummary.reconciled) {
-    attentionItems.push({
-      amount: todayCashSales,
-      date: todaySummary.date,
-      detail: "Sales are entered but the drawer is not reconciled.",
-      href: "/sales/daily-entry",
-      severity: "Review",
-      title: "Today's drawer open",
+      title: "Monthly sales missing",
     });
   }
 
-  if (Math.abs(todayCashGap) >= 1) {
+  if (Math.abs(monthCashGap) >= 1) {
     attentionItems.push({
-      amount: todayCashGap,
-      detail: `Cash sales ${formatCurrency(todayCashSales)} vs deposits ${formatCurrency(todayDeposits)}.`,
+      amount: monthCashGap,
+      detail: `Cash sales ${formatCurrency(monthCashSales)} vs deposits ${formatCurrency(monthDeposits)} in ${selectedMonthLabel}.`,
       href: "/admin/bank-deposits",
-      severity: Math.abs(todayCashGap) >= 100 ? "High" : "Review",
-      title: "Today cash deposit gap",
-    });
-  }
-
-  if (Math.abs(todayVariance) >= 1) {
-    attentionItems.push({
-      amount: todayVariance,
-      date: todayReconciliation?.date,
-      detail: `Drawer variance recorded for ${formatDateKey(todayDateKey)}.`,
-      href: "/sales/daily-entry",
-      severity: Math.abs(todayVariance) >= 100 ? "High" : "Review",
-      title: "Today drawer variance",
+      severity: Math.abs(monthCashGap) >= 100 ? "High" : "Review",
+      title: "Monthly cash deposit gap",
     });
   }
 
   if (unpaidEftDue > 0) {
     attentionItems.push({
       amount: unpaidEftDue,
-      detail: `${lotteryEft.weeklySummary.unpaidWeeks} lottery EFT week${
-        lotteryEft.weeklySummary.unpaidWeeks === 1 ? "" : "s"
+      detail: `${unpaidEftWeeks.length} lottery EFT sweep${
+        unpaidEftWeeks.length === 1 ? "" : "s"
       } unpaid.`,
       href: "/lottery/eft",
       severity: "Review",
@@ -343,19 +404,16 @@ export default async function OwnerCommandCenterPage() {
     });
   });
 
-  unreconciledSales
-    .filter((summary) => toDateKey(summary.date) !== todayDateKey)
-    .slice(0, 4)
-    .forEach((summary) => {
-      attentionItems.push({
-        amount: summary.cashSales,
-        date: summary.date,
-        detail: `${summary.lineCount} sales lines remain unreconciled.`,
-        href: "/admin/sales-logs",
-        severity: "Review",
-        title: "Past sales day unreconciled",
-      });
+  unreconciledSales.slice(0, 4).forEach((summary) => {
+    attentionItems.push({
+      amount: summary.cashSales,
+      date: summary.date,
+      detail: `${summary.lineCount} sales lines remain unreconciled.`,
+      href: `/sales/daily-entry?date=${toDateKey(summary.date)}`,
+      severity: "Review",
+      title: "Sales day unreconciled",
     });
+  });
 
   varianceRows.slice(0, 4).forEach((row) => {
     attentionItems.push({
@@ -413,39 +471,53 @@ export default async function OwnerCommandCenterPage() {
 
   const checklist: ChecklistItem[] = [
     {
-      detail: todaySummary
-        ? `${formatCurrency(todayNetSales)} net sale recorded.`
-        : "Daily net sale, tax, and fees are not entered yet.",
-      label: "Sales entry",
-      tone: todaySummary ? "green" : "red",
-      value: todaySummary ? "Done" : "Missing",
-    },
-    {
-      detail: todaySummary?.reconciled
-        ? "Drawer reconciliation is complete."
-        : "Close the drawer before relying on cash numbers.",
-      label: "Reconciliation",
-      tone: todaySummary?.reconciled ? "green" : "amber",
-      value: todaySummary?.reconciled ? "Closed" : "Open",
+      detail:
+        monthSalesSummaries.length > 0
+          ? `${formatCurrency(monthNetSales)} net sale across ${monthSalesSummaries.length} day${monthSalesSummaries.length === 1 ? "" : "s"}.`
+          : `No sales activity was recorded for ${selectedMonthLabel}.`,
+      label: "Sales activity",
+      tone: monthSalesSummaries.length > 0 ? "green" : "red",
+      value: `${monthSalesSummaries.length} day${monthSalesSummaries.length === 1 ? "" : "s"}`,
     },
     {
       detail:
-        Math.abs(todayCashGap) < 1
-          ? "Cash sales match same-day deposits."
-          : `${formatCurrency(todayCashGap)} difference against today's deposits.`,
+        monthSalesSummaries.length === 0
+          ? "No sales days are available to reconcile."
+          : unreconciledSales.length === 0
+            ? "Every recorded sales day is reconciled."
+            : `${unreconciledSales.length} sales day${unreconciledSales.length === 1 ? " is" : "s are"} still open.`,
+      label: "Reconciliation",
+      tone:
+        monthSalesSummaries.length === 0
+          ? "amber"
+          : unreconciledSales.length === 0
+            ? "green"
+            : "amber",
+      value:
+        monthSalesSummaries.length === 0
+          ? "No sales"
+          : unreconciledSales.length === 0
+            ? "Closed"
+            : `${unreconciledSales.length} open`,
+    },
+    {
+      detail:
+        Math.abs(monthCashGap) < 1
+          ? "Cash sales match posted deposits for the month."
+          : `${formatCurrency(monthCashGap)} difference against monthly deposits.`,
       label: "Deposit match",
-      tone: Math.abs(todayCashGap) < 1 ? "green" : "red",
-      value: Math.abs(todayCashGap) < 1 ? "Matched" : "Gap",
+      tone: Math.abs(monthCashGap) < 1 ? "green" : "red",
+      value: Math.abs(monthCashGap) < 1 ? "Matched" : "Gap",
     },
     {
       detail:
         lotteryEft.source === "database"
-          ? `${formatCurrency(currentWeekEft)} current week net EFT due.`
+          ? `${formatCurrency(monthEftDue)} net EFT across ${monthEftWeeks.length} sweep${monthEftWeeks.length === 1 ? "" : "s"}.`
           : "Lottery EFT data is unavailable.",
       label: "Lottery EFT",
       tone:
         lotteryEft.source === "database"
-          ? currentWeekEft > 0
+          ? unpaidEftDue > 0
             ? "amber"
             : "green"
           : "red",
@@ -478,23 +550,34 @@ export default async function OwnerCommandCenterPage() {
 
   const moneyRows = [
     {
-      amount: Math.max(currentWeekEft, 0),
+      amount: Math.max(monthEftDue, 0),
       detail:
         lotteryEft.source === "database"
-          ? `${formatDateKey(lotteryEft.weekStartDate)} to ${formatDateKey(lotteryEft.weekEndDate)}`
+          ? `${monthEftWeeks.length} sweep${monthEftWeeks.length === 1 ? "" : "s"} due in ${selectedMonthLabel}`
           : "Lottery EFT data unavailable",
       href: "/lottery/eft",
-      label: "Current week EFT",
-      tone: currentWeekEft > 0 ? ("amber" as const) : ("green" as const),
+      label: "Monthly EFT",
+      tone:
+        lotteryEft.source !== "database"
+          ? ("red" as const)
+          : monthEftDue > 0
+            ? ("amber" as const)
+            : ("green" as const),
     },
     {
       amount: unpaidEftDue,
-      detail: `${lotteryEft.weeklySummary.unpaidWeeks} unpaid sweep${
-        lotteryEft.weeklySummary.unpaidWeeks === 1 ? "" : "s"
-      }`,
+      detail:
+        lotteryEft.source === "database"
+          ? `${unpaidEftWeeks.length} unpaid sweep${
+              unpaidEftWeeks.length === 1 ? "" : "s"
+            }`
+          : "Lottery EFT data unavailable",
       href: "/lottery/eft",
       label: "Unpaid EFT",
-      tone: unpaidEftDue > 0 ? ("red" as const) : ("green" as const),
+      tone:
+        lotteryEft.source !== "database" || unpaidEftDue > 0
+          ? ("red" as const)
+          : ("green" as const),
     },
     {
       amount: vendorDue,
@@ -502,72 +585,80 @@ export default async function OwnerCommandCenterPage() {
         openVendorInvoices.length === 1 ? "" : "s"
       }`,
       href: "/vendors/invoices",
-      label: "Vendor bills",
-      tone: overdueInvoices.length > 0 ? ("red" as const) : ("amber" as const),
+      label: "Vendor bills due",
+      tone:
+        overdueInvoices.length > 0
+          ? ("red" as const)
+          : vendorDue > 0
+            ? ("amber" as const)
+            : ("green" as const),
     },
     {
       amount: payrollDue,
-      detail: `${dataset.payrollDues.length} payroll statement${
-        dataset.payrollDues.length === 1 ? "" : "s"
+      detail: `${monthPayrollDues.length} payroll statement${
+        monthPayrollDues.length === 1 ? "" : "s"
       } open`,
       href: "/payroll",
       label: "Payroll due",
       tone: payrollDue > 0 ? ("amber" as const) : ("green" as const),
     },
     {
-      amount: todayCashGap,
-      detail: "Today cash sales less deposits",
+      amount: monthCashGap,
+      detail: "Selected-month cash sales less posted deposits",
       href: "/admin/bank-deposits",
       label: "Cash gap",
-      tone: Math.abs(todayCashGap) >= 1 ? ("red" as const) : ("green" as const),
+      tone: Math.abs(monthCashGap) >= 1 ? ("red" as const) : ("green" as const),
     },
   ];
 
   const metrics = [
     {
-      change: formatDateKey(todayDateKey),
-      detail: `${formatCurrency(todayTax)} tax; ${formatCurrency(
-        todayCardCharge + todayOtherFees,
-      )} fees`,
+      change: selectedMonthLabel,
+      detail: `${formatCurrency(monthTax)} tax; ${formatCurrency(monthFees)} fees`,
       icon: <DollarSign className="h-5 w-5" />,
-      label: "Today Net Sale",
-      tone: todaySummary ? ("green" as const) : ("amber" as const),
-      value: formatCurrency(todayNetSales),
+      label: "Month Net Sale",
+      tone:
+        monthSalesSummaries.length > 0
+          ? ("green" as const)
+          : ("amber" as const),
+      value: formatCurrency(monthNetSales),
     },
     {
-      change: `${formatCurrency(todayDeposits)} deposited`,
-      detail: `${formatCurrency(todayCashSales)} cash sales`,
+      change: `${formatCurrency(monthDeposits)} deposited`,
+      detail: `${formatCurrency(monthCashSales)} cash sales`,
       icon: <Banknote className="h-5 w-5" />,
-      label: "Today Cash Gap",
+      label: "Month Cash Gap",
       tone:
-        Math.abs(todayCashGap) >= 100
+        Math.abs(monthCashGap) >= 100
           ? ("red" as const)
-          : Math.abs(todayCashGap) >= 1
+          : Math.abs(monthCashGap) >= 1
             ? ("amber" as const)
             : ("green" as const),
-      value: formatCurrency(todayCashGap),
+      value: formatCurrency(monthCashGap),
     },
     {
       change: `${formatCurrency(unpaidEftDue)} unpaid`,
-      detail: "current and recent lottery sweeps",
+      detail: `${monthEftWeeks.length} selected-month sweep${monthEftWeeks.length === 1 ? "" : "s"}`,
       icon: <Ticket className="h-5 w-5" />,
-      label: "Lottery EFT",
-      tone: unpaidEftDue > 0 ? ("amber" as const) : ("green" as const),
-      value: formatCurrency(currentWeekEft),
+      label: "Month Lottery EFT",
+      tone:
+        lotteryEft.source !== "database"
+          ? ("red" as const)
+          : unpaidEftDue > 0
+            ? ("amber" as const)
+            : ("green" as const),
+      value: formatCurrency(monthEftDue),
     },
     {
-      change: `${sortedAttentionItems.length} item${
-        sortedAttentionItems.length === 1 ? "" : "s"
+      change: `${monthSalesSummaries.length} sales day${
+        monthSalesSummaries.length === 1 ? "" : "s"
       }`,
-      detail: "exceptions needing owner review",
+      detail: "days still needing drawer closeout",
       icon: <ShieldAlert className="h-5 w-5" />,
-      label: "Attention Queue",
-      tone: sortedAttentionItems.some((item) => item.severity === "High")
-        ? ("red" as const)
-        : sortedAttentionItems.length > 0
-          ? ("amber" as const)
-          : ("green" as const),
-      value: sortedAttentionItems.length,
+      label: "Unreconciled Days",
+      tone:
+        unreconciledSales.length > 0 ? ("amber" as const) : ("green" as const),
+      value: unreconciledSales.length,
     },
   ];
 
@@ -593,6 +684,11 @@ export default async function OwnerCommandCenterPage() {
           ]}
         />
 
+        <OwnerReportingMonthSelector
+          currentMonth={currentMonthKey}
+          selectedMonth={selectedMonthKey}
+        />
+
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {metrics.map((metric) => (
             <StatCard key={metric.label} {...metric} />
@@ -601,10 +697,8 @@ export default async function OwnerCommandCenterPage() {
 
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <SectionCard
-            title="Owner Checklist"
-            description={`${activeStore.name} status for ${formatDateKey(
-              todayDateKey,
-            )}. Store timezone: ${timeZone}.`}
+            title="Monthly Owner Checklist"
+            description={`${activeStore.name} controls for ${selectedMonthLabel}. Store timezone: ${timeZone}.`}
           >
             <div className="grid gap-3 md:grid-cols-2">
               {checklist.map((item) => (
@@ -628,14 +722,14 @@ export default async function OwnerCommandCenterPage() {
 
           <SectionCard
             title="Money Position"
-            description="Cash, deposits, bills, payroll, and EFT in one view."
+            description={`${selectedMonthLabel} cash, deposits, bills by due date, payroll by pay date, and EFT by sweep date.`}
           >
             <div className="space-y-3">
               <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-dark-3 dark:bg-dark-2">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <div className="text-xs font-medium uppercase text-dark-5 dark:text-dark-6">
-                      Month to date
+                      Net sale · {selectedMonthLabel}
                     </div>
                     <div className="mt-1 text-xl font-bold text-dark dark:text-white">
                       {formatCurrency(monthNetSales)}
@@ -646,7 +740,10 @@ export default async function OwnerCommandCenterPage() {
                 <div className="mt-3 grid gap-2 text-sm text-dark-5 dark:text-dark-6 sm:grid-cols-2">
                   <span>Cash sales {formatCurrency(monthCashSales)}</span>
                   <span>Deposits {formatCurrency(monthDeposits)}</span>
-                  <span>Cash on hand {formatCurrency(cashOnHand)}</span>
+                  <span>
+                    Cash on hand as of {formatDateKey(moneyPositionAsOfDateKey)}{" "}
+                    {formatCurrency(cashOnHand)}
+                  </span>
                   <span>Money due {formatCurrency(totalMoneyDue)}</span>
                 </div>
               </div>
@@ -680,13 +777,74 @@ export default async function OwnerCommandCenterPage() {
         </div>
 
         <SectionCard
-          title="Today Snapshot"
-          description="Daily sales, fees, cash, deposits, reconciliation, and variance."
+          title="Undone Reconciliation"
+          description={`Every sales day still awaiting drawer closeout in ${selectedMonthLabel}.`}
+          action={
+            <Link href="/admin/sales-logs" className="app-secondary-button-sm">
+              View Sales Logs
+            </Link>
+          }
+        >
+          {unreconciledSales.length === 0 ? (
+            <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              <ClipboardCheck className="h-5 w-5" />
+              No undone reconciliation was found for {selectedMonthLabel}.
+            </div>
+          ) : (
+            <Table totalRows={unreconciledSales.length}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Sales Lines</TableHead>
+                  <TableHead className="text-right">Net Sale</TableHead>
+                  <TableHead className="text-right">Cash Sales</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {unreconciledSales.map((summary) => {
+                  const dateKey = toDateKey(summary.date);
+
+                  return (
+                    <TableRow key={summary.id}>
+                      <TableCell>{formatDateKey(dateKey)}</TableCell>
+                      <TableCell className="text-right">
+                        {formatNumber(summary.lineCount)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(getNetSale(summary))}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(summary.cashSales)}
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge tone="amber">Open</StatusBadge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Link
+                          href={`/sales/daily-entry?date=${dateKey}`}
+                          className="font-semibold text-primary hover:underline"
+                        >
+                          Reconcile
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </SectionCard>
+
+        <SectionCard
+          title="Monthly Snapshot"
+          description={`Sales, fees, cash, deposits, reconciliation, and variance for ${selectedMonthLabel}.`}
         >
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
+                <TableHead>Month</TableHead>
                 <TableHead className="text-right">Net Sale</TableHead>
                 <TableHead className="text-right">Tax</TableHead>
                 <TableHead className="text-right">Fees</TableHead>
@@ -698,30 +856,40 @@ export default async function OwnerCommandCenterPage() {
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell>{formatDateKey(todayDateKey)}</TableCell>
+                <TableCell>{selectedMonthLabel}</TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency(todayNetSales)}
+                  {formatCurrency(monthNetSales)}
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency(todayTax)}
+                  {formatCurrency(monthTax)}
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency(todayCardCharge + todayOtherFees)}
+                  {formatCurrency(monthFees)}
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency(todayCashSales)}
+                  {formatCurrency(monthCashSales)}
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency(todayDeposits)}
+                  {formatCurrency(monthDeposits)}
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency(todayVariance)}
+                  {formatCurrency(monthVariance)}
                 </TableCell>
                 <TableCell>
                   <StatusBadge
-                    tone={todaySummary?.reconciled ? "green" : "amber"}
+                    tone={
+                      monthSalesSummaries.length === 0
+                        ? "slate"
+                        : unreconciledSales.length === 0
+                          ? "green"
+                          : "amber"
+                    }
                   >
-                    {todaySummary?.reconciled ? "Reconciled" : "Open"}
+                    {monthSalesSummaries.length === 0
+                      ? "No sales"
+                      : unreconciledSales.length === 0
+                        ? "Reconciled"
+                        : `${unreconciledSales.length} open`}
                   </StatusBadge>
                 </TableCell>
               </TableRow>
@@ -731,7 +899,7 @@ export default async function OwnerCommandCenterPage() {
 
         <SectionCard
           title="Attention Queue"
-          description="Items most likely to affect cash, profit, accountability, or operations."
+          description={`${selectedMonthLabel} financial exceptions plus current inventory risks.`}
           action={
             <Link
               href="/admin/loss-prevention"
