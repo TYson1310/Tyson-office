@@ -89,6 +89,44 @@ export function filterRowsThroughOwnerReportingPeriod<T>(
   });
 }
 
+export function getMissingOwnerReconciliationDateKeys(
+  reconciledDates: OwnerReportingDate[],
+  period: OwnerReportingPeriod,
+  currentDateKey: string,
+) {
+  const coverageEndDateKey =
+    currentDateKey < period.endDateKey ? currentDateKey : period.endDateKey;
+
+  if (coverageEndDateKey < period.startDateKey) {
+    return [];
+  }
+
+  const reconciledDateKeys = new Set(
+    reconciledDates
+      .map(toDateKey)
+      .filter(
+        (dateKey): dateKey is string =>
+          dateKey !== null &&
+          dateKey >= period.startDateKey &&
+          dateKey <= coverageEndDateKey,
+      ),
+  );
+  const missingDateKeys: string[] = [];
+  let cursor = period.startDateKey;
+
+  while (cursor <= coverageEndDateKey) {
+    if (!reconciledDateKeys.has(cursor)) {
+      missingDateKeys.push(cursor);
+    }
+
+    const nextDate = new Date(`${cursor}T12:00:00.000Z`);
+    nextDate.setUTCDate(nextDate.getUTCDate() + 1);
+    cursor = nextDate.toISOString().slice(0, 10);
+  }
+
+  return missingDateKeys.reverse();
+}
+
 export function sumRowsInOwnerReportingPeriod<T>(
   rows: T[],
   getDate: (row: T) => OwnerReportingDate,

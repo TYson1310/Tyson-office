@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   filterRowsThroughOwnerReportingPeriod,
   filterRowsToOwnerReportingPeriod,
+  getMissingOwnerReconciliationDateKeys,
   getOwnerReportingPeriod,
   resolveOwnerReportingMonth,
   sumRowsInOwnerReportingPeriod,
@@ -67,6 +68,42 @@ test("period-end filtering supports historical cash-on-hand balances", () => {
   assert.deepEqual(
     filterRowsThroughOwnerReportingPeriod(rows, (row) => row.date, period),
     rows.slice(0, 2),
+  );
+});
+
+test("missing reconciliation dates cover every unclosed day in a historical month", () => {
+  const period = getOwnerReportingPeriod("2026-04");
+  const reconciledDates = Array.from({ length: 30 }, (_, index) =>
+    String(index + 1).padStart(2, "0"),
+  )
+    .filter((day) => !["01", "15", "30"].includes(day))
+    .map((day) => `2026-04-${day}`);
+
+  assert.deepEqual(
+    getMissingOwnerReconciliationDateKeys(
+      reconciledDates,
+      period,
+      "2026-08-29",
+    ),
+    ["2026-04-30", "2026-04-15", "2026-04-01"],
+  );
+});
+
+test("missing reconciliation dates stop at today for the current month", () => {
+  const period = getOwnerReportingPeriod("2026-08");
+
+  assert.deepEqual(
+    getMissingOwnerReconciliationDateKeys(
+      [
+        new Date("2026-08-01T12:00:00.000Z"),
+        "2026-08-03",
+        "2026-08-03",
+        "2026-09-01",
+      ],
+      period,
+      "2026-08-03",
+    ),
+    ["2026-08-02"],
   );
 });
 

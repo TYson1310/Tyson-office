@@ -44,6 +44,7 @@ import { getLatestLotteryEftSweepDate } from "@/lib/lottery/eft-periods";
 import {
   filterRowsThroughOwnerReportingPeriod,
   filterRowsToOwnerReportingPeriod,
+  getMissingOwnerReconciliationDateKeys,
   getOwnerReportingPeriod,
   resolveOwnerReportingMonth,
 } from "@/lib/owner-command-center";
@@ -331,9 +332,41 @@ export default async function OwnerCommandCenterPage({
   const criticalStockCount = lowStockProducts.filter(
     (product) => getInventoryStatus(product) === "Critical",
   ).length;
-  const unreconciledSales = monthSalesSummaries
-    .filter((summary) => !summary.reconciled)
-    .sort((left, right) => right.date.getTime() - left.date.getTime());
+  const salesSummaryByDateKey = new Map(
+    monthSalesSummaries.map((summary) => [toDateKey(summary.date), summary]),
+  );
+  const missingReconciliationDateKeys =
+    getMissingOwnerReconciliationDateKeys(
+      [
+        ...monthSalesSummaries
+          .filter((summary) => summary.reconciled)
+          .map((summary) => summary.date),
+        ...monthReconciliations
+          .filter((reconciliation) => reconciliation.status === "approved")
+          .map((reconciliation) => reconciliation.date),
+      ],
+      reportingPeriod,
+      todayDateKey,
+    );
+  const missingReconciliationDays = missingReconciliationDateKeys.map(
+    (dateKey) => ({
+      dateKey,
+      summary: salesSummaryByDateKey.get(dateKey) ?? null,
+    }),
+  );
+  const missingSalesEntryDays = missingReconciliationDays.filter(
+    (day) => day.summary === null,
+  );
+  const reconciliationCoverageEndDateKey =
+    selectedMonthKey === currentMonthKey
+      ? todayDateKey
+      : reportingPeriod.endDateKey;
+  const reconciliationTone =
+    missingReconciliationDays.length === 0
+      ? ("green" as const)
+      : missingSalesEntryDays.length > 0
+        ? ("red" as const)
+        : ("amber" as const);
   const varianceRows = monthReconciliations
     .filter((reconciliation) => Math.abs(reconciliation.variance) >= 1)
     .sort((left, right) => Math.abs(right.variance) - Math.abs(left.variance));
@@ -404,14 +437,16 @@ export default async function OwnerCommandCenterPage({
     });
   });
 
-  unreconciledSales.slice(0, 4).forEach((summary) => {
+  missingReconciliationDays.slice(0, 4).forEach(({ dateKey, summary }) => {
     attentionItems.push({
-      amount: summary.cashSales,
-      date: summary.date,
-      detail: `${summary.lineCount} sales lines remain unreconciled.`,
-      href: `/sales/daily-entry?date=${toDateKey(summary.date)}`,
-      severity: "Review",
-      title: "Sales day unreconciled",
+      amount: summary?.cashSales,
+      date: new Date(`${dateKey}T12:00:00.000Z`),
+      detail: summary
+        ? `${summary.lineCount} sales lines were entered, but drawer closeout is missing.`
+        : "No sales entry or drawer closeout was recorded for this day.",
+      href: `/sales/daily-entry?date=${dateKey}`,
+      severity: summary ? "Review" : "High",
+      title: summary ? "Drawer closeout missing" : "Sales day missing",
     });
   });
 
@@ -481,24 +516,17 @@ export default async function OwnerCommandCenterPage({
     },
     {
       detail:
-        monthSalesSummaries.length === 0
-          ? "No sales days are available to reconcile."
-          : unreconciledSales.length === 0
-            ? "Every recorded sales day is reconciled."
-            : `${unreconciledSales.length} sales day${unreconciledSales.length === 1 ? " is" : "s are"} still open.`,
-      label: "Reconciliation",
-      tone:
-        monthSalesSummaries.length === 0
-          ? "amber"
-          : unreconciledSales.length === 0
-            ? "green"
-            : "amber",
+        missingReconciliationDays.length === 0
+          ? `Every day through ${formatDateKey(reconciliationCoverageEndDateKey)} has a completed drawer closeout.`
+          : missingSalesEntryDays.length === 0
+            ? `${missingReconciliationDays.length} recorded sales day${missingReconciliationDays.length === 1 ? " still needs" : "s still need"} drawer closeout.`
+            : `${missingReconciliationDays.length} day${missingReconciliationDays.length === 1 ? " is" : "s are"} missing reconciliation; ${missingSalesEntryDays.length} ${missingSalesEntryDays.length === 1 ? "has" : "have"} no sales entry.`,
+      label: "Reconciliation coverage",
+      tone: reconciliationTone,
       value:
-        monthSalesSummaries.length === 0
-          ? "No sales"
-          : unreconciledSales.length === 0
-            ? "Closed"
-            : `${unreconciledSales.length} open`,
+        missingReconciliationDays.length === 0
+          ? "Complete"
+          : `${missingReconciliationDays.length} missing`,
     },
     {
       detail:
@@ -650,15 +678,15 @@ export default async function OwnerCommandCenterPage({
       value: formatCurrency(monthEftDue),
     },
     {
-      change: `${monthSalesSummaries.length} sales day${
-        monthSalesSummaries.length === 1 ? "" : "s"
-      }`,
-      detail: "days still needing drawer closeout",
+      change: `Through ${formatDateKey(reconciliationCoverageEndDateKey)}`,
+      detail:
+        missingSalesEntryDays.length > 0
+          ? `${missingSalesEntryDays.length} without sales entries`
+          : "calendar days without completed closeout",
       icon: <ShieldAlert className="h-5 w-5" />,
-      label: "Unreconciled Days",
-      tone:
-        unreconciledSales.length > 0 ? ("amber" as const) : ("green" as const),
-      value: unreconciledSales.length,
+      label: "Missing Reconciliation",
+      tone: reconciliationTone,
+      value: missingReconciliationDays.length,
     },
   ];
 
@@ -777,61 +805,60 @@ export default async function OwnerCommandCenterPage({
         </div>
 
         <SectionCard
-          title="Undone Reconciliation"
-          description={`Every sales day still awaiting drawer closeout in ${selectedMonthLabel}.`}
+          title="Missing Reconciliation Days"
+          description={`Every calendar day without a completed drawer closeout through ${formatDateKey(reconciliationCoverageEndDateKey)} in ${selectedMonthLabel}.`}
           action={
             <Link href="/admin/sales-logs" className="app-secondary-button-sm">
               View Sales Logs
             </Link>
           }
         >
-          {unreconciledSales.length === 0 ? (
+          {missingReconciliationDays.length === 0 ? (
             <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
               <ClipboardCheck className="h-5 w-5" />
-              No undone reconciliation was found for {selectedMonthLabel}.
+              Every day through {formatDateKey(reconciliationCoverageEndDateKey)}
+              has a completed reconciliation.
             </div>
           ) : (
-            <Table totalRows={unreconciledSales.length}>
+            <Table totalRows={missingReconciliationDays.length}>
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
+                  <TableHead>Missing Step</TableHead>
                   <TableHead className="text-right">Sales Lines</TableHead>
                   <TableHead className="text-right">Net Sale</TableHead>
                   <TableHead className="text-right">Cash Sales</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {unreconciledSales.map((summary) => {
-                  const dateKey = toDateKey(summary.date);
-
-                  return (
-                    <TableRow key={summary.id}>
-                      <TableCell>{formatDateKey(dateKey)}</TableCell>
-                      <TableCell className="text-right">
-                        {formatNumber(summary.lineCount)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(getNetSale(summary))}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(summary.cashSales)}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge tone="amber">Open</StatusBadge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Link
-                          href={`/sales/daily-entry?date=${dateKey}`}
-                          className="font-semibold text-primary hover:underline"
-                        >
-                          Reconcile
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {missingReconciliationDays.map(({ dateKey, summary }) => (
+                  <TableRow key={dateKey}>
+                    <TableCell>{formatDateKey(dateKey)}</TableCell>
+                    <TableCell>
+                      <StatusBadge tone={summary ? "amber" : "red"}>
+                        {summary ? "Closeout open" : "No sales entry"}
+                      </StatusBadge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {summary ? formatNumber(summary.lineCount) : "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {summary ? formatCurrency(getNetSale(summary)) : "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {summary ? formatCurrency(summary.cashSales) : "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Link
+                        href={`/sales/daily-entry?date=${dateKey}`}
+                        className="font-semibold text-primary hover:underline"
+                      >
+                        {summary ? "Reconcile" : "Enter Sales"}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
@@ -876,20 +903,10 @@ export default async function OwnerCommandCenterPage({
                   {formatCurrency(monthVariance)}
                 </TableCell>
                 <TableCell>
-                  <StatusBadge
-                    tone={
-                      monthSalesSummaries.length === 0
-                        ? "slate"
-                        : unreconciledSales.length === 0
-                          ? "green"
-                          : "amber"
-                    }
-                  >
-                    {monthSalesSummaries.length === 0
-                      ? "No sales"
-                      : unreconciledSales.length === 0
-                        ? "Reconciled"
-                        : `${unreconciledSales.length} open`}
+                  <StatusBadge tone={reconciliationTone}>
+                    {missingReconciliationDays.length === 0
+                      ? "Reconciled"
+                      : `${missingReconciliationDays.length} missing`}
                   </StatusBadge>
                 </TableCell>
               </TableRow>
