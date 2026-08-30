@@ -117,6 +117,17 @@ type DailyAuditLookupRow = {
 
 type SupabaseServerClient = ScratchCardAccess["supabase"];
 
+type LotteryEodCoverageRow = {
+  report_date: string;
+};
+
+export type LotteryEodReconciliationCoverageData = {
+  activityDateKeys: string[];
+  errorMessage?: string;
+  reconciledDateKeys: string[];
+  source: "database" | "error" | "unconfigured";
+};
+
 export type LotteryEodReconciliationData = {
   source: "database" | "error" | "unconfigured";
   businessDate: string;
@@ -399,6 +410,60 @@ function getSingleRpcRow<T>(rows: T[] | T | null) {
   }
 
   return row;
+}
+
+export async function loadLotteryEodReconciliationCoverage(input: {
+  endDate: string;
+  startDate: string;
+}): Promise<LotteryEodReconciliationCoverageData> {
+  const { activeStoreKey } = await requireActiveStoreContext();
+
+  if (!isSupabaseConfigured()) {
+    return {
+      activityDateKeys: [],
+      reconciledDateKeys: [],
+      source: "unconfigured",
+    };
+  }
+
+  const supabase = await createClient();
+  const [activityResult, reconciliationResult] = await Promise.all([
+    supabase
+      .from("eod_reconciliation")
+      .select("report_date")
+      .eq("store_key", activeStoreKey)
+      .gte("report_date", input.startDate)
+      .lte("report_date", input.endDate)
+      .returns<LotteryEodCoverageRow[]>(),
+    supabase
+      .from("terminal_reports")
+      .select("report_date")
+      .eq("store_key", activeStoreKey)
+      .gte("report_date", input.startDate)
+      .lte("report_date", input.endDate)
+      .returns<LotteryEodCoverageRow[]>(),
+  ]);
+  const error = activityResult.error ?? reconciliationResult.error;
+
+  if (error) {
+    return {
+      activityDateKeys: [],
+      errorMessage:
+        error.message ?? "Lottery reconciliation coverage could not be loaded.",
+      reconciledDateKeys: [],
+      source: "error",
+    };
+  }
+
+  return {
+    activityDateKeys: Array.from(
+      new Set((activityResult.data ?? []).map((row) => row.report_date)),
+    ),
+    reconciledDateKeys: Array.from(
+      new Set((reconciliationResult.data ?? []).map((row) => row.report_date)),
+    ),
+    source: "database",
+  };
 }
 
 export async function loadLotteryEodReconciliationData(input?: {
@@ -758,10 +823,7 @@ async function loadActiveInventoryPackForBin(
     return data;
   }
 
-  const loadedDate = getIsoDateKeyInTimeZone(
-    data.date_loaded_to_bin,
-    timeZone,
-  );
+  const loadedDate = getIsoDateKeyInTimeZone(data.date_loaded_to_bin, timeZone);
 
   if (loadedDate && loadedDate > reportDate) {
     return null;

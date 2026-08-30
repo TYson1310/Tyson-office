@@ -127,6 +127,28 @@ export function getMissingOwnerReconciliationDateKeys(
   return missingDateKeys.reverse();
 }
 
+export function getMissingOwnerLotteryReconciliationDays(
+  activityDates: OwnerReportingDate[],
+  reconciledDates: OwnerReportingDate[],
+  period: OwnerReportingPeriod,
+  currentDateKey: string,
+) {
+  const activityDateKeys = new Set(
+    activityDates
+      .map(toDateKey)
+      .filter((dateKey): dateKey is string => dateKey !== null),
+  );
+
+  return getMissingOwnerReconciliationDateKeys(
+    reconciledDates,
+    period,
+    currentDateKey,
+  ).map((dateKey) => ({
+    dateKey,
+    hasActivity: activityDateKeys.has(dateKey),
+  }));
+}
+
 export function sumRowsInOwnerReportingPeriod<T>(
   rows: T[],
   getDate: (row: T) => OwnerReportingDate,

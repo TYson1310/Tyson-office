@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   filterRowsThroughOwnerReportingPeriod,
   filterRowsToOwnerReportingPeriod,
+  getMissingOwnerLotteryReconciliationDays,
   getMissingOwnerReconciliationDateKeys,
   getOwnerReportingPeriod,
   resolveOwnerReportingMonth,
@@ -104,6 +105,23 @@ test("missing reconciliation dates stop at today for the current month", () => {
       "2026-08-03",
     ),
     ["2026-08-02"],
+  );
+});
+
+test("missing lottery reconciliation days identify incomplete EOD activity", () => {
+  const period = getOwnerReportingPeriod("2026-08");
+
+  assert.deepEqual(
+    getMissingOwnerLotteryReconciliationDays(
+      ["2026-08-02", "2026-08-04"],
+      ["2026-08-01"],
+      period,
+      "2026-08-03",
+    ),
+    [
+      { dateKey: "2026-08-03", hasActivity: false },
+      { dateKey: "2026-08-02", hasActivity: true },
+    ],
   );
 });
 

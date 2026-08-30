@@ -39,11 +39,13 @@ import {
   buildApprovalQueueRows,
   calculateCashOnHand,
 } from "@/lib/erp/reporting";
+import { loadLotteryEodReconciliationCoverage } from "@/lib/lottery/eod-reconciliation";
 import { loadLotteryEftData } from "@/lib/lottery/eft";
 import { getLatestLotteryEftSweepDate } from "@/lib/lottery/eft-periods";
 import {
   filterRowsThroughOwnerReportingPeriod,
   filterRowsToOwnerReportingPeriod,
+  getMissingOwnerLotteryReconciliationDays,
   getMissingOwnerReconciliationDateKeys,
   getOwnerReportingPeriod,
   resolveOwnerReportingMonth,
@@ -183,18 +185,27 @@ export default async function OwnerCommandCenterPage({
     ...reportingPeriod,
     endDateKey: moneyPositionAsOfDateKey,
   };
+  const reconciliationCoverageEndDateKey =
+    selectedMonthKey === currentMonthKey
+      ? todayDateKey
+      : reportingPeriod.endDateKey;
   const eftLedgerEndSweepDate = getLatestLotteryEftSweepDate(
     reportingPeriod.endDateKey,
   );
-  const [dataset, auditLedger, lotteryEft] = await Promise.all([
-    getOperationsDataset(),
-    listAuditEventsForActiveStore(200),
-    loadLotteryEftData({
-      ledgerEndSweepDate: eftLedgerEndSweepDate,
-      sweepDate: eftLedgerEndSweepDate,
-      weeks: 6,
-    }),
-  ]);
+  const [dataset, auditLedger, lotteryEft, lotteryReconciliationCoverage] =
+    await Promise.all([
+      getOperationsDataset(),
+      listAuditEventsForActiveStore(200),
+      loadLotteryEftData({
+        ledgerEndSweepDate: eftLedgerEndSweepDate,
+        sweepDate: eftLedgerEndSweepDate,
+        weeks: 6,
+      }),
+      loadLotteryEodReconciliationCoverage({
+        endDate: reconciliationCoverageEndDateKey,
+        startDate: reportingPeriod.startDateKey,
+      }),
+    ]);
   const postedBankDeposits = dataset.bankDeposits.filter(
     (deposit) => deposit.status !== "void",
   );
@@ -335,19 +346,18 @@ export default async function OwnerCommandCenterPage({
   const salesSummaryByDateKey = new Map(
     monthSalesSummaries.map((summary) => [toDateKey(summary.date), summary]),
   );
-  const missingReconciliationDateKeys =
-    getMissingOwnerReconciliationDateKeys(
-      [
-        ...monthSalesSummaries
-          .filter((summary) => summary.reconciled)
-          .map((summary) => summary.date),
-        ...monthReconciliations
-          .filter((reconciliation) => reconciliation.status === "approved")
-          .map((reconciliation) => reconciliation.date),
-      ],
-      reportingPeriod,
-      todayDateKey,
-    );
+  const missingReconciliationDateKeys = getMissingOwnerReconciliationDateKeys(
+    [
+      ...monthSalesSummaries
+        .filter((summary) => summary.reconciled)
+        .map((summary) => summary.date),
+      ...monthReconciliations
+        .filter((reconciliation) => reconciliation.status === "approved")
+        .map((reconciliation) => reconciliation.date),
+    ],
+    reportingPeriod,
+    todayDateKey,
+  );
   const missingReconciliationDays = missingReconciliationDateKeys.map(
     (dateKey) => ({
       dateKey,
@@ -357,16 +367,32 @@ export default async function OwnerCommandCenterPage({
   const missingSalesEntryDays = missingReconciliationDays.filter(
     (day) => day.summary === null,
   );
-  const reconciliationCoverageEndDateKey =
-    selectedMonthKey === currentMonthKey
-      ? todayDateKey
-      : reportingPeriod.endDateKey;
   const reconciliationTone =
     missingReconciliationDays.length === 0
       ? ("green" as const)
       : missingSalesEntryDays.length > 0
         ? ("red" as const)
         : ("amber" as const);
+  const missingLotteryReconciliationDays =
+    lotteryReconciliationCoverage.source === "database"
+      ? getMissingOwnerLotteryReconciliationDays(
+          lotteryReconciliationCoverage.activityDateKeys,
+          lotteryReconciliationCoverage.reconciledDateKeys,
+          reportingPeriod,
+          todayDateKey,
+        )
+      : [];
+  const lotteryDaysWithoutActivity = missingLotteryReconciliationDays.filter(
+    (day) => !day.hasActivity,
+  );
+  const lotteryReconciliationTone =
+    lotteryReconciliationCoverage.source !== "database"
+      ? ("red" as const)
+      : missingLotteryReconciliationDays.length === 0
+        ? ("green" as const)
+        : lotteryDaysWithoutActivity.length > 0
+          ? ("red" as const)
+          : ("amber" as const);
   const varianceRows = monthReconciliations
     .filter((reconciliation) => Math.abs(reconciliation.variance) >= 1)
     .sort((left, right) => Math.abs(right.variance) - Math.abs(left.variance));
@@ -450,6 +476,20 @@ export default async function OwnerCommandCenterPage({
     });
   });
 
+  missingLotteryReconciliationDays
+    .slice(0, 4)
+    .forEach(({ dateKey, hasActivity }) => {
+      attentionItems.push({
+        date: new Date(`${dateKey}T12:00:00.000Z`),
+        detail: hasActivity
+          ? "Lottery activity exists, but the terminal report and EOD closeout were not completed."
+          : "No lottery EOD activity or completed closeout was recorded for this day.",
+        href: `/lottery/reconciliation?date=${dateKey}`,
+        severity: hasActivity ? "Review" : "High",
+        title: hasActivity ? "Lottery closeout missing" : "Lottery EOD missing",
+      });
+    });
+
   varianceRows.slice(0, 4).forEach((row) => {
     attentionItems.push({
       amount: row.variance,
@@ -521,12 +561,31 @@ export default async function OwnerCommandCenterPage({
           : missingSalesEntryDays.length === 0
             ? `${missingReconciliationDays.length} recorded sales day${missingReconciliationDays.length === 1 ? " still needs" : "s still need"} drawer closeout.`
             : `${missingReconciliationDays.length} day${missingReconciliationDays.length === 1 ? " is" : "s are"} missing reconciliation; ${missingSalesEntryDays.length} ${missingSalesEntryDays.length === 1 ? "has" : "have"} no sales entry.`,
-      label: "Reconciliation coverage",
+      label: "Sales reconciliation",
       tone: reconciliationTone,
       value:
         missingReconciliationDays.length === 0
           ? "Complete"
           : `${missingReconciliationDays.length} missing`,
+    },
+    {
+      detail:
+        lotteryReconciliationCoverage.source !== "database"
+          ? (lotteryReconciliationCoverage.errorMessage ??
+            "Lottery EOD coverage is unavailable.")
+          : missingLotteryReconciliationDays.length === 0
+            ? `Every day through ${formatDateKey(reconciliationCoverageEndDateKey)} has a completed lottery EOD closeout.`
+            : lotteryDaysWithoutActivity.length === 0
+              ? `${missingLotteryReconciliationDays.length} lottery EOD closeout${missingLotteryReconciliationDays.length === 1 ? " remains" : "s remain"} unfinished after activity was recorded.`
+              : `${missingLotteryReconciliationDays.length} day${missingLotteryReconciliationDays.length === 1 ? " is" : "s are"} missing lottery reconciliation; ${lotteryDaysWithoutActivity.length} ${lotteryDaysWithoutActivity.length === 1 ? "has" : "have"} no EOD activity.`,
+      label: "Lottery reconciliation",
+      tone: lotteryReconciliationTone,
+      value:
+        lotteryReconciliationCoverage.source !== "database"
+          ? "Unavailable"
+          : missingLotteryReconciliationDays.length === 0
+            ? "Complete"
+            : `${missingLotteryReconciliationDays.length} missing`,
     },
     {
       detail:
@@ -684,9 +743,25 @@ export default async function OwnerCommandCenterPage({
           ? `${missingSalesEntryDays.length} without sales entries`
           : "calendar days without completed closeout",
       icon: <ShieldAlert className="h-5 w-5" />,
-      label: "Missing Reconciliation",
+      label: "Sales Reconciliation",
       tone: reconciliationTone,
       value: missingReconciliationDays.length,
+    },
+    {
+      change: `Through ${formatDateKey(reconciliationCoverageEndDateKey)}`,
+      detail:
+        lotteryReconciliationCoverage.source !== "database"
+          ? "Lottery EOD coverage unavailable"
+          : lotteryDaysWithoutActivity.length > 0
+            ? `${lotteryDaysWithoutActivity.length} without EOD activity`
+            : "calendar days without completed lottery EOD",
+      icon: <ClipboardCheck className="h-5 w-5" />,
+      label: "Lottery Reconciliation",
+      tone: lotteryReconciliationTone,
+      value:
+        lotteryReconciliationCoverage.source === "database"
+          ? missingLotteryReconciliationDays.length
+          : "Unavailable",
     },
   ];
 
@@ -709,6 +784,10 @@ export default async function OwnerCommandCenterPage({
             ...(lotteryEft.source === "error" && lotteryEft.errorMessage
               ? [lotteryEft.errorMessage]
               : []),
+            ...(lotteryReconciliationCoverage.source === "error" &&
+            lotteryReconciliationCoverage.errorMessage
+              ? [lotteryReconciliationCoverage.errorMessage]
+              : []),
           ]}
         />
 
@@ -717,7 +796,7 @@ export default async function OwnerCommandCenterPage({
           selectedMonth={selectedMonthKey}
         />
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {metrics.map((metric) => (
             <StatCard key={metric.label} {...metric} />
           ))}
@@ -805,7 +884,7 @@ export default async function OwnerCommandCenterPage({
         </div>
 
         <SectionCard
-          title="Missing Reconciliation Days"
+          title="Missing Sales Reconciliation Days"
           description={`Every calendar day without a completed drawer closeout through ${formatDateKey(reconciliationCoverageEndDateKey)} in ${selectedMonthLabel}.`}
           action={
             <Link href="/admin/sales-logs" className="app-secondary-button-sm">
@@ -816,8 +895,9 @@ export default async function OwnerCommandCenterPage({
           {missingReconciliationDays.length === 0 ? (
             <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
               <ClipboardCheck className="h-5 w-5" />
-              Every day through {formatDateKey(reconciliationCoverageEndDateKey)}
-              has a completed reconciliation.
+              Every day through{" "}
+              {formatDateKey(reconciliationCoverageEndDateKey)}
+              has a completed sales reconciliation.
             </div>
           ) : (
             <Table totalRows={missingReconciliationDays.length}>
@@ -865,8 +945,71 @@ export default async function OwnerCommandCenterPage({
         </SectionCard>
 
         <SectionCard
+          title="Missing Lottery Reconciliation Days"
+          description={`Every calendar day without a completed lottery EOD closeout through ${formatDateKey(reconciliationCoverageEndDateKey)} in ${selectedMonthLabel}.`}
+          action={
+            <Link href="/lottery/reports" className="app-secondary-button-sm">
+              View Lottery Reports
+            </Link>
+          }
+        >
+          {lotteryReconciliationCoverage.source !== "database" ? (
+            <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <AlertTriangle className="h-5 w-5" />
+              {lotteryReconciliationCoverage.errorMessage ??
+                "Lottery EOD coverage is unavailable."}
+            </div>
+          ) : missingLotteryReconciliationDays.length === 0 ? (
+            <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              <ClipboardCheck className="h-5 w-5" />
+              Every day through{" "}
+              {formatDateKey(reconciliationCoverageEndDateKey)}
+              has a completed lottery EOD reconciliation.
+            </div>
+          ) : (
+            <Table totalRows={missingLotteryReconciliationDays.length}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Missing Step</TableHead>
+                  <TableHead>Detail</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {missingLotteryReconciliationDays.map(
+                  ({ dateKey, hasActivity }) => (
+                    <TableRow key={dateKey}>
+                      <TableCell>{formatDateKey(dateKey)}</TableCell>
+                      <TableCell>
+                        <StatusBadge tone={hasActivity ? "amber" : "red"}>
+                          {hasActivity ? "Closeout open" : "No EOD activity"}
+                        </StatusBadge>
+                      </TableCell>
+                      <TableCell>
+                        {hasActivity
+                          ? "Lottery activity exists, but the terminal report was not saved."
+                          : "No lottery EOD activity or closeout was recorded."}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Link
+                          href={`/lottery/reconciliation?date=${dateKey}`}
+                          className="font-semibold text-primary hover:underline"
+                        >
+                          Reconcile
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ),
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </SectionCard>
+
+        <SectionCard
           title="Monthly Snapshot"
-          description={`Sales, fees, cash, deposits, reconciliation, and variance for ${selectedMonthLabel}.`}
+          description={`Sales, fees, cash, deposits, sales reconciliation, lottery reconciliation, and variance for ${selectedMonthLabel}.`}
         >
           <Table>
             <TableHeader>
@@ -878,7 +1021,8 @@ export default async function OwnerCommandCenterPage({
                 <TableHead className="text-right">Cash Sales</TableHead>
                 <TableHead className="text-right">Deposits</TableHead>
                 <TableHead className="text-right">Variance</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Sales Status</TableHead>
+                <TableHead>Lottery Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -907,6 +1051,15 @@ export default async function OwnerCommandCenterPage({
                     {missingReconciliationDays.length === 0
                       ? "Reconciled"
                       : `${missingReconciliationDays.length} missing`}
+                  </StatusBadge>
+                </TableCell>
+                <TableCell>
+                  <StatusBadge tone={lotteryReconciliationTone}>
+                    {lotteryReconciliationCoverage.source !== "database"
+                      ? "Unavailable"
+                      : missingLotteryReconciliationDays.length === 0
+                        ? "Reconciled"
+                        : `${missingLotteryReconciliationDays.length} missing`}
                   </StatusBadge>
                 </TableCell>
               </TableRow>
