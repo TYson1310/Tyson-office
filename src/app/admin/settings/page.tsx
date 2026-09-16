@@ -25,6 +25,10 @@ import {
   type StoreProductTypeSetting,
 } from "@/lib/store-settings";
 import { formatDateTime, isValidTimeZone } from "@/lib/date-time";
+import {
+  clearOnlyStaleAppStorage,
+  getBrowserStorageAuditSummary,
+} from "@/lib/browser-storage-audit";
 import { LoaderCircle, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 
 type PaymentDraft = Omit<StorePaymentMethodSetting, "id"> & {
@@ -108,6 +112,48 @@ export default function AdminSettingsPage() {
   const [isAddingProductType, setIsAddingProductType] = useState(false);
   const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [storageAudit, setStorageAudit] = useState(() =>
+    getBrowserStorageAuditSummary(),
+  );
+  const [lastStorageClearAt, setLastStorageClearAt] = useState<string | null>(
+    () => {
+      if (typeof window === "undefined") {
+        return null;
+      }
+
+      return window.localStorage.getItem("app:last-stale-storage-cleared-at");
+    },
+  );
+  const [isConfirmingStorageClear, setIsConfirmingStorageClear] =
+    useState(false);
+  const [isClearingStorage, setIsClearingStorage] = useState(false);
+  const [staleStorageKeys, setStaleStorageKeys] = useState<string[]>(() => {
+    if (typeof window === "undefined") {
+      return [];
+    }
+
+    const keys = new Set<string>();
+    for (const key of [
+      "authSession",
+      "theme",
+      "reports:selectedCategory",
+      "theme:v2",
+      "reports:selectedCategory:v1",
+    ]) {
+      try {
+        if (
+          window.localStorage.getItem(key) !== null ||
+          window.sessionStorage.getItem(key) !== null
+        ) {
+          keys.add(key);
+        }
+      } catch {
+        // ignore access issues
+      }
+    }
+
+    return Array.from(keys);
+  });
   const [activeManager, setActiveManager] = useState<"payments" | "products">(
     "payments",
   );
@@ -115,6 +161,65 @@ export default function AdminSettingsPage() {
     useState<PaymentDraft>(EMPTY_PAYMENT_DRAFT);
   const [editingProductDraft, setEditingProductDraft] =
     useState<ProductDraft>(EMPTY_PRODUCT_DRAFT);
+
+  useEffect(() => {
+    const updateStorageAudit = () => {
+      const nextAudit = getBrowserStorageAuditSummary();
+      setStorageAudit(nextAudit);
+      setStaleStorageKeys([
+        ...new Set([
+          ...nextAudit.authKeys,
+          ...nextAudit.legacyKeys,
+          ...nextAudit.preferenceKeys,
+        ]),
+      ]);
+    };
+
+    updateStorageAudit();
+    window.addEventListener("storage", updateStorageAudit);
+
+    return () => {
+      window.removeEventListener("storage", updateStorageAudit);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const nextTimestamp = window.localStorage.getItem(
+      "app:last-stale-storage-cleared-at",
+    );
+    setLastStorageClearAt(nextTimestamp);
+  }, [storageAudit.totalEntries]);
+
+  async function handleClearStaleAppStorage() {
+    setIsClearingStorage(true);
+
+    try {
+      const clearedKeys = clearOnlyStaleAppStorage();
+      const nextAudit = getBrowserStorageAuditSummary();
+      setStorageAudit(nextAudit);
+      setStaleStorageKeys(clearedKeys.length > 0 ? clearedKeys : []);
+      const nextTimestamp = localStorage.getItem("app:last-stale-storage-cleared-at");
+      setLastStorageClearAt(nextTimestamp);
+      showNotice(
+        "success",
+        "Stale app browser data cleared without affecting imported business data.",
+      );
+    } catch (error) {
+      showNotice(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Failed to clear stale app browser data.",
+      );
+    } finally {
+      setIsClearingStorage(false);
+      setIsConfirmingStorageClear(false);
+    }
+  }
 
   const paymentSummary = useMemo(
     () => toLocalOptions(settings.paymentMethods),
@@ -546,6 +651,133 @@ export default function AdminSettingsPage() {
           {settings.source === "unconfigured"
             ? "Supabase is not configured. You can review the layout, but saving settings requires the database connection."
             : "Store settings are showing default values for this store. The app will create a saved settings record automatically; if that still fails, apply the latest Supabase migration for the store settings table."}
+        </div>
+      ) : null}
+
+      <SectionCard
+        title="Browser storage audit"
+        description="Monitor app-level browser storage without touching imported business data."
+      >
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-[18px] border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
+            <p className="text-xs uppercase tracking-[0.2em] text-dark-5 dark:text-dark-6">
+              Auth/session keys
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-dark dark:text-white">
+              {storageAudit.authKeys.length}
+            </p>
+            <p className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+              {storageAudit.authKeys.length > 0
+                ? storageAudit.authKeys.join(", ")
+                : "No active auth keys detected"}
+            </p>
+          </div>
+
+          <div className="rounded-[18px] border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
+            <p className="text-xs uppercase tracking-[0.2em] text-dark-5 dark:text-dark-6">
+              Preference keys
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-dark dark:text-white">
+              {storageAudit.preferenceKeys.length}
+            </p>
+            <p className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+              {storageAudit.preferenceKeys.length > 0
+                ? storageAudit.preferenceKeys.join(", ")
+                : "No preference data detected"}
+            </p>
+          </div>
+
+          <div className="rounded-[18px] border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
+            <p className="text-xs uppercase tracking-[0.2em] text-dark-5 dark:text-dark-6">
+              Legacy keys
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-dark dark:text-white">
+              {storageAudit.legacyKeys.length}
+            </p>
+            <p className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+              {storageAudit.legacyKeys.length > 0
+                ? storageAudit.legacyKeys.join(", ")
+                : "No legacy app keys detected"}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-dark-5 dark:text-dark-6">
+            <p>
+              Total browser entries tracked: <span className="font-semibold text-dark dark:text-white">{storageAudit.totalEntries}</span>. This panel only reports app-level state and does not include imported business records, uploaded files, or database-backed data.
+            </p>
+            {lastStorageClearAt ? (
+              <p className="mt-1 text-xs text-dark-5 dark:text-dark-6">
+                Last stale app cleanup: {new Date(lastStorageClearAt).toLocaleString()}
+              </p>
+            ) : null}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsConfirmingStorageClear(true)}
+            disabled={isClearingStorage || storageAudit.totalEntries === 0}
+            className={SECONDARY_BUTTON_CLASSNAME}
+          >
+            {isClearingStorage ? (
+              <>
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Clearing...
+              </>
+            ) : (
+              "Clear stale app browser data"
+            )}
+          </button>
+        </div>
+      </SectionCard>
+
+      {isConfirmingStorageClear ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/40 dark:bg-black/60"
+            onClick={() => setIsConfirmingStorageClear(false)}
+          />
+          <div className="relative z-10 mx-4 w-full max-w-lg rounded-[28px] border border-stroke bg-white p-6 text-dark shadow-2 dark:border-dark-3 dark:bg-dark-2 dark:text-white">
+            <p className="text-lg font-semibold text-dark dark:text-white">
+              Confirm stale browser data cleanup
+            </p>
+            <p className="mt-3 text-sm text-dark-5 dark:text-dark-6">
+              This removes only app-level browser state such as auth/session and UI preference keys. It does not delete imported business data, uploaded files, or database-backed records.
+            </p>
+
+            {staleStorageKeys.length > 0 ? (
+              <div className="mt-4 rounded-[18px] border border-stroke bg-gray-1 p-3 dark:border-dark-3 dark:bg-dark-2">
+                <p className="text-xs uppercase tracking-[0.2em] text-dark-5 dark:text-dark-6">
+                  Keys to be removed
+                </p>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-dark-5 dark:text-dark-6">
+                  {staleStorageKeys.map((key) => (
+                    <li key={key}>{key}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => void handleClearStaleAppStorage()}
+                className={PRIMARY_BUTTON_CLASSNAME}
+                disabled={!isAdmin || isClearingStorage}
+              >
+                <Trash2 className="h-4 w-4" />
+                {isClearingStorage ? "Clearing..." : "Confirm cleanup"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsConfirmingStorageClear(false)}
+                className={SECONDARY_BUTTON_CLASSNAME}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
 

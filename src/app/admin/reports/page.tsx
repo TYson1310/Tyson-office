@@ -171,12 +171,26 @@ const reportCategories: ReportCategory[] = [
   },
 ];
 
+const REPORTS_CATEGORY_STORAGE_KEY = "reports:selectedCategory:v1";
+const LEGACY_REPORTS_CATEGORY_STORAGE_KEY = "reports:selectedCategory";
+
 export default function AdminReportsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     () => {
       try {
-        const stored = localStorage.getItem("reports:selectedCategory");
-        return stored && stored.length > 0 ? stored : null;
+        const stored =
+          localStorage.getItem(REPORTS_CATEGORY_STORAGE_KEY) ||
+          localStorage.getItem(LEGACY_REPORTS_CATEGORY_STORAGE_KEY);
+
+        if (stored && stored.length > 0) {
+          if (stored !== localStorage.getItem(REPORTS_CATEGORY_STORAGE_KEY)) {
+            localStorage.setItem(REPORTS_CATEGORY_STORAGE_KEY, stored);
+            localStorage.removeItem(LEGACY_REPORTS_CATEGORY_STORAGE_KEY);
+          }
+          return stored;
+        }
+
+        return null;
       } catch {
         return null;
       }
@@ -187,9 +201,11 @@ export default function AdminReportsPage() {
   useEffect(() => {
     try {
       if (selectedCategory) {
-        localStorage.setItem("reports:selectedCategory", selectedCategory);
+        localStorage.setItem(REPORTS_CATEGORY_STORAGE_KEY, selectedCategory);
+        localStorage.removeItem(LEGACY_REPORTS_CATEGORY_STORAGE_KEY);
       } else {
-        localStorage.removeItem("reports:selectedCategory");
+        localStorage.removeItem(REPORTS_CATEGORY_STORAGE_KEY);
+        localStorage.removeItem(LEGACY_REPORTS_CATEGORY_STORAGE_KEY);
       }
     } catch {
       // ignore storage errors

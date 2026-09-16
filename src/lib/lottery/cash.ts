@@ -81,7 +81,10 @@ export function calculateLotteryExpectedCashInHandFromReconciliation(input: {
 }
 
 export function calculateLotteryCashStatsMovement(input: {
+  cashAdvanceImpact?: number | string | null;
   cashingBonus?: number | string | null;
+  depositImpact?: number | string | null;
+  eftPaid?: number | string | null;
   onlineTotalPayout?: number | string | null;
   scratchCardTotalPayout?: number | string | null;
   scratchSalesTotal?: number | string | null;
@@ -94,12 +97,18 @@ export function calculateLotteryCashStatsMovement(input: {
       normalizeMoney(input.onlineTotalPayout) -
       normalizeMoney(input.scratchCardTotalPayout) -
       normalizeMoney(input.cashingBonus) -
-      normalizeMoney(input.ticketCancels),
+      normalizeMoney(input.ticketCancels) +
+      normalizeMoney(input.cashAdvanceImpact) +
+      normalizeMoney(input.depositImpact) -
+      normalizeMoney(input.eftPaid),
   );
 }
 
 export function calculateLotteryEodExpectedCash(input: {
+  cashAdvanceImpact?: number | string | null;
   cashingBonus?: number | string | null;
+  depositImpact?: number | string | null;
+  eftPaid?: number | string | null;
   onlineTotalPayout?: number | string | null;
   openingCashFloat?: number | string | null;
   scratchCardTotalPayout?: number | string | null;
@@ -115,7 +124,10 @@ export function calculateLotteryEodExpectedCash(input: {
         normalizeMoney(input.ticketCancels) -
         normalizeMoney(input.onlineTotalPayout) -
         normalizeMoney(input.scratchCardTotalPayout) -
-        normalizeMoney(input.cashingBonus),
+        normalizeMoney(input.cashingBonus) +
+        normalizeMoney(input.cashAdvanceImpact) +
+        normalizeMoney(input.depositImpact) -
+        normalizeMoney(input.eftPaid),
       0,
     ),
   );

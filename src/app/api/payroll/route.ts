@@ -40,11 +40,6 @@ type PayStatementDeductionRow = {
   sort_order: number | null;
 };
 
-type FinalizedShiftHoursRow = {
-  entry_date: string;
-  hours_worked: number | string;
-};
-
 type PayrollProfileRow = {
   id: string;
   full_name: string | null;
@@ -100,9 +95,6 @@ type PayrollRunLockStatus = {
   processedCount: number;
   lockReason: string | null;
   isCustomRange: boolean;
-  pendingShiftCount: number;
-  pendingEmployeeCount: number;
-  warningMessage: string | null;
 };
 
 type PayrollRunStatusError =
@@ -111,24 +103,6 @@ type PayrollRunStatusError =
       message?: string | null;
       code?: string | null;
     };
-
-type PendingShiftRow = {
-  employee_id: string;
-  entry_date: string;
-  clock_out_at: string | null;
-  verified_at: string | null;
-};
-
-type PendingExceptionRow = {
-  employee_id: string;
-  exception_date: string;
-};
-
-type PendingShiftSummary = {
-  pendingShiftCount: number;
-  pendingEmployeeCount: number;
-  warningMessage: string | null;
-};
 
 function getConfigurationError() {
   return NextResponse.json(
@@ -168,10 +142,6 @@ function toIsoDate(value?: string | Date | null) {
   }
 }
 
-function roundHours(value: number) {
-  return Math.round(value * 100) / 100;
-}
-
 function addUtcDaysToIsoDate(value: string, days: number) {
   const date = new Date(`${value}T00:00:00.000Z`);
 
@@ -187,19 +157,6 @@ function buildCustomPayrollPeriodLabel(periodStart: string, periodEnd: string) {
   return `Custom payroll (${formatPayrollDateLabel(periodStart)} - ${formatPayrollDateLabel(periodEnd)})`;
 }
 
-function isMissingShiftTrackingError(
-  error: { message?: string | null } | null | undefined,
-) {
-  const message = error?.message?.toLowerCase() ?? "";
-
-  return (
-    message.includes("shift_time_entries") &&
-    (message.includes("does not exist") ||
-      message.includes("relation") ||
-      message.includes("could not find"))
-  );
-}
-
 function isMissingPayrollFrequencyFieldError(
   error: { message?: string | null } | null | undefined,
 ) {
@@ -209,119 +166,6 @@ function isMissingPayrollFrequencyFieldError(
     message.includes("pay_statements.pay_frequency") ||
     message.includes("'pay_frequency' column of 'pay_statements'")
   );
-}
-
-function isMissingAttendanceExceptionsError(
-  error: { message?: string | null } | null | undefined,
-) {
-  const message = error?.message?.toLowerCase() ?? "";
-
-  return (
-    message.includes("attendance_exceptions") &&
-    (message.includes("does not exist") ||
-      message.includes("relation") ||
-      message.includes("could not find"))
-  );
-}
-
-function buildPendingShiftWarningMessage(input: {
-  pendingShiftCount: number;
-  pendingEmployeeCount: number;
-  periodStart: string;
-  periodEnd: string;
-  employeeId?: string | null;
-}) {
-  const {
-    pendingShiftCount,
-    pendingEmployeeCount,
-    periodStart,
-    periodEnd,
-    employeeId,
-  } = input;
-
-  if (pendingShiftCount <= 0) {
-    return null;
-  }
-
-  const employeeScope = employeeId
-    ? "for this employee"
-    : `across ${pendingEmployeeCount} employee${pendingEmployeeCount === 1 ? "" : "s"}`;
-
-  return `Warning: You have ${pendingShiftCount} pending shift${pendingShiftCount === 1 ? "" : "s"} ${employeeScope} between ${formatPayrollDateLabel(periodStart)} and ${formatPayrollDateLabel(periodEnd)}. Resolve or verify them before running payroll.`;
-}
-
-async function getPendingShiftSummary(input: {
-  supabase: Awaited<ReturnType<typeof createClient>>;
-  storeKey: string;
-  periodStart: string;
-  periodEnd: string;
-  employeeId?: string | null;
-}): Promise<PendingShiftSummary | { error: { message?: string | null } }> {
-  const { supabase, storeKey, periodStart, periodEnd, employeeId } = input;
-  let shiftQuery = supabase
-    .from("shift_time_entries")
-    .select("employee_id,entry_date,clock_out_at,verified_at")
-    .eq("store_key", storeKey)
-    .gte("entry_date", periodStart)
-    .lte("entry_date", periodEnd);
-  let exceptionQuery = supabase
-    .from("attendance_exceptions")
-    .select("employee_id,exception_date")
-    .eq("store_key", storeKey)
-    .eq("status", "open")
-    .gte("exception_date", periodStart)
-    .lte("exception_date", periodEnd);
-
-  if (employeeId) {
-    shiftQuery = shiftQuery.eq("employee_id", employeeId);
-    exceptionQuery = exceptionQuery.eq("employee_id", employeeId);
-  }
-
-  const [shiftResult, exceptionResult] = await Promise.all([
-    shiftQuery.returns<PendingShiftRow[]>(),
-    exceptionQuery.returns<PendingExceptionRow[]>(),
-  ]);
-
-  if (shiftResult.error && !isMissingShiftTrackingError(shiftResult.error)) {
-    return { error: shiftResult.error };
-  }
-
-  if (
-    exceptionResult.error &&
-    !isMissingAttendanceExceptionsError(exceptionResult.error)
-  ) {
-    return { error: exceptionResult.error };
-  }
-
-  const pendingShiftKeys = new Set<string>();
-  const pendingEmployeeIds = new Set<string>();
-
-  (exceptionResult.data ?? []).forEach((row) => {
-    pendingShiftKeys.add(`${row.employee_id}:${row.exception_date}`);
-    pendingEmployeeIds.add(row.employee_id);
-  });
-
-  (shiftResult.data ?? [])
-    .filter((row) => !row.clock_out_at || !row.verified_at)
-    .forEach((row) => {
-      pendingShiftKeys.add(`${row.employee_id}:${row.entry_date}`);
-      pendingEmployeeIds.add(row.employee_id);
-    });
-
-  const pendingShiftCount = pendingShiftKeys.size;
-  const pendingEmployeeCount = pendingEmployeeIds.size;
-
-  return {
-    pendingShiftCount,
-    pendingEmployeeCount,
-    warningMessage: buildPendingShiftWarningMessage({
-      pendingShiftCount,
-      pendingEmployeeCount,
-      periodStart,
-      periodEnd,
-      employeeId,
-    }),
-  };
 }
 
 function getPayrollRunUnavailableResponse() {
@@ -537,67 +381,6 @@ function hasHourlyPayrollInputs(body: Record<string, unknown>) {
     body.hourlyRate !== undefined ||
     body.overtimeMultiplier !== undefined
   );
-}
-
-async function getFinalizedShiftHoursForPayroll(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  employeeId: string,
-  periodStart: string,
-  periodEnd: string,
-  storeKey: string,
-): Promise<
-  | {
-      regularHours: number;
-      overtimeHours: number;
-      source: "finalized_attendance" | "unavailable";
-    }
-  | { error: { message?: string | null } }
-> {
-  const { data, error } = await supabase
-    .from("shift_time_entries")
-    .select("entry_date,hours_worked")
-    .eq("store_key", storeKey)
-    .eq("employee_id", employeeId)
-    .gte("entry_date", periodStart)
-    .lte("entry_date", periodEnd)
-    .not("clock_out_at", "is", null)
-    .not("verified_at", "is", null)
-    .returns<FinalizedShiftHoursRow[]>();
-
-  if (error) {
-    if (isMissingShiftTrackingError(error)) {
-      return {
-        regularHours: 0,
-        overtimeHours: 0,
-        source: "unavailable" as const,
-      };
-    }
-
-    return {
-      error,
-    };
-  }
-
-  const dailyHours = new Map<string, number>();
-
-  (data ?? []).forEach((row) => {
-    dailyHours.set(
-      row.entry_date,
-      (dailyHours.get(row.entry_date) ?? 0) + Number(row.hours_worked ?? 0),
-    );
-  });
-
-  let regularHours = 0;
-
-  dailyHours.forEach((hours) => {
-    regularHours += hours;
-  });
-
-  return {
-    regularHours: roundHours(regularHours),
-    overtimeHours: 0,
-    source: "finalized_attendance" as const,
-  };
 }
 
 async function getEmployeeStoredHourlyRate(
@@ -851,17 +634,6 @@ async function getPayrollRunLockStatus(
   const lockedCount = (data ?? []).length;
   const frequencyLabel = getPayrollFrequencyLabel(frequency);
   const targetLabel = employeeId ? "this employee" : "this term";
-  const pendingShiftSummary = await getPendingShiftSummary({
-    supabase,
-    storeKey,
-    periodStart: period.periodStart,
-    periodEnd: period.periodEnd,
-    employeeId,
-  });
-
-  if ("error" in pendingShiftSummary) {
-    return { error: pendingShiftSummary.error };
-  }
 
   return {
     frequency,
@@ -878,9 +650,6 @@ async function getPayrollRunLockStatus(
           : `${frequencyLabel} payroll already ran for ${targetLabel} in ${period.label}.`
         : null,
     isCustomRange: period.isCustomRange,
-    pendingShiftCount: pendingShiftSummary.pendingShiftCount,
-    pendingEmployeeCount: pendingShiftSummary.pendingEmployeeCount,
-    warningMessage: pendingShiftSummary.warningMessage,
   };
 }
 
@@ -937,6 +706,13 @@ async function createPayrollRun(input: {
   paymentMethod: PayrollPaymentMethod;
   bonusAmount?: unknown;
   deductions?: Partial<PayrollDeductions>;
+  regularHours?: number | null;
+  overtimeHours?: number | null;
+  hourlyRate?: number | null;
+  overtimeMultiplier?: number | null;
+  grossPay?: { total?: number | null; bonuses?: number | null } | null;
+  baseSalary?: number | null;
+  netPay?: number | null;
 }) {
   const {
     supabase,
@@ -949,6 +725,13 @@ async function createPayrollRun(input: {
     paymentMethod,
     bonusAmount,
     deductions,
+    regularHours,
+    overtimeHours,
+    hourlyRate,
+    overtimeMultiplier,
+    grossPay,
+    baseSalary,
+    netPay,
   } = input;
   const deductionRows = buildDeductionRows(deductions);
   const lockStatus = await getPayrollRunLockStatus(
@@ -1010,18 +793,6 @@ async function createPayrollRun(input: {
     };
   }
 
-  if (lockStatus.pendingShiftCount > 0) {
-    return {
-      response: NextResponse.json(
-        {
-          message: lockStatus.warningMessage,
-          run: lockStatus,
-        },
-        { status: 409 },
-      ),
-    };
-  }
-
   const employeesResult = await getPayrollEmployees(
     supabase,
     storeKey,
@@ -1066,9 +837,29 @@ async function createPayrollRun(input: {
     };
   }
 
+  const requestedPayrollInputs =
+    grossPay?.total !== undefined ||
+    baseSalary !== undefined ||
+    regularHours !== undefined ||
+    overtimeHours !== undefined ||
+    hourlyRate !== undefined ||
+    overtimeMultiplier !== undefined;
+
+  if (!requestedPayrollInputs) {
+    return {
+      response: NextResponse.json(
+        {
+          message:
+            "Provide explicit payroll values or hourly-rate inputs to create a payroll run.",
+        },
+        { status: 400 },
+      ),
+    };
+  }
+
+  const frequencyLabel = getPayrollFrequencyLabel(frequency);
   const missingRateEmployees: string[] = [];
   const statementPayloads: Array<Record<string, string | number | null>> = [];
-  const frequencyLabel = getPayrollFrequencyLabel(frequency);
 
   for (const employee of employees) {
     const employeeName = (
@@ -1076,32 +867,6 @@ async function createPayrollRun(input: {
       employee.email ??
       "Employee"
     ).trim();
-    const finalizedShiftHours = await getFinalizedShiftHoursForPayroll(
-      supabase,
-      employee.id,
-      lockStatus.periodStart,
-      lockStatus.periodEnd,
-      storeKey,
-    );
-
-    if ("error" in finalizedShiftHours) {
-      return {
-        response: NextResponse.json(
-          {
-            message:
-              finalizedShiftHours.error.message ??
-              "Failed to load finalized attendance for payroll",
-          },
-          { status: 500 },
-        ),
-      };
-    }
-
-    const totalHours = finalizedShiftHours.regularHours;
-
-    if (totalHours <= 0) {
-      continue;
-    }
 
     const overlapResult = await findOverlappingPayStatement({
       supabase,
@@ -1135,19 +900,26 @@ async function createPayrollRun(input: {
       };
     }
 
-    const hourlyRate = await getEmployeeStoredHourlyRate(supabase, employee.id);
+    const employeeHourlyRate =
+      hourlyRate ?? (await getEmployeeStoredHourlyRate(supabase, employee.id));
 
-    if (hourlyRate <= 0) {
+    if (
+      (regularHours !== undefined || overtimeHours !== undefined) &&
+      employeeHourlyRate <= 0
+    ) {
       missingRateEmployees.push(employeeName);
       continue;
     }
 
     const calculation = calculatePayStatementTotals({
-      bonusAmount,
+      explicitGrossPay: grossPay?.total ?? baseSalary ?? undefined,
+      explicitNetPay: netPay ?? undefined,
       deductionsTotal: deductions?.total,
-      regularHours: finalizedShiftHours.regularHours,
-      overtimeHours: finalizedShiftHours.overtimeHours,
-      hourlyRate,
+      bonusAmount,
+      regularHours: regularHours ?? undefined,
+      overtimeHours: overtimeHours ?? undefined,
+      hourlyRate: employeeHourlyRate,
+      overtimeMultiplier: overtimeMultiplier ?? undefined,
     });
 
     statementPayloads.push({
@@ -1161,8 +933,8 @@ async function createPayrollRun(input: {
       ...buildStatementPayload(calculation, paymentMethod),
       status: "scheduled",
       notes: lockStatus.isCustomRange
-        ? "Custom-range payroll generated from finalized attendance."
-        : `${frequencyLabel} payroll generated from finalized attendance.`,
+        ? "Custom-range payroll generated from explicit payroll values."
+        : `${frequencyLabel} payroll generated from explicit payroll values.`,
     });
   }
 
@@ -1181,7 +953,7 @@ async function createPayrollRun(input: {
     return {
       response: NextResponse.json(
         {
-          message: `No finalized shift hours are available for ${lockStatus.periodLabel}.`,
+          message: `No payroll values were available for ${lockStatus.periodLabel}.`,
         },
         { status: 400 },
       ),
@@ -1399,6 +1171,36 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      const requestedRegularHours =
+        bodyRecord.regularHours === undefined || bodyRecord.regularHours === null
+          ? undefined
+          : Number(bodyRecord.regularHours);
+      const requestedOvertimeHours =
+        bodyRecord.overtimeHours === undefined || bodyRecord.overtimeHours === null
+          ? undefined
+          : Number(bodyRecord.overtimeHours);
+      const requestedHourlyRate =
+        bodyRecord.hourlyRate === undefined || bodyRecord.hourlyRate === null
+          ? undefined
+          : Number(bodyRecord.hourlyRate);
+      const requestedOvertimeMultiplier =
+        bodyRecord.overtimeMultiplier === undefined ||
+        bodyRecord.overtimeMultiplier === null
+          ? undefined
+          : Number(bodyRecord.overtimeMultiplier);
+      const requestedGrossPay =
+        bodyRecord.grossPay && typeof bodyRecord.grossPay === "object"
+          ? (bodyRecord.grossPay as { total?: number | null; bonuses?: number | null })
+          : null;
+      const requestedNetPay =
+        bodyRecord.netPay === undefined || bodyRecord.netPay === null
+          ? undefined
+          : Number(bodyRecord.netPay);
+      const requestedBaseSalary =
+        bodyRecord.baseSalary === undefined || bodyRecord.baseSalary === null
+          ? undefined
+          : Number(bodyRecord.baseSalary);
+
       const runResult = await createPayrollRun({
         supabase: access.supabase,
         frequency: body.frequency,
@@ -1418,6 +1220,13 @@ export async function POST(request: NextRequest) {
         paymentMethod,
         bonusAmount: requestedBonusAmount,
         deductions: requestedDeductions,
+        regularHours: requestedRegularHours,
+        overtimeHours: requestedOvertimeHours,
+        hourlyRate: requestedHourlyRate,
+        overtimeMultiplier: requestedOvertimeMultiplier,
+        grossPay: requestedGrossPay,
+        baseSalary: requestedBaseSalary,
+        netPay: requestedNetPay,
       });
 
       if (runResult.response) {
@@ -1530,57 +1339,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const pendingShiftSummary = await getPendingShiftSummary({
-      supabase,
-      storeKey: activeStoreKey,
-      employeeId: String(body.employeeId),
-      periodStart,
-      periodEnd,
-    });
-
-    if ("error" in pendingShiftSummary) {
-      return NextResponse.json(
-        {
-          message:
-            pendingShiftSummary.error.message ??
-            "Failed to inspect pending attendance for payroll",
-        },
-        { status: 500 },
-      );
-    }
-
-    if (pendingShiftSummary.pendingShiftCount > 0) {
-      return NextResponse.json(
-        {
-          message: pendingShiftSummary.warningMessage,
-          pendingShiftCount: pendingShiftSummary.pendingShiftCount,
-        },
-        { status: 409 },
-      );
-    }
-
-    const finalizedShiftHours =
-      !hasHourlyPayrollInputs(bodyRecord) && periodStart && periodEnd
-        ? await getFinalizedShiftHoursForPayroll(
-            supabase,
-            String(body.employeeId),
-            periodStart,
-            periodEnd,
-            activeStoreKey,
-          )
-        : null;
-
-    if (finalizedShiftHours && "error" in finalizedShiftHours) {
-      return NextResponse.json(
-        {
-          message:
-            finalizedShiftHours.error.message ??
-            "Failed to load finalized attendance for payroll",
-        },
-        { status: 500 },
-      );
-    }
-
     const payDate =
       toIsoDate(body.paidAt) ??
       toIsoDate(body.issuedAt) ??
@@ -1625,10 +1383,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const requestedRegularHours =
+      bodyRecord.regularHours === undefined || bodyRecord.regularHours === null
+        ? undefined
+        : Number(bodyRecord.regularHours);
+    const requestedOvertimeHours =
+      bodyRecord.overtimeHours === undefined || bodyRecord.overtimeHours === null
+        ? undefined
+        : Number(bodyRecord.overtimeHours);
     const requestedHourlyRate =
-      bodyRecord.hourlyRate === undefined
+      bodyRecord.hourlyRate === undefined || bodyRecord.hourlyRate === null
         ? await getEmployeeStoredHourlyRate(supabase, String(body.employeeId))
-        : bodyRecord.hourlyRate;
+        : Number(bodyRecord.hourlyRate);
+    const requestedOvertimeMultiplier =
+      bodyRecord.overtimeMultiplier === undefined ||
+      bodyRecord.overtimeMultiplier === null
+        ? undefined
+        : Number(bodyRecord.overtimeMultiplier);
     const paymentMethod = resolvePayrollPaymentMethod(body.paymentMethod);
 
     if (!paymentMethod) {
@@ -1642,18 +1413,10 @@ export async function POST(request: NextRequest) {
       explicitNetPay: body.netPay,
       deductionsTotal: body.deductions?.total ?? body.deductionsTotal,
       bonusAmount: body.grossPay?.bonuses ?? body.bonusAmount,
-      regularHours:
-        bodyRecord.regularHours ??
-        (finalizedShiftHours && !("error" in finalizedShiftHours)
-          ? finalizedShiftHours.regularHours
-          : undefined),
-      overtimeHours:
-        bodyRecord.overtimeHours ??
-        (finalizedShiftHours && !("error" in finalizedShiftHours)
-          ? finalizedShiftHours.overtimeHours
-          : undefined),
+      regularHours: requestedRegularHours,
+      overtimeHours: requestedOvertimeHours,
       hourlyRate: requestedHourlyRate,
-      overtimeMultiplier: bodyRecord.overtimeMultiplier,
+      overtimeMultiplier: requestedOvertimeMultiplier,
     });
 
     if (
@@ -1672,29 +1435,10 @@ export async function POST(request: NextRequest) {
       body.grossPay?.total === undefined &&
       body.baseSalary === undefined
     ) {
-      if (finalizedShiftHours && !("error" in finalizedShiftHours)) {
-        if (finalizedShiftHours.source === "unavailable") {
-          return NextResponse.json(
-            {
-              message:
-                "Finalized attendance records are unavailable in this environment. Apply the latest shift tracking migrations or provide explicit pay values.",
-            },
-            { status: 503 },
-          );
-        }
-
-        return NextResponse.json(
-          {
-            message: `No finalized shift hours are available between ${periodStart} and ${periodEnd}.`,
-          },
-          { status: 400 },
-        );
-      }
-
       return NextResponse.json(
         {
           message:
-            "Provide either gross pay details or finalized attendance to create a paystub",
+            "Provide gross pay details or explicit hourly payroll inputs to create a paystub",
         },
         { status: 400 },
       );
@@ -1808,10 +1552,7 @@ export async function POST(request: NextRequest) {
         paymentMethod,
         grossPay: calculation.grossPay,
         netPay: calculation.netPay,
-        source:
-          finalizedShiftHours && !("error" in finalizedShiftHours)
-            ? finalizedShiftHours.source
-            : "explicit_values",
+        source: "explicit_values",
       },
     });
 

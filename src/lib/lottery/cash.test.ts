@@ -118,6 +118,41 @@ test("lottery cash stats movement allows payout-heavy days to reduce the balance
   );
 });
 
+test("lottery cash stats movement includes borrowing, deposits, and EFT in the expected balance", () => {
+  assert.equal(
+    calculateLotteryCashStatsMovement({
+      cashAdvanceImpact: -300,
+      cashingBonus: 25,
+      depositImpact: -150,
+      eftPaid: 400,
+      onlineTotalPayout: 500,
+      scratchCardTotalPayout: 200,
+      scratchSalesTotal: 800,
+      terminalSales: 600,
+      ticketCancels: 50,
+    }),
+    -225,
+  );
+});
+
+test("lottery EOD expected cash includes borrowing, deposits, and EFT in the expected balance", () => {
+  assert.equal(
+    calculateLotteryEodExpectedCash({
+      cashAdvanceImpact: -300,
+      cashingBonus: 25,
+      depositImpact: -150,
+      eftPaid: 400,
+      onlineTotalPayout: 500,
+      openingCashFloat: 1000,
+      scratchCardTotalPayout: 200,
+      scratchSalesTotal: 800,
+      terminalSales: 600,
+      ticketCancels: 50,
+    }),
+    775,
+  );
+});
+
 test("lottery EOD expected cash does not go below zero", () => {
   assert.equal(
     calculateLotteryEodExpectedCash({

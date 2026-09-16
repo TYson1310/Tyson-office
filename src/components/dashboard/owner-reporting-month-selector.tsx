@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CalendarDays, Loader2 } from "lucide-react";
 
@@ -13,9 +13,16 @@ export function OwnerReportingMonthSelector({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [displayedMonth, setDisplayedMonth] = useState(selectedMonth);
   const [isPending, startTransition] = useTransition();
 
+  useEffect(() => {
+    setDisplayedMonth(selectedMonth);
+  }, [selectedMonth]);
+
   const selectMonth = (month: string) => {
+    setDisplayedMonth(month);
+
     if (!/^\d{4}-\d{2}$/.test(month) || month > currentMonth) {
       return;
     }
@@ -51,7 +58,7 @@ export function OwnerReportingMonthSelector({
         <input
           id="owner-reporting-month"
           type="month"
-          value={selectedMonth}
+          value={displayedMonth}
           max={currentMonth}
           disabled={isPending}
           onChange={(event) => selectMonth(event.target.value)}

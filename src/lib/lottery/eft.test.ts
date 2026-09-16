@@ -382,6 +382,37 @@ test("buildScratchPackSettlementSales includes active 29-day settlement markers 
   ]);
 });
 
+test("buildScratchPackSettlementSales auto-includes aged active packs when they hit the 29-day EFT threshold", () => {
+  const settlements = buildScratchPackSettlementSales({
+    auditRows: [],
+    endDate: "2026-05-30",
+    gameRows: [
+      {
+        game_id: "01974",
+        ticket_count: 20,
+        ticket_price: 20,
+      },
+    ],
+    inventoryRows: [
+      {
+        date_activated: "2026-05-01",
+        game_id: "01974",
+        id: "pack-1",
+        pack_ticket_count: null,
+      },
+    ],
+    startDate: "2026-05-30",
+  });
+
+  assert.deepEqual(settlements, [
+    {
+      inventoryId: "pack-1",
+      packValue: 400,
+      reportDate: "2026-05-30",
+    },
+  ]);
+});
+
 test("buildScratchPackSettlementSales does not duplicate a later sold-out marker after active settlement", () => {
   const settlements = buildScratchPackSettlementSales({
     auditRows: [

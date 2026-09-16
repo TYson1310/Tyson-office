@@ -9,6 +9,7 @@ export type ScratchSettlementAuditRow = {
 };
 
 export type ScratchSettlementInventoryRow = {
+  date_activated?: string | null;
   game_id: string;
   id: string;
   pack_ticket_count: number | string | null;
@@ -73,6 +74,31 @@ export function isScratchEftSettlementReversalAudit(
   auditType: string | null | undefined,
 ) {
   return auditType === SCRATCH_EFT_SETTLEMENT_REVERSAL_AUDIT_TYPE;
+}
+
+function addDaysToIsoDateKey(value: string | null | undefined, days: number) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function getImplicitActiveSettlementDate(
+  dateActivated: string | null | undefined,
+) {
+  if (!dateActivated) {
+    return null;
+  }
+
+  return addDaysToIsoDateKey(dateActivated, 29);
 }
 
 export function buildScratchPackSettlementSales({
@@ -151,6 +177,59 @@ export function buildScratchPackSettlementSales({
         ticketCount * normalizeMoney(game.ticket_price),
       ),
       reportDate: audit.audit_date,
+    });
+  }
+
+  for (const inventory of inventoryRows) {
+    if (!inventory.id || settlementByInventory.has(inventory.id)) {
+      continue;
+    }
+
+    const relevantAuditHistory = sortedAudits.filter(
+      (audit) => audit.inventory_id === inventory.id,
+    );
+    const lastRelevantAudit = relevantAuditHistory.at(-1);
+
+    if (
+      lastRelevantAudit &&
+      (isScratchEftSettlementAudit(lastRelevantAudit.audit_type) ||
+        isScratchEftActive29DaySettlementAudit(lastRelevantAudit.audit_type))
+    ) {
+      continue;
+    }
+
+    if (
+      lastRelevantAudit &&
+      isScratchEftSettlementReversalAudit(lastRelevantAudit.audit_type)
+    ) {
+      continue;
+    }
+
+    const implicitSettlementDate = getImplicitActiveSettlementDate(
+      inventory.date_activated,
+    );
+
+    if (!implicitSettlementDate) {
+      continue;
+    }
+
+    const game = gameById.get(inventory.game_id);
+    const ticketCount = normalizeTicketCount(
+      inventory.pack_ticket_count ?? game?.ticket_count,
+    );
+
+    if (!game || !ticketCount) {
+      continue;
+    }
+
+    if (implicitSettlementDate < startDate || implicitSettlementDate > endDate) {
+      continue;
+    }
+
+    settlementByInventory.set(inventory.id, {
+      inventoryId: inventory.id,
+      packValue: normalizeMoney(ticketCount * normalizeMoney(game.ticket_price)),
+      reportDate: implicitSettlementDate,
     });
   }
 

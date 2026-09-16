@@ -274,7 +274,7 @@ function buildInvoiceProductUpserts(
   const defaultCategory = buildDefaultProductCategory(supplier);
   const ambiguousMatches = new Set<string>();
   const invalidSelections = new Set<string>();
-  const upserts = Array.from(aggregatedItems.values())
+  const rawUpserts = Array.from(aggregatedItems.values())
     .map((entry) => {
       const generatedSku =
         entry.barcode || !entry.itemCode
@@ -377,6 +377,35 @@ function buildInvoiceProductUpserts(
       } satisfies ProductUpsertRecord;
     })
     .filter((entry): entry is ProductUpsertRecord => Boolean(entry));
+
+  const upsertsBySku = new Map<string, ProductUpsertRecord>();
+
+  rawUpserts.forEach((entry) => {
+    const skuKey = normalizeInvoiceItemCode(entry.sku);
+    const existingEntry = upsertsBySku.get(skuKey);
+
+    if (!existingEntry) {
+      upsertsBySku.set(skuKey, entry);
+      return;
+    }
+
+    const existingProduct = existingBySku.get(skuKey);
+    const existingQuantity = existingProduct
+      ? Math.max(Math.round(existingProduct.quantity), 0)
+      : 0;
+    const receivedQuantity =
+      Math.max(Math.round(existingEntry.quantity), 0) -
+      existingQuantity +
+      Math.max(Math.round(entry.quantity), 0) -
+      existingQuantity;
+
+    upsertsBySku.set(skuKey, {
+      ...entry,
+      quantity: existingQuantity + Math.max(receivedQuantity, 0),
+    });
+  });
+
+  const upserts = Array.from(upsertsBySku.values());
 
   if (invalidSelections.size > 0) {
     return {

@@ -1770,31 +1770,8 @@ export async function GET(request: NextRequest) {
         normalizeDateKey(request.nextUrl.searchParams.get("today")) ??
         getTodayKey(new Date(), access.storeTimeZone);
       const historyStart = addDays(todayKey, -21);
-      const exceptionSyncStart = addDays(todayKey, -14);
-      const scheduleStart = exceptionSyncStart;
+      const scheduleStart = addDays(todayKey, -14);
       const scheduleEnd = addDays(todayKey, 14);
-
-      const syncResult = await maybeSyncAttendanceWindow({
-        access,
-        employeeIds: [access.currentUserId],
-        dateFrom: exceptionSyncStart,
-        dateTo: todayKey,
-      });
-
-      if ("error" in syncResult && syncResult.error) {
-        if (isMissingShiftEntriesError(syncResult.error)) {
-          return getShiftTrackingUnavailableResponse();
-        }
-
-        return NextResponse.json(
-          {
-            error:
-              syncResult.error.message ??
-              "Failed to refresh attendance exceptions",
-          },
-          { status: 500 },
-        );
-      }
 
       const [todaysShiftResult, shiftResult, scheduleResult, exceptionResult] =
         await Promise.all([
@@ -1829,7 +1806,7 @@ export async function GET(request: NextRequest) {
             .select(ATTENDANCE_EXCEPTION_SELECT)
             .eq("store_key", access.activeStoreKey)
             .eq("employee_id", access.currentUserId)
-            .gte("exception_date", exceptionSyncStart)
+            .gte("exception_date", scheduleStart)
             .order("created_at", { ascending: false })
             .returns<AttendanceExceptionRow[]>(),
         ]);
@@ -2015,8 +1992,7 @@ export async function GET(request: NextRequest) {
       request.nextUrl.searchParams,
       todayKey,
     );
-    const exceptionSyncStart = addDays(todayKey, -14);
-    const scheduleStart = exceptionSyncStart;
+    const scheduleStart = addDays(todayKey, -14);
     const scheduleEnd = addDays(todayKey, 14);
 
     const employeeResult = await getEmployeeNameMap(
@@ -2032,29 +2008,6 @@ export async function GET(request: NextRequest) {
     }
 
     const employeeIds = employeeResult.employeeRows.map((row) => row.id);
-    const syncResult = await maybeSyncAttendanceWindow({
-      access,
-      employeeIds,
-      dateFrom: exceptionSyncStart,
-      dateTo: todayKey,
-      actorId: access.currentUserId,
-    });
-
-    if ("error" in syncResult && syncResult.error) {
-      if (isMissingShiftEntriesError(syncResult.error)) {
-        return getShiftTrackingUnavailableResponse();
-      }
-
-      return NextResponse.json(
-        {
-          error:
-            syncResult.error.message ??
-            "Failed to refresh attendance exceptions",
-        },
-        { status: 500 },
-      );
-    }
-
     let shiftQuery = access.db
       .from("shift_time_entries")
       .select(SHIFT_ENTRY_SELECT)
@@ -2088,7 +2041,7 @@ export async function GET(request: NextRequest) {
           .from("attendance_exceptions")
           .select(ATTENDANCE_EXCEPTION_SELECT)
           .eq("store_key", access.activeStoreKey)
-          .gte("exception_date", exceptionSyncStart)
+          .gte("exception_date", scheduleStart)
           .order("created_at", { ascending: false })
           .limit(100)
           .returns<AttendanceExceptionRow[]>(),
@@ -2396,6 +2349,14 @@ export async function POST(request: NextRequest) {
     const action = typeof body.action === "string" ? body.action : "";
     const requestedEmployeeId =
       typeof body.employeeId === "string" ? body.employeeId.trim() : "";
+
+    if (action === "clock_in") {
+      return NextResponse.json(
+        { error: "Clock-in actions have been removed from shift management" },
+        { status: 410 },
+      );
+    }
+
     const isManager = canAccessPath(
       "/admin/shift-management",
       access.currentUserRole,
@@ -3067,6 +3028,13 @@ export async function POST(request: NextRequest) {
 
     const employeeId = requestedEmployeeId || access.currentUserId;
 
+    if (!isManager && (action === "clock_in" || action === "clock_out")) {
+      return NextResponse.json(
+        { error: "Employee clock in and clock out are disabled" },
+        { status: 403 },
+      );
+    }
+
     if (!employeeId) {
       return NextResponse.json(
         { error: "employeeId is required" },
@@ -3237,6 +3205,163 @@ export async function PATCH(request: NextRequest) {
 
     const body = (await request.json()) as Record<string, unknown>;
     const action = typeof body.action === "string" ? body.action : "";
+
+    if (action === "clock_out") {
+      return NextResponse.json(
+        { error: "Clock-out actions have been removed from shift management" },
+        { status: 410 },
+      );
+    }
+
+    if (action === "update_entry") {
+      const access = await requireShiftManagerAccess();
+
+      if ("error" in access) {
+        return access.error;
+      }
+
+      const shiftId =
+        typeof body.shiftId === "string" ? body.shiftId.trim() : "";
+
+      if (!shiftId) {
+        return NextResponse.json(
+          { error: "shiftId is required" },
+          { status: 400 },
+        );
+      }
+
+      const currentShift = await loadShiftById(
+        access.db,
+        access.activeStoreKey,
+        shiftId,
+      );
+
+      if (currentShift.error) {
+        if (isMissingShiftDataError(currentShift.error)) {
+          return getShiftTrackingUnavailableResponse();
+        }
+
+        return NextResponse.json(
+          { error: currentShift.error.message ?? "Failed to load shift entry" },
+          { status: 500 },
+        );
+      }
+
+      if (!currentShift.data) {
+        return NextResponse.json(
+          { error: "Shift entry not found" },
+          { status: 404 },
+        );
+      }
+
+      const shift = currentShift.data;
+      const entryDate =
+        normalizeDateKey(
+          typeof body.entryDate === "string" ? body.entryDate : null,
+        ) ?? shift.entry_date;
+      const startTime =
+        typeof body.startTime === "string" ? body.startTime : null;
+      const endTime = typeof body.endTime === "string" ? body.endTime : null;
+      const startAt =
+        entryDate && startTime
+          ? convertStoreLocalDateTimeToIso(entryDate, startTime, access.storeTimeZone)
+          : shift.clock_in_at;
+      const endAt =
+        entryDate && startTime && endTime
+          ? convertStoreLocalDateTimeToIso(
+              getEndDateKeyForShift(entryDate, startTime, endTime),
+              endTime,
+              access.storeTimeZone,
+            )
+          : shift.clock_out_at;
+
+      if (!startAt || !endAt) {
+        return NextResponse.json(
+          { error: "Start and end times are required" },
+          { status: 400 },
+        );
+      }
+
+      if (new Date(endAt).getTime() <= new Date(startAt).getTime()) {
+        return NextResponse.json(
+          { error: "Shift end time must be after the start time" },
+          { status: 400 },
+        );
+      }
+
+      const notes =
+        typeof body.notes === "string" && body.notes.trim().length > 0
+          ? body.notes.trim()
+          : null;
+      const updateResult = await access.db
+        .from("shift_time_entries")
+        .update({
+          entry_date: entryDate,
+          clock_in_at: startAt,
+          clock_out_at: endAt,
+          hours_worked: calculateDurationHours(startAt, endAt),
+          notes,
+          verified_at: null,
+          verified_by: null,
+          updated_by: access.currentUserId,
+        })
+        .eq("id", shiftId)
+        .eq("store_key", access.activeStoreKey)
+        .select(SHIFT_ENTRY_SELECT)
+        .returns<ShiftEntryRow[]>()
+        .single();
+
+      if (updateResult.error) {
+        if (isMissingShiftDataError(updateResult.error)) {
+          return getShiftTrackingUnavailableResponse();
+        }
+
+        if (isShiftOverlapError(updateResult.error)) {
+          return getShiftOverlapResponse("this employee");
+        }
+
+        return NextResponse.json(
+          { error: updateResult.error.message ?? "Failed to update shift entry" },
+          { status: 500 },
+        );
+      }
+
+      const employee = await resolveEmployee(access, shift.employee_id);
+
+      if ("error" in employee) {
+        return employee.error;
+      }
+
+      await appendAuditEvent({
+        supabase: access.supabase,
+        storeKey: access.activeStoreKey,
+        entityType: "shift_time_entry",
+        entityId: shiftId,
+        action: "shift.entry_updated",
+        summary: `Shift updated for ${employee.name}`,
+        actorId: access.currentUserId,
+        actorName: access.currentUserName,
+        actorRole: access.currentUserRole,
+        metadata: {
+          employeeId: shift.employee_id,
+          previousEntryDate: shift.entry_date,
+          previousStartAt: shift.clock_in_at,
+          previousEndAt: shift.clock_out_at,
+          entryDate,
+          startAt,
+          endAt,
+        },
+      });
+
+      return NextResponse.json(
+        mapShiftEntryRow(
+          updateResult.data,
+          employee.name,
+          new Date().toISOString(),
+          0,
+        ),
+      );
+    }
 
     if (action === "verify_entry") {
       const access = await requireShiftManagerAccess();

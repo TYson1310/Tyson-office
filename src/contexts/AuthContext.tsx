@@ -17,6 +17,8 @@ import {
 import { isRefreshTokenNotFoundError } from "@/lib/supabase/auth";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { clearEphemeralBrowserStorage } from "@/lib/browser-storage";
+import { logBrowserStorageAudit } from "@/lib/browser-storage-audit";
 import type {
   AuthContextType,
   AuthSession,
@@ -117,6 +119,8 @@ export const AuthProvider = ({
 
   useEffect(() => {
     if (!supabase) {
+      logBrowserStorageAudit();
+      clearEphemeralBrowserStorage();
       localStorage.removeItem("authSession");
       document.cookie =
         "authSession=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -125,6 +129,8 @@ export const AuthProvider = ({
       setIsLoading(false);
       return;
     }
+
+    logBrowserStorageAudit();
 
     let isMounted = true;
 
@@ -276,6 +282,7 @@ export const AuthProvider = ({
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
+      clearEphemeralBrowserStorage();
       try {
         await fetch("/api/store-context", { method: "DELETE" });
       } catch (storeError) {

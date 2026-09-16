@@ -945,14 +945,6 @@ function buildSoldOutPackLedger({
         dateActivated: inventory.date_activated,
         timeZone,
       });
-      const includedDate = activeIncludedAudit?.audit_date ?? null;
-      const includedInSelectedEft = includedDate
-        ? isDateInRange(
-            includedDate,
-            selectedWeekStartDate,
-            selectedWeekEndDate,
-          )
-        : false;
       const isActiveDue = Boolean(
         activeDueDate && activeDueDate <= selectedWeekEndDate,
       );
@@ -970,16 +962,37 @@ function buildSoldOutPackLedger({
       const pendingReason: LotteryEftSettlementPackReason = soldOutAudit
         ? "sold_out"
         : "active_29_day";
+      const autoIncludedInSelectedEft =
+        !soldOutAudit &&
+        !activeIncludedAudit &&
+        Boolean(activeDueDate) &&
+        isDateInRange(
+          activeDueDate,
+          selectedWeekStartDate,
+          selectedWeekEndDate,
+        );
       const dueDate =
         soldOutAudit?.audit_date ??
         activeDueDate ??
         activeIncludedAudit?.audit_date ??
         inventory.updated_at.slice(0, 10);
+      const includedDate =
+        activeIncludedAudit?.audit_date ??
+        (autoIncludedInSelectedEft ? activeDueDate : null);
+      const includedInSelectedEft = includedDate
+        ? isDateInRange(
+            includedDate,
+            selectedWeekStartDate,
+            selectedWeekEndDate,
+          )
+        : false;
       const status: LotteryEftSoldOutPackStatus = activeIncludedAudit
         ? includedInSelectedEft
           ? "included-selected"
           : "included-other"
-        : "pending";
+        : autoIncludedInSelectedEft
+          ? "included-selected"
+          : "pending";
 
       return [
         {
@@ -2115,6 +2128,19 @@ export async function includeScratchPackInLotteryEft(
     if (activeDueDate > period.weekEndDate) {
       throw new LotteryEftWorkflowError(
         `This active pack is due for EFT settlement on ${activeDueDate}.`,
+        409,
+      );
+    }
+
+    const autoIncludedInRunningSweep = isDateInRange(
+      activeDueDate,
+      period.weekStartDate,
+      period.weekEndDate,
+    );
+
+    if (autoIncludedInRunningSweep) {
+      throw new LotteryEftWorkflowError(
+        "This aged pack is already included in the running EFT week.",
         409,
       );
     }

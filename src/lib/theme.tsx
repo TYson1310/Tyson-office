@@ -2,6 +2,9 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 
+const THEME_STORAGE_KEY = "theme:v2";
+const LEGACY_THEME_STORAGE_KEY = "theme";
+
 export type Theme = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
@@ -32,9 +35,26 @@ export function ThemeProvider({
 }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === "undefined") return defaultTheme;
+
     try {
-      const stored = localStorage.getItem(storageKey) as Theme | null;
-      return stored || defaultTheme;
+      const currentKey = storageKey === "theme" ? THEME_STORAGE_KEY : storageKey;
+      const legacyKey = storageKey === "theme" ? LEGACY_THEME_STORAGE_KEY : null;
+      const stored = localStorage.getItem(currentKey) as Theme | null;
+
+      if (stored && ["light", "dark", "system"].includes(stored)) {
+        return stored as Theme;
+      }
+
+      if (legacyKey) {
+        const legacyStored = localStorage.getItem(legacyKey) as Theme | null;
+        if (legacyStored && ["light", "dark", "system"].includes(legacyStored)) {
+          localStorage.setItem(currentKey, legacyStored);
+          localStorage.removeItem(legacyKey);
+          return legacyStored as Theme;
+        }
+      }
+
+      return defaultTheme;
     } catch {
       return defaultTheme;
     }
@@ -137,7 +157,12 @@ export function ThemeProvider({
     (t: Theme) => {
       setThemeState(() => {
         try {
-          localStorage.setItem(storageKey, t);
+          const currentKey = storageKey === "theme" ? THEME_STORAGE_KEY : storageKey;
+          const legacyKey = storageKey === "theme" ? LEGACY_THEME_STORAGE_KEY : null;
+          localStorage.setItem(currentKey, t);
+          if (legacyKey) {
+            localStorage.removeItem(legacyKey);
+          }
         } catch {}
         return t;
       });

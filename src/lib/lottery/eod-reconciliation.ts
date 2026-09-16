@@ -3,6 +3,7 @@ import {
   getIsoDateKeyInTimeZone,
   getTodayIsoDateInTimeZone,
 } from "@/lib/date-time";
+import { buildLotteryEodReconciliationUpsertPayload } from "./eod-reconciliation-payload";
 import {
   loadScratchEodAuditScreenData,
   loadScratchAuditScreenData,
@@ -1722,16 +1723,18 @@ async function saveLotteryEodWithClientFallback(input: {
     throwDatabaseError("Failed to save terminal report", terminalReport.error);
   }
 
-  const reconciliationPayload = {
-    store_key: access.activeStoreKey,
-    report_date: reportDate,
-    opening_cash_float: roundMoney(openingCashFloat),
-    closing_cash_float: roundMoney(closingCashFloat),
-    total_expected_cash: expectedCashTotal,
-    pos_register_total: roundMoney(tillCash),
-    manager_notes: notes,
-    created_by: access.currentUser.id,
-  };
+  const reconciliationPayload = buildLotteryEodReconciliationUpsertPayload({
+    closingCashFloat,
+    createdBy: access.currentUser.id,
+    discrepancyStatus: discrepancyStatus,
+    managerNotes: notes,
+    openingCashFloat,
+    reportDate,
+    shortOverAmount: shortOverTotal,
+    storeKey: access.activeStoreKey,
+    tillCash,
+    totalExpectedCash: expectedCashTotal,
+  });
   const reconciliation = await access.supabase
     .from("eod_reconciliation")
     .upsert(reconciliationPayload, { onConflict: "store_key,report_date" });
@@ -1905,21 +1908,21 @@ export async function submitLotteryEodReconciliation(
     ticketCancels,
   });
   const shortOverAmount = roundMoney(totalExpectedCash - tillCash);
+  const reconciliationPayload = buildLotteryEodReconciliationUpsertPayload({
+    closingCashFloat,
+    createdBy: access.currentUser.id,
+    discrepancyStatus: getDiscrepancyStatus(shortOverAmount),
+    managerNotes: managerNotes.trim() || null,
+    openingCashFloat,
+    reportDate,
+    shortOverAmount,
+    storeKey: access.activeStoreKey,
+    tillCash,
+    totalExpectedCash,
+  });
   const reconciliation = await access.supabase
     .from("eod_reconciliation")
-    .upsert(
-      {
-        store_key: access.activeStoreKey,
-        report_date: reportDate,
-        opening_cash_float: roundMoney(openingCashFloat),
-        closing_cash_float: roundMoney(closingCashFloat),
-        total_expected_cash: totalExpectedCash,
-        pos_register_total: roundMoney(tillCash),
-        manager_notes: managerNotes.trim() || null,
-        created_by: access.currentUser.id,
-      },
-      { onConflict: "store_key,report_date" },
-    );
+    .upsert(reconciliationPayload, { onConflict: "store_key,report_date" });
 
   if (reconciliation.error) {
     throwDatabaseError(

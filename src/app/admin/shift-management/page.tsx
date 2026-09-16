@@ -29,7 +29,6 @@ import {
   toTimeInputValueInTimeZone,
 } from "@/lib/shifts/shared";
 import {
-  AlertTriangle,
   CalendarDays,
   CheckCircle2,
   LogIn,
@@ -421,8 +420,8 @@ export default function ShiftManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(null);
   const [activeShiftId, setActiveShiftId] = useState<string | null>(null);
+  const [editingShiftId, setEditingShiftId] = useState<string | null>(null);
   const [activeScheduleId, setActiveScheduleId] = useState<string | null>(null);
   const [activeExceptionId, setActiveExceptionId] = useState<string | null>(
     null,
@@ -773,63 +772,6 @@ export default function ShiftManagementPage() {
     [openExceptions, resolutionForm.exceptionId],
   );
 
-  const handleClockAction = useCallback(
-    async (employee: ShiftEmployeeRecord, action: "clock_in" | "clock_out") => {
-      setIsSubmitting(true);
-      setActiveEmployeeId(employee.id);
-
-      try {
-        const now = new Date();
-        const response = await fetch("/api/shifts", {
-          method: action === "clock_in" ? "POST" : "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(
-            action === "clock_in"
-              ? {
-                  action,
-                  employeeId: employee.id,
-                  performedAt: now.toISOString(),
-                }
-              : {
-                  action,
-                  employeeId: employee.id,
-                  performedAt: now.toISOString(),
-                },
-          ),
-        });
-        const payload = await response.json().catch(() => null);
-
-        if (!response.ok) {
-          throw new Error(
-            payload?.error ?? `Failed to ${action.replace("_", " ")}`,
-          );
-        }
-
-        await loadShiftData();
-        showNotify(
-          "success",
-          action === "clock_in"
-            ? `${employee.name} clocked in successfully`
-            : `${employee.name} clocked out successfully`,
-        );
-      } catch (error) {
-        console.error(error);
-        showNotify(
-          "error",
-          error instanceof Error
-            ? error.message
-            : "Failed to update shift status",
-        );
-      } finally {
-        setIsSubmitting(false);
-        setActiveEmployeeId(null);
-      }
-    },
-    [loadShiftData, showNotify],
-  );
-
   const handleVerifyShift = useCallback(
     async (shift: ShiftEntry) => {
       setIsSubmitting(true);
@@ -882,6 +824,29 @@ export default function ShiftManagementPage() {
     [todayKey],
   );
 
+  const openShiftEditModal = useCallback(
+    (shift: ShiftEntry) => {
+      setEditingShiftId(shift.id);
+      setManualEntryForm({
+        employeeId: shift.employeeId,
+        entryDate: shift.date,
+        endDate: shift.date,
+        isRecurring: false,
+        startTime:
+          toTimeInputValueInTimeZone(shift.clockInAt, timeZone) ||
+          DEFAULT_START_TIME,
+        endTime: shift.clockOutAt
+          ? toTimeInputValueInTimeZone(shift.clockOutAt, timeZone) ||
+            DEFAULT_END_TIME
+          : DEFAULT_END_TIME,
+        notes: shift.notes ?? "",
+        repeatWeekdays: getDefaultRepeatWeekdays(shift.date),
+      });
+      setIsManualEntryModalOpen(true);
+    },
+    [timeZone],
+  );
+
   const closeScheduleModal = useCallback(() => {
     setIsScheduleModalOpen(false);
     setScheduleForm(createDefaultScheduleForm(todayKey));
@@ -889,6 +854,7 @@ export default function ShiftManagementPage() {
 
   const closeManualEntryModal = useCallback(() => {
     setIsManualEntryModalOpen(false);
+    setEditingShiftId(null);
     setManualEntryForm(createDefaultManualEntryForm(todayKey));
   }, [todayKey]);
 
@@ -927,14 +893,21 @@ export default function ShiftManagementPage() {
 
     try {
       const response = await fetch("/api/shifts", {
-        method: "POST",
+        method: editingShiftId ? "PATCH" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: "manual_entry",
+          action: editingShiftId ? "update_entry" : "manual_entry",
           employeeId: manualEntryForm.employeeId,
-          entryWindows,
+          ...(editingShiftId
+            ? {
+                shiftId: editingShiftId,
+                entryDate: entryWindows[0].entryDate,
+                startTime: entryWindows[0].startTime,
+                endTime: entryWindows[0].endTime,
+              }
+            : { entryWindows }),
           notes: manualEntryForm.notes.trim() || undefined,
         }),
       });
@@ -947,9 +920,11 @@ export default function ShiftManagementPage() {
       await loadShiftData();
       showNotify(
         "success",
-        selectedManualEntryDates.length === 1
-          ? "Manual shift was saved and verified immediately"
-          : `${selectedManualEntryDates.length} manual shifts were saved and verified immediately`,
+        editingShiftId
+          ? "Shift was updated and returned to pending review"
+          : selectedManualEntryDates.length === 1
+            ? "Manual shift was saved and verified immediately"
+            : `${selectedManualEntryDates.length} manual shifts were saved and verified immediately`,
       );
       setManualEntryForm(createDefaultManualEntryForm(todayKey));
       setIsManualEntryModalOpen(false);
@@ -964,6 +939,7 @@ export default function ShiftManagementPage() {
     }
   }, [
     loadShiftData,
+    editingShiftId,
     manualEntryForm,
     selectedManualEntryDates,
     showNotify,
@@ -1250,15 +1226,12 @@ export default function ShiftManagementPage() {
             icon: <LogIn className="h-5 w-5" />,
           },
           {
-            label: "Open Exceptions",
-            value: stats.openExceptions,
+            label: "Pending Review",
+            value: ledgerCounts.pending,
             change: "Needs review",
-            detail: "schedule mismatches",
-            tone:
-              stats.openExceptions > 0
-                ? ("amber" as const)
-                : ("green" as const),
-            icon: <AlertTriangle className="h-5 w-5" />,
+            detail: "shift records awaiting verification",
+            tone: ledgerCounts.pending > 0 ? ("amber" as const) : ("green" as const),
+            icon: <CheckCircle2 className="h-5 w-5" />,
           },
           {
             label: "Finalized Today",
@@ -1276,7 +1249,7 @@ export default function ShiftManagementPage() {
       <div className="space-y-6">
         <SectionCard
           title="Live Staff Status"
-          description="Monitor current attendance and use override clock actions only when necessary."
+          description="Monitor current shift status and attendance records."
           action={
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-dark-5" />
@@ -1301,14 +1274,13 @@ export default function ShiftManagementPage() {
                   <TableHead>Payroll Hours</TableHead>
                   <TableHead>Exceptions</TableHead>
                   <TableHead>Last Action</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoadingData ? (
                   <TableRow>
                     <TableCell
-                      colSpan={8}
+                      colSpan={7}
                       className="py-10 text-center text-sm text-dark-5 dark:text-dark-6"
                     >
                       Loading live shift data...
@@ -1317,7 +1289,7 @@ export default function ShiftManagementPage() {
                 ) : filteredEmployees.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={8}
+                      colSpan={7}
                       className="py-10 text-center text-sm text-dark-5 dark:text-dark-6"
                     >
                       {employees.length === 0
@@ -1403,33 +1375,6 @@ export default function ShiftManagementPage() {
                                 new Date(employee.lastActionAt),
                               )
                             : "-"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {employee.status === "clocked_out" ? (
-                            <button
-                              onClick={() =>
-                                void handleClockAction(employee, "clock_in")
-                              }
-                              disabled={isSubmitting}
-                              className="inline-flex min-w-[132px] items-center justify-center rounded-lg bg-green/10 px-3 py-1 text-xs font-bold text-green transition-colors hover:bg-green/20 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {isSubmitting && activeEmployeeId === employee.id
-                                ? "Saving..."
-                                : "Clock In Override"}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() =>
-                                void handleClockAction(employee, "clock_out")
-                              }
-                              disabled={isSubmitting}
-                              className="inline-flex min-w-[132px] items-center justify-center rounded-lg bg-red/10 px-3 py-1 text-xs font-bold text-red transition-colors hover:bg-red/20 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {isSubmitting && activeEmployeeId === employee.id
-                                ? "Saving..."
-                                : "Clock Out Override"}
-                            </button>
-                          )}
                         </TableCell>
                       </TableRow>
                     );
@@ -1527,90 +1472,6 @@ export default function ShiftManagementPage() {
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          title="Exception Queue"
-          description="Resolve schedule mismatches here instead of backfilling payroll rows by hand."
-        >
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Issue</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Detail</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingData ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="py-10 text-center text-sm text-dark-5 dark:text-dark-6"
-                    >
-                      Loading attendance exceptions...
-                    </TableCell>
-                  </TableRow>
-                ) : openExceptions.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="py-10 text-center text-sm text-dark-5 dark:text-dark-6"
-                    >
-                      No open attendance exceptions are available.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  openExceptions.map((exception) => (
-                    <TableRow key={exception.id}>
-                      <TableCell className="text-sm font-medium text-dark-5 dark:text-dark-6">
-                        {formatDateKeyLabel(exception.date)}
-                      </TableCell>
-                      <TableCell className="font-semibold text-dark dark:text-white">
-                        {exception.employeeName}
-                      </TableCell>
-                      <TableCell className="text-sm text-dark dark:text-white">
-                        {exception.title}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge tone={getExceptionTone(exception)}>
-                          {getExceptionLabel(exception)}
-                        </StatusBadge>
-                      </TableCell>
-                      <TableCell className="text-sm text-dark-5 dark:text-dark-6">
-                        {formatExceptionDetail(exception, actionFormatter, timeFormatter)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {exception.status === "open" ? (
-                          <button
-                            onClick={() => openResolutionModal(exception)}
-                            disabled={isSubmitting}
-                            className="inline-flex min-w-[110px] items-center justify-center rounded-lg bg-primary/10 px-3 py-1 text-xs font-bold text-primary transition-colors hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {isSubmitting && activeExceptionId === exception.id
-                              ? "Saving..."
-                              : "Resolve"}
-                          </button>
-                        ) : (
-                          <span className="text-xs text-dark-5 dark:text-dark-6">
-                            {exception.resolvedAt
-                              ? actionFormatter.format(
-                                  new Date(exception.resolvedAt),
-                                )
-                              : "Closed"}
-                          </span>
-                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -1806,27 +1667,59 @@ export default function ShiftManagementPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        {shift.verificationStatus === "pending" ? (
-                          <button
-                            onClick={() => void handleVerifyShift(shift)}
-                            disabled={isSubmitting}
-                            className="inline-flex min-w-[96px] items-center justify-center rounded-lg bg-green/10 px-3 py-1 text-xs font-bold text-green transition-colors hover:bg-green/20 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {isSubmitting && activeShiftId === shift.id
-                              ? "Saving..."
-                              : "Finalize"}
-                          </button>
-                        ) : shift.verificationStatus === "needs_attention" ? (
-                          <span className="text-xs text-red">
-                            Resolve queue
-                          </span>
-                        ) : (
-                          <span className="text-xs text-dark-5 dark:text-dark-6">
-                            {shift.verificationStatus === "verified"
-                              ? "Complete"
-                              : "Waiting"}
-                          </span>
-                        )}
+                        <div className="inline-flex items-center gap-2">
+                          {shift.payrollStatus !== "paid" ? (
+                            <button
+                              onClick={() => openShiftEditModal(shift)}
+                              disabled={isSubmitting}
+                              className="inline-flex min-w-[72px] items-center justify-center rounded-lg bg-primary/10 px-3 py-1 text-xs font-bold text-primary transition-colors hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Edit
+                            </button>
+                          ) : null}
+                          {shift.verificationStatus === "pending" ? (
+                            <button
+                              onClick={() => void handleVerifyShift(shift)}
+                              disabled={isSubmitting}
+                              className="inline-flex min-w-[96px] items-center justify-center rounded-lg bg-green/10 px-3 py-1 text-xs font-bold text-green transition-colors hover:bg-green/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {isSubmitting && activeShiftId === shift.id
+                                ? "Saving..."
+                                : "Finalize"}
+                            </button>
+                          ) : shift.verificationStatus === "needs_attention" ? (
+                            <button
+                              onClick={() => {
+                                const exception =
+                                  openExceptions.find(
+                                    (candidate) =>
+                                      candidate.shiftId === shift.id,
+                                  ) ??
+                                  openExceptions.find(
+                                    (candidate) =>
+                                      candidate.employeeId === shift.employeeId &&
+                                      candidate.date === shift.date,
+                                  );
+
+                                if (exception) {
+                                  openResolutionModal(exception);
+                                } else {
+                                  openShiftEditModal(shift);
+                                }
+                              }}
+                              disabled={isSubmitting}
+                              className="inline-flex min-w-[82px] items-center justify-center rounded-lg bg-red/10 px-3 py-1 text-xs font-bold text-red transition-colors hover:bg-red/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Resolve
+                            </button>
+                          ) : (
+                            <span className="text-xs text-dark-5 dark:text-dark-6">
+                              {shift.verificationStatus === "verified"
+                                ? "Complete"
+                                : "Waiting"}
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -2156,17 +2049,18 @@ export default function ShiftManagementPage() {
             <div
               role="dialog"
               aria-modal="true"
-              aria-label="Manual shift entry"
+              aria-label={editingShiftId ? "Edit shift entry" : "Manual shift entry"}
               className="modal-card-scroll max-w-xl rounded-[28px] bg-white shadow-1 dark:bg-gray-dark"
             >
               <div className="flex items-start justify-between gap-4 border-b border-stroke px-5 py-4 dark:border-dark-3">
                 <div>
                   <h2 className="text-lg font-semibold text-dark dark:text-white">
-                    Manual Shift Entry
+                    {editingShiftId ? "Edit Shift Entry" : "Manual Shift Entry"}
                   </h2>
                   <p className="mt-1 text-sm text-dark-5 dark:text-dark-6">
-                    Create a retro shift, record yourself as the actor, and mark
-                    the entry verified immediately.
+                    {editingShiftId
+                      ? "Update the recorded times or notes for this shift."
+                      : "Create a retro shift, record yourself as the actor, and mark the entry verified immediately."}
                   </p>
                 </div>
                 <button
@@ -2192,6 +2086,7 @@ export default function ShiftManagementPage() {
                         employeeId: event.target.value,
                       }))
                     }
+                    disabled={Boolean(editingShiftId)}
                   >
                     <option value="">Choose employee...</option>
                     {employees.map((employee) => (
@@ -2202,6 +2097,7 @@ export default function ShiftManagementPage() {
                   </select>
                 </div>
 
+                {!editingShiftId ? (
                 <label className="flex items-start gap-3 rounded-lg border border-stroke px-4 py-3 text-sm text-dark dark:border-dark-3 dark:text-dark-6">
                   <input
                     type="checkbox"
@@ -2228,6 +2124,7 @@ export default function ShiftManagementPage() {
                     to create one corrected shift.
                   </span>
                 </label>
+                ) : null}
 
                 <div
                   className={
@@ -2392,8 +2289,9 @@ export default function ShiftManagementPage() {
                 </div>
 
                 <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-dark-5 dark:text-dark-6">
-                  Manual entries create a closed shift, preserve the audit
-                  trail, and bypass the live punch flow.
+                  {editingShiftId
+                    ? "Saving changes will return the shift to pending review."
+                    : "Manual entries create a closed shift, preserve the audit trail, and bypass the live punch flow."}
                   {crossesMidnight(
                     manualEntryForm.startTime,
                     manualEntryForm.endTime,
@@ -2419,7 +2317,9 @@ export default function ShiftManagementPage() {
                       ? "Saving..."
                       : selectedManualEntryDates.length > 1
                         ? `Save ${selectedManualEntryDates.length} Entries`
-                        : "Save Manual Entry"}
+                        : editingShiftId
+                          ? "Save Changes"
+                          : "Save Manual Entry"}
                   </button>
                 </div>
               </div>
