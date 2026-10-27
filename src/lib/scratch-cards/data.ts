@@ -23,6 +23,7 @@ type InventoryRow = {
   date_received: string | null;
   date_activated: string | null;
   date_loaded_to_bin: string | null;
+  ticket_direction: "ascending" | "descending" | null;
   created_at: string;
 };
 
@@ -92,6 +93,7 @@ export type ScratchAuditBin = {
   gameImageUrl: string | null;
   ticketPrice: number;
   lastTicketNumber: string;
+  ticketDirection: "ascending" | "descending";
   expectedDailyAverage: number;
   lastAuditAt: string | null;
   canResetTicketNumber: boolean;
@@ -312,6 +314,7 @@ function buildEmptyBins(binCount: number) {
     gameImageUrl: null,
     ticketPrice: 0,
     lastTicketNumber: "000",
+    ticketDirection: "ascending",
     expectedDailyAverage: 0,
     lastAuditAt: null,
     canResetTicketNumber: false,
@@ -417,7 +420,7 @@ export async function loadScratchDeliveryLedgerData(): Promise<ScratchDeliveryLe
   const { data: inventoryRows, error: inventoryError } = await supabase
     .from("inventory")
     .select(
-      "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,created_at",
+      "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,ticket_direction,created_at",
     )
     .eq("store_key", activeStoreKey)
     .in("status", ["backstock", "active", "sold_out", "settled", "returned"])
@@ -487,7 +490,7 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
   const { data: inventoryRows, error: inventoryError } = await supabase
     .from("inventory")
     .select(
-      "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,created_at",
+      "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,ticket_direction,created_at",
     )
     .eq("store_key", activeStoreKey)
     .eq("status", "active")
@@ -524,7 +527,7 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
   const { data: backstockData, error: backstockError } = await supabase
     .from("inventory")
     .select(
-      "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,created_at",
+      "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,ticket_direction,created_at",
     )
     .eq("store_key", activeStoreKey)
     .eq("status", "backstock")
@@ -610,7 +613,7 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
     const { data, error } = await supabase
       .from("inventory")
       .select(
-        "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,created_at",
+        "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,ticket_direction,created_at",
       )
       .eq("store_key", activeStoreKey)
       .in("id", previousInventoryIds)
@@ -701,6 +704,7 @@ export async function loadScratchAuditScreenData(): Promise<ScratchAuditScreenDa
       gameName: game?.game_name ?? "Unknown game",
       ticketPrice: normalizeMoney(game?.ticket_price),
       lastTicketNumber: normalizeTicketNumber(latestAudit?.end_ticket_no),
+      ticketDirection: inventory.ticket_direction ?? "ascending",
       expectedDailyAverage: expectedAverageByBin.get(bin.binNumber) ?? 0,
       lastAuditAt: latestAudit?.created_at ?? null,
       canResetTicketNumber: Boolean(
@@ -753,7 +757,7 @@ export async function loadScratchEodAuditScreenData(
     supabase
       .from("inventory")
       .select(
-        "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,created_at",
+        "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,ticket_direction,created_at",
       )
       .eq("store_key", activeStoreKey)
       .eq("status", "active")
@@ -824,7 +828,7 @@ export async function loadScratchEodAuditScreenData(
     const { data, error } = await supabase
       .from("inventory")
       .select(
-        "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,created_at",
+        "id,pack_id,pack_number,game_id,status,bin_number,received_ticket_number,pack_control_code,pack_ticket_count,date_received,date_activated,date_loaded_to_bin,ticket_direction,created_at",
       )
       .eq("store_key", activeStoreKey)
       .in("id", inventoryIds)
@@ -917,6 +921,7 @@ export async function loadScratchEodAuditScreenData(
       gameName: game?.game_name ?? "Unknown game",
       ticketPrice: normalizeMoney(game?.ticket_price),
       lastTicketNumber: normalizeTicketNumber(latestAudit?.end_ticket_no),
+      ticketDirection: inventory.ticket_direction ?? "ascending",
       expectedDailyAverage: expectedAverageByBin.get(bin.binNumber) ?? 0,
       lastAuditAt: latestAudit?.created_at ?? null,
       canResetTicketNumber: Boolean(

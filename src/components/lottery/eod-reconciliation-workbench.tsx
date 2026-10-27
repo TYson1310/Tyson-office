@@ -53,6 +53,7 @@ type EodReconciliationWorkbenchProps = {
   canSelectDate: boolean;
   data: LotteryEodReconciliationData;
   todayDate: string;
+  onSaved?: () => void;
 };
 
 type SaveState = {
@@ -328,9 +329,16 @@ function getSoldOutRemainingTickets(bin: ScratchAuditBin) {
     !bin.inventoryId ||
     ticketCount === null ||
     finalTicketValue === null ||
-    !Number.isFinite(startTicketValue) ||
-    startTicketValue >= finalTicketValue
+    !Number.isFinite(startTicketValue)
   ) {
+    return null;
+  }
+
+  if (startTicketValue > finalTicketValue) {
+    return Math.max(0, startTicketValue - finalTicketValue);
+  }
+
+  if (startTicketValue >= finalTicketValue) {
     return null;
   }
 
@@ -370,10 +378,13 @@ function calculateBinSales(bin: ScratchAuditBin, endTicketInput: string) {
     };
   }
 
-  const rawTicketsSold = Number(endTicketNumber) - Number(bin.lastTicketNumber);
-  const resetApplied = rawTicketsSold < 0 && bin.canResetTicketNumber;
-
-  if (rawTicketsSold < 0 && !resetApplied) {
+  const startTicketValue = Number(bin.lastTicketNumber);
+  const endTicketValue = Number(endTicketNumber);
+  const rawTicketsSold =
+    bin.ticketDirection === "descending"
+      ? startTicketValue - endTicketValue
+      : endTicketValue - startTicketValue;
+  if (!Number.isFinite(rawTicketsSold) || rawTicketsSold < 0) {
     return {
       endTicketNumber,
       isValid: false,
@@ -383,12 +394,12 @@ function calculateBinSales(bin: ScratchAuditBin, endTicketInput: string) {
     };
   }
 
-  const ticketsSold = resetApplied ? Number(endTicketNumber) : rawTicketsSold;
+  const ticketsSold = rawTicketsSold;
 
   return {
     endTicketNumber,
     isValid: true,
-    resetApplied,
+    resetApplied: false,
     sales: normalizeMoney(ticketsSold * bin.ticketPrice),
     ticketsSold,
   };
@@ -464,6 +475,7 @@ export function EodReconciliationWorkbench({
   canSelectDate,
   data,
   todayDate,
+  onSaved,
 }: EodReconciliationWorkbenchProps) {
   const { error: notifyError, success } = useAppNotifications();
   const pathname = usePathname();
@@ -574,6 +586,13 @@ export function EodReconciliationWorkbench({
         calculation: calculateBinSales(bin, binInputs[bin.binNumber] ?? ""),
       })),
     [activeBins, binInputs],
+  );
+  const orderedBinCalculations = useMemo(
+    () =>
+      [...binCalculations].sort(
+        (left, right) => left.bin.binNumber - right.bin.binNumber,
+      ),
+    [binCalculations],
   );
   const binsReady = binCalculations.every((item) => item.calculation.isValid);
   const binSubmissionSignature = useMemo(
@@ -1215,6 +1234,7 @@ export function EodReconciliationWorkbench({
       });
       setReconciliationLocked(!canSelectDate);
       success("Lottery EOD reconciliation saved.");
+      onSaved?.();
     } catch (error) {
       const message =
         error instanceof Error
@@ -1746,7 +1766,7 @@ export function EodReconciliationWorkbench({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {binCalculations.map(({ bin, calculation }) => (
+                      {orderedBinCalculations.map(({ bin, calculation }) => (
                         <TableRow
                           key={bin.binNumber}
                           className={

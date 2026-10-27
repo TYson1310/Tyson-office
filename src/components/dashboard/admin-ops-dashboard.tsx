@@ -261,7 +261,7 @@ export async function AdminOpsDashboard() {
           : "Today’s sales logs are reconciled or ready for review.",
       detail: `${dataset.salesReconciliations.length} reconciliations recorded`,
       tone: unreconciledCount > 0 ? "blue" : "green",
-      href: "/sales/daily-entry",
+      href: "/daily-closeout",
     },
   ];
 
@@ -303,7 +303,7 @@ export async function AdminOpsDashboard() {
       detail: todaySummary
         ? `${formatCurrency(todaySales)} gross sales logged`
         : "No daily sales entry for today",
-      href: "/sales/daily-entry",
+      href: "/daily-closeout",
       status: todaySummary ? "Done" : "Needed",
       tone: todaySummary ? ("green" as const) : ("amber" as const),
     },
@@ -395,7 +395,7 @@ export async function AdminOpsDashboard() {
         action={
           <div className="flex flex-wrap gap-2">
             <Link
-              href="/sales/daily-entry"
+              href="/daily-closeout"
               className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-opacity-90"
             >
               Log sales

@@ -270,7 +270,9 @@ function isSoldOut(bin: ScratchAuditBin) {
     return false;
   }
 
-  return Number(bin.lastTicketNumber) >= Number(finalTicketNumber);
+  return bin.ticketDirection === "descending"
+    ? Number(bin.lastTicketNumber) <= 0
+    : Number(bin.lastTicketNumber) >= Number(finalTicketNumber);
 }
 
 function getBinStatus(bin: ScratchAuditBin) {
@@ -305,10 +307,12 @@ function getTicketProgress(bin: ScratchAuditBin) {
     return 100;
   }
 
-  return Math.min(
-    100,
-    Math.max(0, Math.round((Number(bin.lastTicketNumber) / ticketCount) * 100)),
-  );
+  const progress =
+    bin.ticketDirection === "descending"
+      ? (ticketCount - 1 - Number(bin.lastTicketNumber)) / (ticketCount - 1)
+      : Number(bin.lastTicketNumber) / (ticketCount - 1);
+
+  return Math.min(100, Math.max(0, Math.round(progress * 100)));
 }
 
 function getRemainingTicketCount(bin: ScratchAuditBin) {
@@ -341,14 +345,13 @@ function getRemainingTicketCountFromStart(
 
   const startTicketValue = Number(startTicketNumber);
 
-  if (
-    !Number.isFinite(startTicketValue) ||
-    startTicketValue >= ticketCount - 1
-  ) {
+  if (!Number.isFinite(startTicketValue)) {
     return 0;
   }
 
-  return Math.max(0, ticketCount - startTicketValue);
+  return bin.ticketDirection === "descending"
+    ? Math.max(0, startTicketValue)
+    : Math.max(0, ticketCount - 1 - startTicketValue);
 }
 
 function getRemainingTicketValue(bin: ScratchAuditBin) {
@@ -521,6 +524,9 @@ export function ScratchCardBinManager({
   const [manualPackId, setManualPackId] = useState("");
   const [moveTargetBinNumber, setMoveTargetBinNumber] = useState("");
   const [scannedPackBarcode, setScannedPackBarcode] = useState("");
+  const [ticketDirection, setTicketDirection] = useState<
+    "ascending" | "descending"
+  >("ascending");
   const [soldOutStartTicketNumber, setSoldOutStartTicketNumber] = useState("");
   const [loadScannerMessage, setLoadScannerMessage] =
     useState("Start scanner.");
@@ -824,6 +830,7 @@ export function ScratchCardBinManager({
     setManualPackId("");
     setMoveTargetBinNumber("");
     setScannedPackBarcode("");
+    setTicketDirection("ascending");
     setLoadScannerState("idle");
     setLoadScannerMessage("Start scanner.");
     recentLoadScanRef.current = null;
@@ -861,6 +868,7 @@ export function ScratchCardBinManager({
           binNumber: selectedBin.binNumber,
           packNumber: packBarcode.packNumber,
           scannedBarcode: scannedPackBarcode,
+          ticketDirection,
         }),
       });
       const payload = await response.json();
@@ -882,6 +890,7 @@ export function ScratchCardBinManager({
       setManualPackId("");
       setMoveTargetBinNumber("");
       setScannedPackBarcode("");
+      setTicketDirection("ascending");
       success(
         `Loaded pack ${packBarcode.packNumber} to bin ${selectedBin.binNumber}.`,
       );
@@ -924,6 +933,7 @@ export function ScratchCardBinManager({
         body: JSON.stringify({
           binNumber: selectedBin.binNumber,
           packId: manualBackstockPack.id,
+          ticketDirection,
         }),
       });
       const payload = await response.json();
@@ -939,6 +949,7 @@ export function ScratchCardBinManager({
       setManualPackId("");
       setMoveTargetBinNumber("");
       setScannedPackBarcode("");
+      setTicketDirection("ascending");
       success(
         `Loaded pack ${manualBackstockPack.packNumber} to bin ${selectedBin.binNumber}.`,
       );
@@ -1423,6 +1434,16 @@ export function ScratchCardBinManager({
                               value={`${getTicketProgress(selectedBin) ?? 0}%`}
                             />
                           </div>
+                          <div className="mt-2">
+                            <DetailItem
+                              label="Ticket order"
+                              value={
+                                selectedBin.ticketDirection === "descending"
+                                  ? "Descending"
+                                  : "Ascending"
+                              }
+                            />
+                          </div>
                         </div>
                       </div>
                     ) : (
@@ -1496,8 +1517,11 @@ export function ScratchCardBinManager({
                             actionState.type === "soldOut" ||
                             !getFinalTicketNumber(selectedBin) ||
                             !normalizedSoldOutStartTicketNumber ||
-                            Number(normalizedSoldOutStartTicketNumber) >
-                              Number(getFinalTicketNumber(selectedBin))
+                            (selectedBin.ticketDirection === "descending"
+                              ? Number(normalizedSoldOutStartTicketNumber) <
+                                Number(getFinalTicketNumber(selectedBin))
+                              : Number(normalizedSoldOutStartTicketNumber) >
+                                Number(getFinalTicketNumber(selectedBin)))
                           }
                           onClick={() => void markCurrentPackSoldOut()}
                           className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
@@ -1688,6 +1712,34 @@ export function ScratchCardBinManager({
                             Scan the long lottery barcode from the pack.
                           </div>
                         ) : null}
+
+                        <label className="block rounded-lg border border-teal-200 bg-teal-50 p-3">
+                          <span className="mb-2 block text-[10px] font-bold uppercase text-teal-800">
+                            Ticket order for this pack
+                          </span>
+                          <select
+                            value={ticketDirection}
+                            onChange={(event) =>
+                              setTicketDirection(
+                                event.target.value as
+                                  | "ascending"
+                                  | "descending",
+                              )
+                            }
+                            className="h-11 w-full rounded-lg border border-teal-200 bg-white px-3 text-sm font-semibold text-slate-950 outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+                          >
+                            <option value="ascending">
+                              Ascending: 000 → 001 → 002
+                            </option>
+                            <option value="descending">
+                              Descending: 059 → 058 → 057
+                            </option>
+                          </select>
+                          <span className="mt-2 block text-xs font-medium text-teal-900">
+                            Choose how ticket numbers move when this pack is
+                            sold.
+                          </span>
+                        </label>
 
                         <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-3">
                           <label className="block">

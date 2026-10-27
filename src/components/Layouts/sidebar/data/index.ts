@@ -75,15 +75,15 @@ export const NAV_DATA: NavSection[] = [
     roles: ["admin", "manager", "employee"],
     items: [
       {
-        title: "Daily Sales",
-        url: "/sales/daily-entry",
-        icon: Icons.PieChart,
+        title: "Daily Close Out",
+        url: "/daily-closeout",
+        icon: Icons.Wallet,
         items: [],
         roles: ["admin", "manager", "employee"],
       },
       {
-        title: "Reconciliation",
-        url: "/lottery/reconciliation",
+        title: "Lottery Reports",
+        url: "/lottery/reports",
         icon: Icons.Wallet,
         items: [],
         roles: ["admin", "manager", "employee"],

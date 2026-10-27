@@ -117,7 +117,7 @@ export async function GET() {
 
     if (
       !canAccessPath("/admin/settings", access.role, access.permissions) &&
-      !canAccessPath("/sales/daily-entry", access.role, access.permissions)
+      !canAccessPath("/daily-closeout", access.role, access.permissions)
     ) {
       return NextResponse.json(
         { error: "Forbidden: store settings access denied" },

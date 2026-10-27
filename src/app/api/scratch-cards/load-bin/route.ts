@@ -14,6 +14,7 @@ type LoadScratchBinBody = {
   packNumber?: unknown;
   scannedBarcode?: unknown;
   retiredEndTicketNumber?: unknown;
+  ticketDirection?: unknown;
 };
 
 export async function POST(request: NextRequest) {
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       packNumber: body.packNumber,
       scannedBarcode: body.scannedBarcode,
       retiredEndTicketNumber: body.retiredEndTicketNumber,
+      ticketDirection: body.ticketDirection,
     });
 
     return NextResponse.json(result);

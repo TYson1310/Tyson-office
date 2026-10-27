@@ -629,6 +629,7 @@ export async function loadScratchPackBin(
     packNumber?: unknown;
     scannedBarcode?: unknown;
     retiredEndTicketNumber?: unknown;
+    ticketDirection?: unknown;
   },
 ) {
   const normalizedBinNumber = normalizeBinNumber(input.binNumber);
@@ -643,6 +644,8 @@ export async function loadScratchPackBin(
     input.retiredEndTicketNumber,
     "Ending ticket number",
   );
+  const ticketDirection =
+    input.ticketDirection === "descending" ? "descending" : "ascending";
   const resolvedPackId =
     normalizedPackId ??
     (parsedScannedBarcode
@@ -709,6 +712,19 @@ export async function loadScratchPackBin(
     data as LoadBinRow[] | null,
     "Bin load did not return inventory data",
   );
+
+  const { error: directionError } = await access.supabase
+    .from("inventory")
+    .update({ ticket_direction: ticketDirection })
+    .eq("id", row.loaded_inventory_id)
+    .eq("store_key", access.activeStoreKey);
+
+  if (directionError) {
+    throw mapRpcError(
+      directionError,
+      "Pack loaded, but its ticket direction could not be saved",
+    );
+  }
 
   return {
     loaded: {

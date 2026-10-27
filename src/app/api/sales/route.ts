@@ -307,7 +307,7 @@ async function getCurrentUserAccess(supabase: SupabaseClient, userId: string) {
     fullName: profile?.full_name ?? null,
     permissions: profile?.permissions ?? null,
     canAccessSales: canAccessPath(
-      "/sales/daily-entry",
+      "/daily-closeout",
       profile?.role,
       profile?.permissions,
     ),

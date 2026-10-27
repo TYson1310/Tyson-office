@@ -64,7 +64,7 @@ const ROUTE_ACCESS_RULES: RouteAccessRule[] = [
     permissions: ["view:inventory"],
   },
   {
-    prefix: "/sales/daily-entry",
+    prefix: "/daily-closeout",
     roles: ["admin", "manager", "employee"],
     permissions: ["view:sales"],
   },

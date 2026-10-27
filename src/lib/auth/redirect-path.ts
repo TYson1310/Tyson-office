@@ -18,7 +18,7 @@ const ROLE_HOME_CANDIDATES: Record<
     "/admin/expenses",
     "/admin/bank-deposits",
     "/admin/approvals",
-    "/sales/daily-entry",
+    "/daily-closeout",
     "/lottery",
     "/scratch-cards/delivery-scan",
     "/scratch-cards/audit",
@@ -33,7 +33,7 @@ const ROLE_HOME_CANDIDATES: Record<
   employee: [
     "/employee/payroll",
     "/shifts",
-    "/sales/daily-entry",
+    "/daily-closeout",
     "/lottery",
     "/scratch-cards/delivery-scan",
     "/scratch-cards/audit",

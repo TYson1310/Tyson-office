@@ -413,7 +413,7 @@ export default async function OwnerCommandCenterPage({
   if (monthSalesSummaries.length === 0) {
     attentionItems.push({
       detail: `No daily sales summaries were recorded for ${selectedMonthLabel}.`,
-      href: "/sales/daily-entry",
+      href: "/daily-closeout",
       severity: "High",
       title: "Monthly sales missing",
     });
@@ -470,7 +470,7 @@ export default async function OwnerCommandCenterPage({
       detail: summary
         ? `${summary.lineCount} sales lines were entered, but drawer closeout is missing.`
         : "No sales entry or drawer closeout was recorded for this day.",
-      href: `/sales/daily-entry?date=${dateKey}`,
+      href: `/daily-closeout?date=${dateKey}`,
       severity: summary ? "Review" : "High",
       title: summary ? "Drawer closeout missing" : "Sales day missing",
     });
@@ -931,7 +931,7 @@ export default async function OwnerCommandCenterPage({
                     </TableCell>
                     <TableCell className="text-right">
                       <Link
-                        href={`/sales/daily-entry?date=${dateKey}`}
+                        href={`/daily-closeout?date=${dateKey}`}
                         className="font-semibold text-primary hover:underline"
                       >
                         {summary ? "Reconcile" : "Enter Sales"}

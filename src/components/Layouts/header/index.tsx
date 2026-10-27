@@ -78,9 +78,9 @@ const headerCopy: Record<string, { title: string; subtitle: string }> = {
     title: "Global Settings",
     subtitle: "Configure business info, tax rates, and security policies.",
   },
-  "/sales/daily-entry": {
-    title: "Daily Sales Entry",
-    subtitle: "Log daily revenue totals and perform drawer reconciliation.",
+  "/daily-closeout": {
+    title: "Daily Close Out",
+    subtitle: "Complete Lottery EOD, count register cash, and review NRS data.",
   },
   "/lottery": {
     title: "Lottery",
